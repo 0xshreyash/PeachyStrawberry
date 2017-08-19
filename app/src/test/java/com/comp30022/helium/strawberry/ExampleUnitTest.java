@@ -12,6 +12,12 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
+        System.out.println("[Test] Running example unit test");
         assertEquals(4, 2 + 2);
+    }
+
+    public void fake_failTest() throws Exception {
+        System.out.println("[Test] Running fail test");
+        throw new Exception("this test will fail immediately");
     }
 }
