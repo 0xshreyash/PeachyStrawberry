@@ -16,7 +16,6 @@ public class ExampleUnitTest {
         assertEquals(4, 2 + 2);
     }
 
-    @Test
     public void fake_failTest() throws Exception {
         System.out.println("[Test] Running fail test");
         throw new Exception("this test will fail immediately");
