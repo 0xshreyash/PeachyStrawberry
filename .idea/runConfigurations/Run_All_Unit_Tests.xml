@@ -19,8 +19,6 @@
     <envs />
     <dir value="$PROJECT_DIR$/app/src/test/java/com/comp30022/helium/strawberry" />
     <patterns />
-    <method>
-      <option name="RunConfigurationTask" enabled="false" run_configuration_name="app" run_configuration_type="AndroidRunConfigurationType" />
-    </method>
+    <method />
   </configuration>
 </component>
