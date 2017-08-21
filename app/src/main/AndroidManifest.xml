@@ -2,14 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.comp30022.helium.strawberry">
 
+    <!-- Vuforia permissions -->
     <uses-feature android:name="android.hardware.camera" />
-
-    <!--         Add this permission to get access to the camera. -->
+    <!-- Add this permission to get access to the camera. -->
     <uses-permission android:name="android.permission.CAMERA" />
-
-    <!--         Add this permission to allow opening network sockets. -->
+    <!-- Add this permission to allow opening network sockets. -->
     <uses-permission android:name="android.permission.INTERNET" />
-
     <!--
         Add this permission to check which network access properties (e.g.
         active type: 3G/WiFi).
@@ -18,6 +16,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- End of Vuforia permissions -->
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
@@ -31,6 +32,10 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id"/>
 
         <activity android:name=".MainActivity">
             <intent-filter>

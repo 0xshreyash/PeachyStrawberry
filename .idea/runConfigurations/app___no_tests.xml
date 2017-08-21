@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
+  <configuration default="false" name="app - no tests" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
     <module name="app" />
     <option name="DEPLOY" value="true" />
     <option name="ARTIFACT_NAME" value="" />
@@ -46,9 +46,6 @@
     </Profilers>
     <option name="DEEP_LINK" value="" />
     <option name="ACTIVITY_CLASS" value="" />
-    <method>
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Run All Unit Tests" run_configuration_type="AndroidJUnit" />
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Run All Instrumented Tests" run_configuration_type="AndroidTestRunConfigurationType" />
-    </method>
+    <method />
   </configuration>
 </component>
