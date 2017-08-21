@@ -11,6 +11,10 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+    sourceSets.main {
+        jni.srcDirs = []
+        jniLibs.srcDir "../lib/"
+    }
     buildTypes {
         release {
             minifyEnabled false
