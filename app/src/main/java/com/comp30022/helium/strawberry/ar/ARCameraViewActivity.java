@@ -1,13 +1,14 @@
 package com.comp30022.helium.strawberry.ar;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.widget.Toast;
 
 import eu.kudan.kudan.ARActivity;
 import eu.kudan.kudan.ARArbiTrack;
@@ -48,9 +49,17 @@ public class ARCameraViewActivity extends ARActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // successfully got camera permission from user!
                 } else {
-                    Toast.makeText(getApplicationContext(), "Camera permission is required for" +
-                            " this augmented reality functionality.", Toast.LENGTH_LONG).show();
-                    getCameraPermission();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Permissions required!");
+                    builder.setMessage("Please enable access to camera for this app to work");
+                    builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                            System.exit(1);
+                        }
+                    });
+                    AlertDialog noCamera = builder.create();
+                    noCamera.show();
                 }
         }
     }
