@@ -15,7 +15,7 @@ public class MockLocationServices {
 
     private MockLocationServices() {
         // taken from google maps - Union house
-        coordinate = new Coordinate(144.9222631, -37.7949045);
+        coordinate = new Coordinate(144.960961, -37.796927);
     }
 
 
