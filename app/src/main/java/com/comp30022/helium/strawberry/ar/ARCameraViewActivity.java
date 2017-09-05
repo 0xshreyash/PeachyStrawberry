@@ -31,7 +31,7 @@ public class ARCameraViewActivity extends ARActivity {
         this.arrowUpdater = new Runnable() {
             @Override
             public void run() {
-                arrowManager.update();
+                ARCameraViewActivity.this.arrowManager.update();
                 ARCameraViewActivity.this.handler.postDelayed(arrowUpdater, INTERVAL);
             }
         };
@@ -47,7 +47,7 @@ public class ARCameraViewActivity extends ARActivity {
 
         ARModelImporter arModelImporter = new ARModelImporter();
         arModelImporter.loadFromAsset("narrow.armodel");
-        ARModelNode modelNode = arModelImporter.getNode();
+        ARModelNode arrowModelNode = arModelImporter.getNode();
 
         ARTexture2D texture2D = new ARTexture2D();
         texture2D.loadFromAsset("target.png");
@@ -56,19 +56,16 @@ public class ARCameraViewActivity extends ARActivity {
         material.setTexture(texture2D);
         material.setAmbient(.8f, .8f, .8f);
 
-        for (ARMeshNode m : modelNode.getMeshNodes()) {
+        for (ARMeshNode m : arrowModelNode.getMeshNodes()) {
             m.setMaterial(material);
         }
-        modelNode.scaleByUniform(100f);
+        arrowModelNode.scaleByUniform(100f);
 
-        this.getARView().getCameraViewPort().getCamera().addChild(modelNode);
-        gyroPlaceManager.getWorld().addChild(modelNode);
+        this.getARView().getCameraViewPort().getCamera().addChild(arrowModelNode);
+        gyroPlaceManager.getWorld().addChild(arrowModelNode);
 
-        this.arrowManager = new ARArrowManager(null, null, modelNode);
+        this.arrowManager = new ARArrowManager(null, null, arrowModelNode);
         // this will point the arrow "forwards"
         this.arrowManager.init();
     }
-
-
-
 }
