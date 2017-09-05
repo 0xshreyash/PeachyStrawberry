@@ -1,6 +1,7 @@
 package com.comp30022.helium.strawberry.ar;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 
@@ -14,12 +15,27 @@ import eu.kudan.kudan.ARTexture2D;
 
 public class ARCameraViewActivity extends ARActivity {
     private static final String KUDAN_AR_TAG = "KUDAN AR::: ";
+    private ARArrowManager arrowManager;
+    private Handler handler;
+    private Runnable arrowUpdater;
+    private final int INTERVAL = 1000;  // refresh every one second
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!KudanSetup.setupKudan()) {
             Log.d(KUDAN_AR_TAG, "Failed to verify API key!");
         }
+        this.handler = new Handler();
+        this.arrowUpdater = new Runnable() {
+            @Override
+            public void run() {
+                arrowManager.update();
+                ARCameraViewActivity.this.handler.postDelayed(arrowUpdater, INTERVAL);
+            }
+        };
+        this.handler.postDelayed(arrowUpdater, INTERVAL);
     }
 
     @Override
@@ -47,8 +63,10 @@ public class ARCameraViewActivity extends ARActivity {
 
         this.getARView().getCameraViewPort().getCamera().addChild(modelNode);
         gyroPlaceManager.getWorld().addChild(modelNode);
-        modelNode.rotateByDegrees(90, 1, 0, 0);
-        modelNode.rotateByDegrees(-90, 0, 0, 1);
+
+        this.arrowManager = new ARArrowManager(null, null, modelNode);
+        // this will point the arrow "forwards"
+        this.arrowManager.init();
     }
 
 
