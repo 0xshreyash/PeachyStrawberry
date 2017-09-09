@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.entities.Friend;
 import com.comp30022.helium.strawberry.services.LocationService;
+import com.comp30022.helium.strawberry.entities.Coordinate;
 import com.comp30022.helium.strawberry.services.MockLocationServices;
 import com.comp30022.helium.strawberry.services.NotInstantiatedException;
 import com.google.android.gms.common.ConnectionResult;
