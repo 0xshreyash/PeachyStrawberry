@@ -34,6 +34,9 @@ import java.util.List;
 
 import static com.comp30022.helium.strawberry.R.id.info;
 
+/**
+ * Make sure to call onResume and onPause
+ */
 public class LocationService implements Publisher<Location>, LocationListener {
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private TextView info;
