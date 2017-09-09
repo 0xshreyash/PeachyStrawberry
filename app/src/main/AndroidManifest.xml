@@ -2,21 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.comp30022.helium.strawberry">
 
-    <!-- Vuforia permissions -->
     <uses-feature android:name="android.hardware.camera" />
-    <!-- Add this permission to get access to the camera. -->
+
     <uses-permission android:name="android.permission.CAMERA" />
-    <!-- Add this permission to allow opening network sockets. -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!--
-        Add this permission to check which network access properties (e.g.
-        active type: 3G/WiFi).
-    -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- End of Vuforia permissions -->
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -29,14 +23,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
-
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id"/>
+            android:value="@string/facebook_app_id" />
 
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -48,8 +40,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".MapViewActivity">
+        <activity android:name=".MapViewActivity"></activity>
+        <activity
+            android:name=".ar.ARCameraViewActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="fullSensor">
         </activity>
     </application>
+
 </manifest>

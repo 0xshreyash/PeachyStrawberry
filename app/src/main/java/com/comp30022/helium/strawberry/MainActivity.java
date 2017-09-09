@@ -12,7 +12,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
-import com.vuforia.State;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +19,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.comp30022.helium.strawberry.ar.ARCameraViewActivity;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -75,6 +75,10 @@ public class MainActivity extends AppCompatActivity {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
+    public void goToAR(View view) {
+        Intent intent = new Intent(this, ARCameraViewActivity.class);
+        startActivity(intent);
+    }
 
     public void goToMap(View view) {
         Intent intent = new Intent(this, MapViewActivity.class);
