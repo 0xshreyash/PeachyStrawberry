@@ -14,7 +14,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.entities.Friend;
-import com.comp30022.helium.strawberry.services.Coordinate;
+import com.comp30022.helium.strawberry.entities.Coordinate;
 import com.comp30022.helium.strawberry.services.MockLocationServices;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
