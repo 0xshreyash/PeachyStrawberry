@@ -20,7 +20,6 @@
     <dir value="$PROJECT_DIR$/app/src/test/java/com/comp30022/helium/strawberry" />
     <patterns />
     <method>
-      <option name="Android.Gradle.BeforeRunTask" enabled="true" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="app" run_configuration_type="AndroidRunConfigurationType" />
     </method>
   </configuration>
