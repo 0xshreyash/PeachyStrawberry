@@ -44,15 +44,21 @@ public class LocationService implements Publisher<Location>, LocationListener {
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private static LocationService instance;
+    private static boolean setupCalled = false;
 
     private List<Subscriber<Location>> subscribers; // all subscribers here
 
     public static LocationService getInstance() throws NotInstantiatedException {
-        if (instance == null)
+
+        if (instance == null || !setupCalled)
             throw new NotInstantiatedException();
         return instance;
     }
     public void setup(GoogleApiClient mGoogleApiClient) {
+        if (setupCalled) {
+            return;
+        }
+        setupCalled = true;
         /* handle initialization here */
         this.mGoogleApiClient = mGoogleApiClient;
         mLocationRequest = LocationRequest.create()
