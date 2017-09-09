@@ -3,8 +3,8 @@ package com.comp30022.helium.strawberry.services;
 import android.location.Location;
 
 import com.comp30022.helium.strawberry.entities.Friend;
-import com.comp30022.helium.strawberry.pattern.Publisher;
-import com.comp30022.helium.strawberry.pattern.Subscriber;
+import com.comp30022.helium.strawberry.patterns.Publisher;
+import com.comp30022.helium.strawberry.patterns.Subscriber;
 
 import java.util.List;
 
