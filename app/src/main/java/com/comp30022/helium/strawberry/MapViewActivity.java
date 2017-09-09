@@ -1,6 +1,7 @@
 package com.comp30022.helium.strawberry;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -49,18 +50,14 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
     private static final String TAG = MapViewActivity.class.getSimpleName();
-    private static final int REQUEST_CHECK_SETTINGS = 9;
     private static final String REQUESTING_LOCATION_UPDATES_KEY = "abc";
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private GoogleMap mMap;
-    private FusedLocationProviderClient mFusedLocationClient;
     private TextView info;
-    GoogleApiClient mGoogleApiClient;
-    Location mLastLocation;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
     private double lat, lon;
-    LocationRequest mLocationRequest;
-    private boolean mRequestingLocationUpdates;
-    private LocationCallback mLocationCallback;
+    private LocationRequest mLocationRequest;
 
 
     @Override
@@ -78,78 +75,37 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         } else {
             info.setText(R.string.google_api);
         }
-
         createLocationRequest();
-
-//        mLocationCallback = new LocationCallback() {
-//            @Override
-//            public void onLocationResult(LocationResult locationResult) {
-//                for (Location location : locationResult.getLocations()) {
-//                    // Update UI with location data
-//                    // ...
-//                }
-//            };
-//        };
-//        updateValuesFromBundle(savedInstanceState);
     }
 
-//    private void updateValuesFromBundle(Bundle savedInstanceState) {
-//        // Update the value of mRequestingLocationUpdates from the Bundle.
-//        if (savedInstanceState.keySet().contains(REQUESTING_LOCATION_UPDATES_KEY)) {
-//            mRequestingLocationUpdates = savedInstanceState.getBoolean(
-//                    REQUESTING_LOCATION_UPDATES_KEY);
-//        }
-//
-//        // ...
-//
-//        // Update UI to match restored state
-//        updateUI();
-//    }
-//
-//    private void updateUI() {
-//    }
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
 
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mRequestingLocationUpdates) {
-            startLocationUpdates();
-        }
         mGoogleApiClient.connect();
-    }
-
-    private void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            }, 1);
-        }
-        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                mLocationCallback,
-                null /* Looper */);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        stopLocationUpdates();
         if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
-    }
-
-    private void stopLocationUpdates() {
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY,
-                mRequestingLocationUpdates);
-        // ...
-        super.onSaveInstanceState(outState);
     }
 
     /**
@@ -181,60 +137,23 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
     }
 
 
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-    }
-
-    protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-//        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-//                .addLocationRequest(mLocationRequest);
-//        SettingsClient client = LocationServices.getSettingsClient(this);
-//        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+    public void setNewLocation(Location location) {
+        info.setText(R.string.connection_success);
+        lat = location.getLatitude();
+        lon = location.getLongitude();
+        Log.d(TAG, "location: " + lat + " " + lon);
+        LatLng curr = new LatLng(lat, lon);
+//        lat = Math.min(mock.getCoordinate(friend).getY(), currLocation.getLatitude()) -
+//                        Math.abs(mock.getCoordinate(friend).getY() - currLocation.getLatitude())/2;
+//        lon = Math.min(mock.getCoordinate(friend).getX(), currLocation.getLongitude()) +
+//                Math.abs(mock.getCoordinate(friend).getX() - currLocation.getLongitude())/2;
+//        LatLng mid = new LatLng(lat, lon);
+        mMap.addMarker(new MarkerOptions().position(curr).title("Marker in current location"));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(curr));
+//        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
 //
-//        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-//            @Override
-//            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-//                // All location settings are satisfied. The client can initialize
-//                // location requests here.
-//                // ...
-//            }
-//        });
-//
-//        task.addOnFailureListener(this, new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                int statusCode = ((ApiException) e).getStatusCode();
-//                switch (statusCode) {
-//                    case CommonStatusCodes.RESOLUTION_REQUIRED:
-//                        // Location settings are not satisfied, but this can be fixed
-//                        // by showing the user a dialog.
-//                        try {
-//                            // Show the dialog by calling startResolutionForResult(),
-//                            // and check the result in onActivityResult().
-//                            ResolvableApiException resolvable = (ResolvableApiException) e;
-//                            resolvable.startResolutionForResult(MapViewActivity.this,
-//                                    REQUEST_CHECK_SETTINGS);
-//                        } catch (IntentSender.SendIntentException sendEx) {
-//                            // Ignore the error.
-//                        }
-//                        break;
-//                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-//                        // Location settings are not satisfied. However, we have no way
-//                        // to fix the settings so we won't show the dialog.
-//                        break;
-//                }
-//            }
-//        });
-    }
+//        mMap.animateCamera(zoom);
+    };
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -255,27 +174,6 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         }
     }
 
-    public void setNewLocation(Location location) {
-        info.setText(R.string.connection_success);
-        lat = location.getLatitude();
-        lon = location.getLongitude();
-        Log.d(TAG, "location: " + lat + " " + lon);
-        LatLng curr = new LatLng(lat, lon);
-
-//        lat = Math.min(mock.getCoordinate(friend).getY(), currLocation.getLatitude()) -
-//                        Math.abs(mock.getCoordinate(friend).getY() - currLocation.getLatitude())/2;
-//        lon = Math.min(mock.getCoordinate(friend).getX(), currLocation.getLongitude()) +
-//                Math.abs(mock.getCoordinate(friend).getX() - currLocation.getLongitude())/2;
-//        LatLng mid = new LatLng(lat, lon);
-//        mMap.addMarker(new MarkerOptions().position(uh).title("Marker in Union House"));
-        mMap.addMarker(new MarkerOptions().position(curr).title("Marker in current location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(curr));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
-
-        mMap.animateCamera(zoom);
-    };
-
-
     @Override
     public void onConnectionSuspended(int i) {
         info.setText(R.string.connection_suspended);
@@ -289,7 +187,9 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
                 // Start an Activity that tries to resolve the error
                 connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
             } catch (IntentSender.SendIntentException e) {
-                e.printStackTrace();
+                Intent intent = new Intent(this, ErrorActivity.class);
+                intent.putExtra("error", e.getMessage());
+                startActivity(intent);
             }
         } else {
             Log.i(TAG, "Location services connection failed with code " + connectionResult.getErrorCode());
