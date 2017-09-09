@@ -1,5 +1,6 @@
 package com.comp30022.helium.strawberry.services;
 
+import com.comp30022.helium.strawberry.entities.Coordinate;
 import com.comp30022.helium.strawberry.entities.Friend;
 
 public class MockLocationServices {

@@ -1,6 +1,6 @@
 package com.comp30022.helium.strawberry.services;
 
-import android.util.Log;
+import com.comp30022.helium.strawberry.entities.Coordinate;
 
 import org.junit.Test;
 
