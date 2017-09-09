@@ -27,8 +27,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
 
 import static com.comp30022.helium.strawberry.R.id.info;
 
@@ -40,13 +45,12 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
     private static final String TAG = MapViewActivity.class.getSimpleName();
     private GoogleMap mMap;
     private LocationService mLocationService;
-    private GoogleApiClient mGoogleApiClient;
+    private ArrayList<Marker> markerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_view);
-//        info = (TextView) findViewById(R.id.info);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -74,26 +78,26 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         Friend friend = null;
         Location currentLocation = mLocationService.getDeviceLocation();
         double lat, lon;
+        markerList = new ArrayList<Marker>();
+
         lat = currentLocation.getLatitude();
         lon = currentLocation.getLongitude();
-//         Add a marker in Sydney and move the camera
-        LatLng uh = new LatLng(mock.getCoordinate(friend).getY(), mock.getCoordinate(friend).getX());
-        mMap.addMarker(new MarkerOptions().position(uh).title("Marker in Union House"));
-        LatLng curr = new LatLng(lat, lon);
-//        lat = Math.min(mock.getCoordinate(friend).getY(), currLocation.getLatitude()) -
-//                        Math.abs(mock.getCoordinate(friend).getY() - currLocation.getLatitude())/2;
-//        lon = Math.min(mock.getCoordinate(friend).getX(), currLocation.getLongitude()) +
-//                Math.abs(mock.getCoordinate(friend).getX() - currLocation.getLongitude())/2;
-//        LatLng mid = new LatLng(lat, lon);
-        mMap.addMarker(new MarkerOptions().position(curr).title("Marker in current location"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(curr));
-//        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
-//
-//        mMap.animateCamera(zoom);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(uh));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
 
-        mMap.animateCamera(zoom);
+        LatLng uh = new LatLng(mock.getCoordinate(friend).getY(), mock.getCoordinate(friend).getX());
+        Marker dest = mMap.addMarker(new MarkerOptions().position(uh).title("Marker in Union House"));
+        markerList.add(dest);
+
+        LatLng curr = new LatLng(lat, lon);
+        Marker start = mMap.addMarker(new MarkerOptions().position(curr).title("You are here").icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_circle)));
+        markerList.add(start);
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (Marker marker :markerList) {
+            builder.include(marker.getPosition());
+        }
+        LatLngBounds bounds = builder.build();
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 200);
+        googleMap.animateCamera(cu);
 
 //        LatLng sydney = new LatLng(-34, 151);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));

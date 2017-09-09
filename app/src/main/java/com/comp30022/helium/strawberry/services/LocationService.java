@@ -29,6 +29,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.comp30022.helium.strawberry.R.id.info;
@@ -57,6 +58,7 @@ public class LocationService implements Publisher<Location>, LocationListener {
                 .setFastestInterval(1 * 1000); // 1 second, in milliseconds
         this.mGoogleApiClient.connect();
         instance = this;
+        subscribers = new ArrayList<>();
     }
 
     public Location getDeviceLocation() {
@@ -86,6 +88,8 @@ public class LocationService implements Publisher<Location>, LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         setNewLocation(location);
+        // Remember to UPDATE database.
+        notifyAllSubscribers(location);
     }
 
 
@@ -99,18 +103,13 @@ public class LocationService implements Publisher<Location>, LocationListener {
         return null;
     }
 
-    private void update() {
-        // this method should update this device's location
-        // periodically (every X seconds)
-        // after updating the latest location, do:
-        // 1) sent latest information (location) to the database (REST calls)
-        // 2) call this.notifyAllObservers(Location location)
-    }
     public void registerSubscriber(Subscriber<Location> sub) {
         // this should add the subscriber into its list
+        subscribers.add(sub);
     }
     public void deregisterSubscriber(Subscriber<Location> sub) {
         // this should deregister the subscriber from the list
+        subscribers.remove(sub);
     }
 
     private void notifyAllSubscribers(Location location) {
