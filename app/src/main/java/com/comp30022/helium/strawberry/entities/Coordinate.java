@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.services;
+package com.comp30022.helium.strawberry.entities;
 
 
 import com.jme3.math.Vector2f;
@@ -28,5 +28,10 @@ public class Coordinate {
 
     public Vector2f getVector() {
         return new Vector2f(this.x, this.y);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ")";
     }
 }

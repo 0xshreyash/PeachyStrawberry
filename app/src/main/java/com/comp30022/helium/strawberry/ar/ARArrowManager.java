@@ -1,8 +1,8 @@
 package com.comp30022.helium.strawberry.ar;
 
+import com.comp30022.helium.strawberry.entities.Coordinate;
 import com.comp30022.helium.strawberry.entities.Friend;
 import com.comp30022.helium.strawberry.services.MockLocationServices;
-import com.comp30022.helium.strawberry.services.Coordinate;
 import com.jme3.math.Vector2f;
 
 import eu.kudan.kudan.ARNode;
