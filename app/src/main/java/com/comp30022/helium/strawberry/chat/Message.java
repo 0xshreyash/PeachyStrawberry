@@ -10,6 +10,10 @@ public class Message {
     private User sender;
     private long createdAt;
 
+    public Message(String message, User sender, long createdAt) {
+
+    }
+
     public String getMessage() {
         return message;
     }

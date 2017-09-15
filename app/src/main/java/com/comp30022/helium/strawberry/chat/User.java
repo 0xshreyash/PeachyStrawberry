@@ -24,4 +24,23 @@ public class User {
     public void setUserId(long userId) {
         this.userId = userId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (userId != user.userId) return false;
+        return username != null ? username.equals(user.username) : user.username == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = username != null ? username.hashCode() : 0;
+        result = 31 * result + (int) (userId ^ (userId >>> 32));
+        return result;
+    }
 }

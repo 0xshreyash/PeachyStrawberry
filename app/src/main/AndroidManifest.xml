@@ -46,6 +46,10 @@
             android:configChanges="orientation|screenSize"
             android:screenOrientation="fullSensor">
         </activity>
+        <activity
+            android:name=".ChatActivity"
+            android:screenOrientation="fullSensor">
+        </activity>
     </application>
 
 </manifest>
