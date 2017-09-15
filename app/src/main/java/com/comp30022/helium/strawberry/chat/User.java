@@ -9,6 +9,11 @@ public class User {
     private String username;
     private long userId;
 
+    public User(String username, long userId) {
+        this.username = new String(username);
+        this.userId = userId;
+    }
+
     public String getUsername() {
         return username;
     }

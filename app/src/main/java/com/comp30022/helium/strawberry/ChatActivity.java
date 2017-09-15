@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.comp30022.helium.strawberry.chat.Message;
 import com.comp30022.helium.strawberry.chat.MessageListAdapter;
+import com.comp30022.helium.strawberry.chat.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,12 @@ public class ChatActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         List<Message> messages = new ArrayList<>();
+        User me = new User("Shreyash", 1);
+        User them = new User("Harry", 2);
+        Message first = new Message("Hey how are you?", me, 100000002);
+        Message second = new Message("I'm good thank you", them, 100000003);
+        messages.add(first);
+        messages.add(second);
 
         // TODO: Actually get messages from somewhere.
         super.onCreate(savedInstanceState);

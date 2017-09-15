@@ -80,6 +80,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void goToChat(View view) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        startActivity(intent);
+    }
+
     public void goToMap(View view) {
         Intent intent = new Intent(this, MapViewActivity.class);
 //        EditText editText = (EditText) findViewById(R.id.editText);

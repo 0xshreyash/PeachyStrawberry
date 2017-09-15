@@ -11,7 +11,9 @@ public class Message {
     private long createdAt;
 
     public Message(String message, User sender, long createdAt) {
-
+        this.message = new String(message);
+        this.sender = sender;
+        this.createdAt = createdAt;
     }
 
     public String getMessage() {
