@@ -3,6 +3,7 @@ package com.comp30022.helium.strawberry.chat;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,22 +26,25 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     public MessageListAdapter(Context context, List<Message> messageList) {
         mContext = context;
-        mMessageList = messageList;
+        //Log.e("Check", "Checking if Bind View Holder works or not");
+        //Log.d("New list received", messageList.get(0).getMessage());
+        mMessageList = new ArrayList<>(messageList);
     }
 
     @Override
     public int getItemCount() {
+        Log.e("Check", "" + mMessageList.size());
         return mMessageList.size();
     }
 
     // Determines the appropriate ViewType according to the sender of the message.
     @Override
     public int getItemViewType(int position) {
-        Message message = (Message) mMessageList.get(position);
-
+        Message message = mMessageList.get(position);
+        Log.e("Check", "User ID is nothing");
         // TODO: Get current user ID and check if they are equal
-
         if (message.getSender().getUserId() == 1) {
+
             // If the current user is the sender of the message
             return VIEW_TYPE_MESSAGE_SENT;
         } else {
@@ -62,7 +67,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                     .inflate(R.layout.item_received_message, parent, false);
             return new ReceivedMessageHolder(view);
         }
-
+        Log.e("Check", "Returning null");
         return null;
     }
 
@@ -70,7 +75,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Message message = (Message) mMessageList.get(position);
-
+        Log.e("Check", "Checking if Bind View Holder works or not");
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_MESSAGE_SENT:
                 ((SentMessageHolder) holder).bind(message);
@@ -78,6 +83,11 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             case VIEW_TYPE_MESSAGE_RECEIVED:
                 ((ReceivedMessageHolder) holder).bind(message);
         }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
     }
 
     private class SentMessageHolder extends RecyclerView.ViewHolder {

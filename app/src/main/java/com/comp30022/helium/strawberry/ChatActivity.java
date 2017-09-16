@@ -18,7 +18,7 @@ import java.util.List;
 
 public class ChatActivity extends AppCompatActivity{
     private RecyclerView mMessageRecycler;
-    private MessageListAdapter mMessageAdapter;
+    //private MessageListAdapter mMessageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,13 +30,18 @@ public class ChatActivity extends AppCompatActivity{
         messages.add(first);
         messages.add(second);
 
+
         // TODO: Actually get messages from somewhere.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
+        //Log.d("Hi How are you?", "I am good ");
         mMessageRecycler = (RecyclerView) findViewById(R.id.reyclerview_message_list);
-        mMessageAdapter = new MessageListAdapter(this, messages);
+        //mMessageRecycler.setHasFixedSize(true);
+        MessageListAdapter mMessageAdapter = new MessageListAdapter(this, messages);
+        //mMessageRecycler.setAdapter(mMessageAdapter);
+        mMessageRecycler.setAdapter(mMessageAdapter);
         mMessageRecycler.setLayoutManager(new LinearLayoutManager(this));
+
 
     }
 }
