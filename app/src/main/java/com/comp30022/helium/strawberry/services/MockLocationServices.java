@@ -1,5 +1,7 @@
 package com.comp30022.helium.strawberry.services;
 
+import android.location.Location;
+
 import com.comp30022.helium.strawberry.entities.Coordinate;
 import com.comp30022.helium.strawberry.entities.User;
 
@@ -28,5 +30,18 @@ public class MockLocationServices {
      */
     public static Coordinate getCoordinate(User f) {
         return coordinate;
+    }
+
+    /**
+     * return Location for union house
+     * @param f
+     * @return Location of union house
+     */
+    public static Location getLocation(User f) {
+        Location loc = new Location("UH");
+        Coordinate coord = MockLocationServices.getInstance().coordinate;
+        loc.setLatitude(coord.getY());
+        loc.setLongitude(coord.getX());
+        return loc;
     }
 }

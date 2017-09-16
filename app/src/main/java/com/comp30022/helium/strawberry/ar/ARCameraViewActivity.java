@@ -1,7 +1,12 @@
 package com.comp30022.helium.strawberry.ar;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 
 import com.comp30022.helium.strawberry.services.LocationService;
@@ -14,10 +19,11 @@ import eu.kudan.kudan.ARModelImporter;
 import eu.kudan.kudan.ARModelNode;
 import eu.kudan.kudan.ARTexture2D;
 
-public class ARCameraViewActivity extends ARActivity {
+public class ARCameraViewActivity extends ARActivity implements SensorEventListener {
     private static final String KUDAN_AR_TAG = ARCameraViewActivity.class.getSimpleName();
     private ARArrowManager arrowManager;
     private LocationService locationService;
+    private SensorManager sensorManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +32,7 @@ public class ARCameraViewActivity extends ARActivity {
         if (!KudanSetup.setupKudan()) {
             Log.d(KUDAN_AR_TAG, "Failed to verify API key!");
         }
+        this.sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
     }
 
     @Override
@@ -54,7 +61,7 @@ public class ARCameraViewActivity extends ARActivity {
         this.getARView().getCameraViewPort().getCamera().addChild(arrowModelNode);
         gyroPlaceManager.getWorld().addChild(arrowModelNode);
 
-        this.arrowManager = new ARArrowManager(null, arrowModelNode, locationService);
+        this.arrowManager = new ARArrowManager(this, sensorManager, null, arrowModelNode, locationService);
         // this will point the arrow "forwards"
         this.arrowManager.init();
     }
@@ -62,13 +69,37 @@ public class ARCameraViewActivity extends ARActivity {
     @Override
     public void onResume() {
         super.onResume();
-        this.locationService.onResume();
+        locationService.onResume();
+        Sensor mAccel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        Sensor mMag = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        sensorManager.registerListener(this, mAccel, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, mMag, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     public void onPause() {
-        super.onResume();
-        this.locationService.onPause();
+        super.onPause();
+        locationService.onPause();
+        sensorManager.unregisterListener(this);
     }
 
+    // TODO: remove, this is for debugging only
+    public void debugMessage(String message) {
+        Toast.makeText(getApplicationContext(),
+                message,
+                Toast.LENGTH_LONG).show();
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (arrowManager != null) {
+            arrowManager.sensorChanged(sensorEvent);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
 }

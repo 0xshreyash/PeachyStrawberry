@@ -91,7 +91,7 @@ public class LocationService implements Publisher<Location>, LocationListener {
         // to uniquely find the user in the database, then we can return
         // the last known location of this user
         // from the database. (REST calls)
-        return null;
+        return MockLocationServices.getLocation(user);
     }
 
     public void registerSubscriber(Subscriber<Location> sub) {
