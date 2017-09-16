@@ -3,10 +3,12 @@ package com.comp30022.helium.strawberry;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.comp30022.helium.strawberry.services.RequestWrapper;
 
 import java.net.NetworkInterface;
 import java.util.Collections;
@@ -31,6 +33,7 @@ public class StrawberryApplication extends Application {
         SharedPreferences pref = getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putString(MAC_TAG, findMacAddress());
+
         // Required initialization logic here!
     }
 

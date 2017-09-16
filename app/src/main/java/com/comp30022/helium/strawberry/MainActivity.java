@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.ar.ARCameraViewActivity;
 import com.comp30022.helium.strawberry.services.LocationService;
+import com.comp30022.helium.strawberry.services.RequestWrapper;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         requestPermission();
         setContentView(R.layout.activity_main);

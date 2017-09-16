@@ -298,8 +298,14 @@ public class RestInterface {
         StrawberryApplication.getInstance().addToRequestQueue(PUT_TAG, jsonArrReq);
     }
 
+    /**
+     * The delete has been written on the assuption that it works the same way as
+     * POST and PUT, please modify if it doesn't work correctly.
+     * @param endPointURL
+     * @param deleteparams
+     */
     public void delete(String endPointURL, JSONObject deleteparams) {
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.P,
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.DELETE,
                 endPointURL, deleteparams,
                 new Response.Listener<JSONObject>() {
                     @Override
