@@ -118,6 +118,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationService.getRequest(), mLocationService);
         if (mLastLocation != null) {
             mLocationService.setNewLocation(mLastLocation);
+        } else {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationService.getRequest(), mLocationService);
+            info.setText(R.string.location_null);
         }
     }
 
@@ -143,6 +146,5 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     Manifest.permission.CAMERA
             }, CAMERA_REQ);
         }
-
     }
 }
