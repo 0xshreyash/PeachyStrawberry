@@ -5,14 +5,12 @@ package com.comp30022.helium.strawberry;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
-import com.comp30022.helium.strawberry.entities.Friend;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.services.LocationService;
 import com.comp30022.helium.strawberry.services.MockLocationServices;
-import com.comp30022.helium.strawberry.services.NotInstantiatedException;
 
+import com.comp30022.helium.strawberry.entities.User;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,12 +44,10 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        try {
-            mLocationService = LocationService.getInstance();
-        } catch (NotInstantiatedException e) {
-            Log.d(TAG, e.toString());
+        mLocationService = LocationService.getInstance();
+        if (mLocationService != null) {
+            mLocationService.registerSubscriber(this);
         }
-        mLocationService.registerSubscriber(this);
     }
 
     /**
@@ -68,8 +64,9 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         mMap = googleMap;
         MockLocationServices mock = null;
         mock.getInstance();
-        Friend friend = null;
         markerList = new ArrayList<Marker>();
+        User friend = null;
+//         Add a marker in Sydney and move the camera
         LatLng uh = new LatLng(mock.getCoordinate(friend).getY(), mock.getCoordinate(friend).getX());
         Marker dest = mMap.addMarker(new MarkerOptions().position(uh).title("Marker in Union House"));
         markerList.add(dest);

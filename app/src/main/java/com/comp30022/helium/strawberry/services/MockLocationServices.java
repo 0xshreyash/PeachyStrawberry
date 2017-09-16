@@ -1,7 +1,7 @@
 package com.comp30022.helium.strawberry.services;
 
 import com.comp30022.helium.strawberry.entities.Coordinate;
-import com.comp30022.helium.strawberry.entities.Friend;
+import com.comp30022.helium.strawberry.entities.User;
 
 public class MockLocationServices {
     private static MockLocationServices ourInstance = null;
@@ -22,11 +22,11 @@ public class MockLocationServices {
 
     /**
      * Returns a mock coordinate (Union house)
-     * Original purpose should return the coordinate of Friend f
-     * @param f Friend object - this is a dummy now, not used at all
+     * Original purpose should return the coordinate of User f
+     * @param f User object - this is a dummy now, not used at all
      * @return Coordinate of union house
      */
-    public static Coordinate getCoordinate(Friend f) {
+    public static Coordinate getCoordinate(User f) {
         return coordinate;
     }
 }

@@ -1,28 +1,26 @@
 package com.comp30022.helium.strawberry.ar;
 
+import android.location.Location;
+
 import com.comp30022.helium.strawberry.entities.Coordinate;
-import com.comp30022.helium.strawberry.entities.Friend;
-import com.comp30022.helium.strawberry.services.MockLocationServices;
-import com.jme3.math.Vector2f;
+import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.patterns.Subscriber;
+import com.comp30022.helium.strawberry.services.LocationService;
 
 import eu.kudan.kudan.ARNode;
 
-public class ARArrowManager {
+public class ARArrowManager implements Subscriber<Location> {
 
-    private Friend self;
-    private Friend friend;
-    private Coordinate lastSelfLocation;
-    private Coordinate lastFriendLocation;
-    private Vector2f arrowVector;
+    private User friend;
+    private Coordinate arrowVector;
     private ARNode modelNode;
+    private LocationService locationService;
 
-    public ARArrowManager(Friend self, Friend friend, ARNode modelNode) {
-        this.self = self;
+    public ARArrowManager(User friend, ARNode modelNode, LocationService locationService) {
         this.friend = friend;
-        this.lastSelfLocation = getLatestCoordinateOf(self);
-        this.lastFriendLocation = getLatestCoordinateOf(friend);
+        this.locationService = locationService;
         this.modelNode = modelNode;
-        this.arrowVector = new Vector2f(0, 1);
+        this.arrowVector = new Coordinate(0, 1);
     }
 
     public void init() {
@@ -31,42 +29,24 @@ public class ARArrowManager {
         this.modelNode.rotateByDegrees(-90, 0, 0, 1);
     }
 
-    /**
-     * sits within a loop - updates current location and friend's location periodically
-     */
-    public void update() {
-        if (this.lastFriendLocation != null && this.lastSelfLocation != null) {
-            this.lastSelfLocation   = getLatestCoordinateOf(this.self);
-            this.lastFriendLocation = getLatestCoordinateOf(this.friend);
+    @Override
+    public void update(Location location) {
+        // get dot product of this.lastSelfLocation and targetLocation
+        Location myLocation = locationService.getDeviceLocation();
+        Location friendLocation = locationService.getUserLocation(friend);
 
-            // get dot product of this.lastSelfLocation and targetLocation
-            Vector2f unitVector = getDirectionalVector(true);
-            double angleToRotate = Math.acos(arrowVector.normalize().dot(unitVector));
+        Coordinate unitVector = getDirectionalVector(myLocation, friendLocation).normalize();
+        double angleToRotate = Math.acos(arrowVector.normalize().dot(unitVector));
 
-            // does angleToRotate require a negative negation?
-            // rotate on the Z-axis
-            modelNode.rotateByDegrees((float)angleToRotate, 0, 0, 1);
-        }
+        // does angleToRotate require a negative negation?
+        // rotate on the Z-axis
+        modelNode.rotateByDegrees((float)angleToRotate, 0, 0, 1);
     }
 
-    private Coordinate getLatestCoordinateOf(Friend f) {
-        return MockLocationServices.getCoordinate(f);
-    }
-
-    /**
-     * Returns a vector from self's location pointing to friend's location
-     * i.e. Friend.vector() - Self.vector() => directional vector from self to friend
-     * No vectors will be modified (i.e. vector.*Local() is not used to preserve states)
-     *
-     * @param normalize True if the returned vector should be normalized, false otherwise
-     * @return directional vector (normalized or not depends on param)
-     */
-    private Vector2f getDirectionalVector(boolean normalize) {
-        Vector2f a = this.lastSelfLocation.getVector();
-        Vector2f b = this.lastFriendLocation.getVector();
-        if (normalize) {
-            return b.subtract(a).normalize();
-        }
+    private Coordinate getDirectionalVector(Location myLocation,
+                                          Location friendLocation) {
+        Coordinate a = new Coordinate(myLocation);
+        Coordinate b = new Coordinate(friendLocation);
         return b.subtract(a);
     }
 }

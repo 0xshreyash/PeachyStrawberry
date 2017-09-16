@@ -2,7 +2,7 @@ package com.comp30022.helium.strawberry.services;
 
 import android.location.Location;
 
-import com.comp30022.helium.strawberry.entities.Friend;
+import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -28,10 +28,10 @@ public class LocationService implements Publisher<Location>, LocationListener {
 
     private List<Subscriber<Location>> subscribers; // all subscribers here
 
-    public static LocationService getInstance() throws NotInstantiatedException {
+    public static LocationService getInstance() {
 
         if (instance == null || !setupCalled)
-            throw new NotInstantiatedException();
+            return null;
         return instance;
     }
 
@@ -77,8 +77,6 @@ public class LocationService implements Publisher<Location>, LocationListener {
         mLastLocation = location;
     }
 
-    ;
-
     @Override
     public void onLocationChanged(Location location) {
         setNewLocation(location);
@@ -87,8 +85,8 @@ public class LocationService implements Publisher<Location>, LocationListener {
     }
 
 
-    public Location getUserLocation(Friend user) {
-        // this method should translate Friend (java Type) into information
+    public Location getUserLocation(User user) {
+        // this method should translate User (java Type) into information
         // that the Query language can use
         // to uniquely find the user in the database, then we can return
         // the last known location of this user

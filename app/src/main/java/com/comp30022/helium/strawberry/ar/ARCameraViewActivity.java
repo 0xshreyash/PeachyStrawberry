@@ -1,9 +1,10 @@
 package com.comp30022.helium.strawberry.ar;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 
+
+import com.comp30022.helium.strawberry.services.LocationService;
 
 import eu.kudan.kudan.ARActivity;
 import eu.kudan.kudan.ARGyroPlaceManager;
@@ -14,28 +15,17 @@ import eu.kudan.kudan.ARModelNode;
 import eu.kudan.kudan.ARTexture2D;
 
 public class ARCameraViewActivity extends ARActivity {
-    private static final String KUDAN_AR_TAG = "KUDAN AR::: ";
+    private static final String KUDAN_AR_TAG = ARCameraViewActivity.class.getSimpleName();
     private ARArrowManager arrowManager;
-    private Handler handler;
-    private Runnable arrowUpdater;
-    private final int INTERVAL = 1000;  // refresh every one second
-
+    private LocationService locationService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        locationService = LocationService.getInstance();
         if (!KudanSetup.setupKudan()) {
             Log.d(KUDAN_AR_TAG, "Failed to verify API key!");
         }
-        this.handler = new Handler();
-        this.arrowUpdater = new Runnable() {
-            @Override
-            public void run() {
-                ARCameraViewActivity.this.arrowManager.update();
-                ARCameraViewActivity.this.handler.postDelayed(arrowUpdater, INTERVAL);
-            }
-        };
-        this.handler.postDelayed(arrowUpdater, INTERVAL);
     }
 
     @Override
@@ -64,8 +54,21 @@ public class ARCameraViewActivity extends ARActivity {
         this.getARView().getCameraViewPort().getCamera().addChild(arrowModelNode);
         gyroPlaceManager.getWorld().addChild(arrowModelNode);
 
-        this.arrowManager = new ARArrowManager(null, null, arrowModelNode);
+        this.arrowManager = new ARArrowManager(null, arrowModelNode, locationService);
         // this will point the arrow "forwards"
         this.arrowManager.init();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.locationService.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onResume();
+        this.locationService.onPause();
+    }
+
 }
