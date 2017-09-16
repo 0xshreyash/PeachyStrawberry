@@ -1,5 +1,6 @@
 package com.comp30022.helium.strawberry.services;
 
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -16,51 +17,53 @@ import android.widget.Toast;
 
 import com.comp30022.helium.strawberry.ErrorActivity;
 import com.comp30022.helium.strawberry.R;
+
+import android.location.Location;
+
+
 import com.comp30022.helium.strawberry.entities.Friend;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.comp30022.helium.strawberry.R.id.info;
 
 /**
  * Make sure to call onResume and onPause
  */
 public class LocationService implements Publisher<Location>, LocationListener {
-    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-    private TextView info;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private static LocationService instance;
+    private static boolean setupCalled = false;
+    private static final int INTERVAL_SECS = 10;
+    private static final int FASTEST_INTERVAL_SECS = 1;
 
     private List<Subscriber<Location>> subscribers; // all subscribers here
 
     public static LocationService getInstance() throws NotInstantiatedException {
-        if (instance == null)
+
+        if (instance == null || !setupCalled)
             throw new NotInstantiatedException();
         return instance;
     }
+
     public void setup(GoogleApiClient mGoogleApiClient) {
+        if (setupCalled) {
+            return;
+        }
+        setupCalled = true;
         /* handle initialization here */
         this.mGoogleApiClient = mGoogleApiClient;
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(10 * 1000)        // 10 seconds, in milliseconds
-                .setFastestInterval(1 * 1000); // 1 second, in milliseconds
+                .setInterval(INTERVAL_SECS * 1000)        // 10 seconds, in milliseconds
+                .setFastestInterval(FASTEST_INTERVAL_SECS * 1000); // 1 second, in milliseconds
         this.mGoogleApiClient.connect();
         instance = this;
         subscribers = new ArrayList<>();
@@ -71,7 +74,7 @@ public class LocationService implements Publisher<Location>, LocationListener {
         return mLastLocation;
     }
 
-    public LocationRequest getRequest(){
+    public LocationRequest getRequest() {
         return mLocationRequest;
     }
 
@@ -86,9 +89,12 @@ public class LocationService implements Publisher<Location>, LocationListener {
             mGoogleApiClient.disconnect();
         }
     }
+
     public void setNewLocation(Location location) {
         mLastLocation = location;
-    };
+    }
+
+    ;
 
     @Override
     public void onLocationChanged(Location location) {
@@ -96,7 +102,6 @@ public class LocationService implements Publisher<Location>, LocationListener {
         // Remember to UPDATE database.
         notifyAllSubscribers(location);
     }
-
 
 
     public Location getUserLocation(Friend user) {
@@ -112,6 +117,7 @@ public class LocationService implements Publisher<Location>, LocationListener {
         // this should add the subscriber into its list
         subscribers.add(sub);
     }
+
     public void deregisterSubscriber(Subscriber<Location> sub) {
         // this should deregister the subscriber from the list
         subscribers.remove(sub);
