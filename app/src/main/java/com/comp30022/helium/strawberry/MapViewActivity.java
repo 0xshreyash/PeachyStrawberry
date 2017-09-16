@@ -1,6 +1,7 @@
 package com.comp30022.helium.strawberry;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -12,13 +13,17 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.comp30022.helium.strawberry.entities.Friend;
+import com.comp30022.helium.strawberry.patterns.Publisher;
+import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.services.LocationService;
 import com.comp30022.helium.strawberry.entities.Coordinate;
 import com.comp30022.helium.strawberry.services.MockLocationServices;
 import com.comp30022.helium.strawberry.services.NotInstantiatedException;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.BooleanResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -42,11 +47,17 @@ import static com.comp30022.helium.strawberry.R.id.info;
  * Created by noxm on 19/08/17.
  */
 
-public class MapViewActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapViewActivity extends AppCompatActivity implements OnMapReadyCallback, Subscriber<Location> {
     private static final String TAG = MapViewActivity.class.getSimpleName();
     private GoogleMap mMap;
     private LocationService mLocationService;
     private ArrayList<Marker> markerList;
+    private Marker lastMarker = null;
+    private Boolean initCamera = true;
+
+
+    // TODO: REMOVE
+    private int a = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +71,7 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         } catch (NotInstantiatedException e) {
             Log.d(TAG, e.toString());
         }
+        mLocationService.registerSubscriber(this);
     }
 
     /**
@@ -77,33 +89,46 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         MockLocationServices mock = null;
         mock.getInstance();
         Friend friend = null;
-        Location currentLocation = mLocationService.getDeviceLocation();
-        double lat, lon;
         markerList = new ArrayList<Marker>();
-
-        lat = currentLocation.getLatitude();
-        lon = currentLocation.getLongitude();
-
         LatLng uh = new LatLng(mock.getCoordinate(friend).getY(), mock.getCoordinate(friend).getX());
         Marker dest = mMap.addMarker(new MarkerOptions().position(uh).title("Marker in Union House"));
         markerList.add(dest);
+        Location currentLocation = mLocationService.getDeviceLocation();
+        newMarkers(currentLocation);
 
-        LatLng curr = new LatLng(lat, lon);
-        Marker start = mMap.addMarker(new MarkerOptions().position(curr).title("You are here").icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_circle)));
-        markerList.add(start);
-
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (Marker marker :markerList) {
-            builder.include(marker.getPosition());
-        }
-        LatLngBounds bounds = builder.build();
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 200);
-        googleMap.animateCamera(cu);
 
 //        LatLng sydney = new LatLng(-34, 151);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
+
+    public void newMarkers(Location location) {
+        double lat, lon;
+        lat = location.getLatitude();
+        lon = location.getLongitude();
+
+        LatLng curr = new LatLng(lat, lon);
+
+        if (lastMarker == null) {
+            Marker user = mMap.addMarker(new MarkerOptions().position(curr).title("You are here").icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_circle)));
+            markerList.add(user);
+            lastMarker = user;
+        } else {
+            lastMarker.setPosition(curr);
+        }
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (Marker marker : markerList) {
+            builder.include(marker.getPosition());
+        }
+        LatLngBounds bounds = builder.build();
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 200);
+        if(initCamera) {
+            mMap.animateCamera(cu);
+            initCamera = false;
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -114,5 +139,10 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onPause() {
         super.onPause();
         mLocationService.onPause();
+    }
+
+    @Override
+    public void update(Location info) {
+        newMarkers(info);
     }
 }

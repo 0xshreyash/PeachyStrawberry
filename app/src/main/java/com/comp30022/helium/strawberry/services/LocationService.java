@@ -1,6 +1,7 @@
 package com.comp30022.helium.strawberry.services;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -11,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.comp30022.helium.strawberry.ErrorActivity;
 import com.comp30022.helium.strawberry.R;
