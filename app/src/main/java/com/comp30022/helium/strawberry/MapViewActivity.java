@@ -1,14 +1,18 @@
 package com.comp30022.helium.strawberry;
 
+
+
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.comp30022.helium.strawberry.entities.Friend;
+import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.services.LocationService;
 import com.comp30022.helium.strawberry.services.MockLocationServices;
 import com.comp30022.helium.strawberry.services.NotInstantiatedException;
+
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,11 +26,18 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
-public class MapViewActivity extends AppCompatActivity implements OnMapReadyCallback {
+/**
+ * Created by noxm on 19/08/17.
+ */
+
+public class MapViewActivity extends AppCompatActivity implements OnMapReadyCallback, Subscriber<Location> {
     private static final String TAG = MapViewActivity.class.getSimpleName();
     private GoogleMap mMap;
     private LocationService mLocationService;
     private ArrayList<Marker> markerList;
+    private Marker lastMarker = null;
+    private Boolean initCamera = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +51,7 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         } catch (NotInstantiatedException e) {
             Log.d(TAG, e.toString());
         }
+        mLocationService.registerSubscriber(this);
     }
 
     /**
@@ -57,20 +69,29 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         MockLocationServices mock = null;
         mock.getInstance();
         Friend friend = null;
-        Location currentLocation = mLocationService.getDeviceLocation();
-        double lat, lon;
         markerList = new ArrayList<Marker>();
-
-        lat = currentLocation.getLatitude();
-        lon = currentLocation.getLongitude();
-
         LatLng uh = new LatLng(mock.getCoordinate(friend).getY(), mock.getCoordinate(friend).getX());
         Marker dest = mMap.addMarker(new MarkerOptions().position(uh).title("Marker in Union House"));
         markerList.add(dest);
+        Location currentLocation = mLocationService.getDeviceLocation();
+        newMarkers(currentLocation);
+
+    }
+
+    public void newMarkers(Location location) {
+        double lat, lon;
+        lat = location.getLatitude();
+        lon = location.getLongitude();
 
         LatLng curr = new LatLng(lat, lon);
-        Marker start = mMap.addMarker(new MarkerOptions().position(curr).title("You are here").icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_circle)));
-        markerList.add(start);
+
+        if (lastMarker == null) {
+            Marker user = mMap.addMarker(new MarkerOptions().position(curr).title("You are here").icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_circle)));
+            markerList.add(user);
+            lastMarker = user;
+        } else {
+            lastMarker.setPosition(curr);
+        }
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (Marker marker : markerList) {
@@ -78,7 +99,10 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
         }
         LatLngBounds bounds = builder.build();
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 200);
-        googleMap.animateCamera(cu);
+        if(initCamera) {
+            mMap.animateCamera(cu);
+            initCamera = false;
+        }
 
     }
 
@@ -92,5 +116,10 @@ public class MapViewActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onPause() {
         super.onPause();
         mLocationService.onPause();
+    }
+
+    @Override
+    public void update(Location info) {
+        newMarkers(info);
     }
 }

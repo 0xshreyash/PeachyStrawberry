@@ -113,13 +113,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onConnected(@Nullable Bundle bundle) throws SecurityException {
         info.setText(R.string.connection_success);
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationService.getRequest(), mLocationService);
         if (mLastLocation != null) {
             mLocationService.setNewLocation(mLastLocation);
-
-        } else {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationService.getRequest(), mLocationService);
-            info.setText(R.string.location_null);
         }
     }
 

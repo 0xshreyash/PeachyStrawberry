@@ -17,6 +17,7 @@ import java.util.List;
  * Make sure to call onResume and onPause
  */
 public class LocationService implements Publisher<Location>, LocationListener {
+
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
@@ -35,6 +36,7 @@ public class LocationService implements Publisher<Location>, LocationListener {
     }
 
     public void setup(GoogleApiClient mGoogleApiClient) {
+
         if (setupCalled) {
             return;
         }
