@@ -7,7 +7,7 @@ import android.location.Location;
 public class Coordinate {
     private double x;
     private double y;
-    private boolean isLatLong;
+    private boolean isLatLong = false;
 
     public Coordinate(double x, double y) {
         this.x = x;
@@ -121,6 +121,22 @@ public class Coordinate {
             return coord;
         } else {
             return new Coordinate(this);
+        }
+    }
+
+    public Coordinate rotateDegree(double theta) {
+        // make sure we're in cartesian space
+        if (this.isLatLong) {
+            this.toLocalCart();
+            double newX = this.x * Math.cos(theta) - y * Math.sin(theta);
+            double newY = this.x * Math.sin(theta) + y * Math.cos(theta);
+            Coordinate res = new Coordinate(newX, newY, this.isLatLong);
+            res.toLocalLongLat();
+            return res;
+        } else {
+            double newX = this.x * Math.cos(theta) - y * Math.sin(theta);
+            double newY = this.x * Math.sin(theta) + y * Math.cos(theta);
+            return new Coordinate(newX, newY, this.isLatLong);
         }
     }
 }

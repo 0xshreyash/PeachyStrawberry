@@ -10,54 +10,39 @@ import com.comp30022.helium.strawberry.entities.Coordinate;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.services.LocationService;
-import com.jme3.math.Quaternion;
 
 import java.util.Arrays;
 
-import eu.kudan.kudan.ARGyroPlaceManager;
 import eu.kudan.kudan.ARModelNode;
-import eu.kudan.kudan.ARNode;
 
 public class ARArrowManager implements Subscriber<Location> {
     private static final String TAG = ARArrowManager.class.getSimpleName();
     private User friend;
-    private Coordinate arrowVector;
     private ARModelNode modelNode;
     private LocationService locationService;
     private ARCameraViewActivity m;
-    private SensorManager sensorManager;
-    private double resetAngleTheta;
     private float[] mAccel;
     private float[] mMag;
-    private Quaternion orignalOrientation;
-    private Quaternion parentOrignalOrientation;
-    private int debug;
+    private Coordinate lastDirection;
 
-    public ARArrowManager(ARCameraViewActivity m, SensorManager sensorManager, User friend,
+    public ARArrowManager(ARCameraViewActivity m, User friend,
                           ARModelNode modelNode, LocationService locationService) {
         //TODO: remove this is not needed after debugging
         this.m = m;
-        this.sensorManager = sensorManager;
         this.mAccel = new float[3];
         this.mMag = new float[3];
         this.friend = friend;
         this.locationService = locationService;
         this.modelNode = modelNode;
-        this.arrowVector = new Coordinate(0, 1);
         this.locationService.registerSubscriber(this);
+        this.lastDirection = new Coordinate(0, 1);
     }
 
     public void init() {
         // the arrow points forwards (with no notion of direction "yet")
-        Log.e(TAG, "PRE ORIENTATION: " + this.modelNode.getOrientation().toString());
-        Log.e(TAG, "PRE WORLD ORI" + this.modelNode.getWorldOrientation().toString());
         this.modelNode.rotateByDegrees(90, 1, 0, 0);
         this.modelNode.rotateByDegrees(-90, 0, 0, 1);
-        Log.e(TAG, "POST ORIENTATION: " + this.modelNode.getOrientation().toString());
-        Log.e(TAG, "POST WORLD ORI" + this.modelNode.getWorldOrientation().toString());
-        this.resetAngleTheta = 0;
-        this.orignalOrientation = new Quaternion(this.modelNode.getWorldOrientation());
-        this.parentOrignalOrientation = new Quaternion(this.modelNode.getParent().getWorldOrientation());
+        update(null);
     }
 
 
@@ -66,8 +51,11 @@ public class ARArrowManager implements Subscriber<Location> {
         // get dot product of this.lastSelfLocation and targetLocation
         Location myLocation = locationService.getDeviceLocation();
         Location friendLocation = locationService.getUserLocation(friend);
+        pointToLocation(myLocation, friendLocation);
+    }
 
-        float bearing = myLocation.bearingTo(friendLocation);
+    private void pointToLocation(Location self, Location target) {
+        float bearing = self.bearingTo(target);
         double angleToNorth = angleToTrueNorth();
 
         // negate angle to north
@@ -93,21 +81,32 @@ public class ARArrowManager implements Subscriber<Location> {
         if (angleToNorth > 0) {
             bearing = -bearing;
         }
-        // reset orientation to forward
-        if (debug % 2 != 0) {
-            m.debugMessage("Back to 0");
-            reset();
-        } else {
-            // re-rotate to point to north
-            double rotBy = (-angleToNorth);
-            m.debugMessage("Need to rotate by " + rotBy);
-            modelNode.rotateByDegrees((float)rotBy, 0, 0, 1);
-        }
-debug++;
+//        double rotBy = calculateRotation(angleToNorth, bearing);
+        double rotBy = calculateRotation(angleToNorth, 0);
+        modelNode.rotateByDegrees((float)normalToKudanAngle(rotBy), 0, 0, 1);
+
+        // record current directional vector
+        this.lastDirection = this.lastDirection.rotateDegree(normalToKudanAngle(rotBy)).normalize();
     }
 
-    private void reset() {
-        this.modelNode.setOrientation(this.orignalOrientation);
+    private double calculateRotation(double angleToNorth, double angleFromNorth) {
+        // calculate target as if the arrow is pointing forward on the screen
+        Coordinate target = new Coordinate(0, 1);
+        double theta = -angleToNorth + angleFromNorth * (angleToNorth > 0 ? -1 : 1);
+        target = target.rotateDegree(normalToKudanAngle(theta)).normalize();
+
+        // get the rotation angle from old vector to new vector
+        double angle = Math.atan2(target.getY(), target.getX()) -
+                Math.atan2(lastDirection.getY(), lastDirection.getX());
+        if (angle < 0) {
+            angle += 2 * Math.PI;
+        }
+        return Math.toDegrees(angle);
+    }
+
+    private double normalToKudanAngle(double ang) {
+        // neg theta since Kudan's + is right side (normally it's left for pos)
+        return -ang;
     }
 
     private double angleToTrueNorth() {
@@ -119,9 +118,7 @@ debug++;
             if (notFreeFalling) {
                 float[] res = new float[3];
                 SensorManager.getOrientation(rotationMatrix, res);
-                double deg = Math.toDegrees(res[0]);
-//                m.debugMessage("Deg to north: " + deg);
-                return deg;
+                return Math.toDegrees(res[0]);
             } else {
                 Log.w(TAG, "Device free falling for some reason");
 //                m.debugMessage("Device free falling for some reason");
