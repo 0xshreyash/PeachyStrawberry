@@ -11,12 +11,14 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <!-- End of Vuforia permissions -->
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
+        android:name=".StrawberryApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -44,6 +46,10 @@
         <activity
             android:name=".ar.ARCameraViewActivity"
             android:configChanges="orientation|screenSize"
+            android:screenOrientation="fullSensor">
+        </activity>
+        <activity
+            android:name=".ChatActivity"
             android:screenOrientation="fullSensor">
         </activity>
     </application>
