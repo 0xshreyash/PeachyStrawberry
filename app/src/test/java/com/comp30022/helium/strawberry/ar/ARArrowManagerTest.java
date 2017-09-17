@@ -1,6 +1,6 @@
 package com.comp30022.helium.strawberry.ar;
 
-import com.jme3.math.Vector2f;
+import com.comp30022.helium.strawberry.components.ar.ARArrowManager;
 
 import org.junit.After;
 import org.junit.Before;
@@ -8,16 +8,6 @@ import org.junit.Test;
 
 //import static org.mockito.Mockito.mock;
 
-import java.lang.reflect.Method;
-
-import eu.kudan.kudan.ARLightMaterial;
-import eu.kudan.kudan.ARMeshNode;
-import eu.kudan.kudan.ARModelImporter;
-import eu.kudan.kudan.ARModelNode;
-import eu.kudan.kudan.ARTexture2D;
-
-
-import static org.junit.Assert.*;
 
 public class ARArrowManagerTest {
     ARArrowManager arrowManager;

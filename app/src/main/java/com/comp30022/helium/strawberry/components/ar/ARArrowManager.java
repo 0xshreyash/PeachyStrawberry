@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.ar;
+package com.comp30022.helium.strawberry.components.ar;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -6,7 +6,6 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.util.Log;
 
-import com.comp30022.helium.strawberry.components.ar.ARCameraViewActivity;
 import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.entities.Coordinate;
 import com.comp30022.helium.strawberry.entities.User;
@@ -140,5 +139,4 @@ public class ARArrowManager implements Subscriber<Location> {
                 break;
         }
     }
-
 }
