@@ -8,9 +8,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * Created by shreyashpatodia on 16/09/17.
+ * This wrapper should be used to construct rest calls and
+ * then user the rest interface to send the calls using
+ * Volley.
  */
-
 public class RequestWrapper {
 
     private static final String urlPrefix = "http://gnomie.me";
@@ -21,6 +22,7 @@ public class RequestWrapper {
         restInterface = RestInterface.getInstance();
 
     }
+
     public void makeGetRequest() {
         restInterface.get(new Response.Listener<JSONObject>() {
             @Override

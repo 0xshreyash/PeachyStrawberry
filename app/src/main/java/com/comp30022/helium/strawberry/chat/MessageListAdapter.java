@@ -33,7 +33,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        Log.e("Check", "" + mMessageList.size());
+        //Log.e("Check", "" + mMessageList.size());
         return mMessageList.size();
     }
 
@@ -41,7 +41,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemViewType(int position) {
         Message message = mMessageList.get(position);
-        Log.e("Check", "User ID is nothing");
+        //Log.e("Check", "User ID is nothing");
         // TODO: Get current user ID and check if they are equal
         if (message.getSender().getUserId() == 1) {
 
@@ -67,7 +67,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                     .inflate(R.layout.item_received_message, parent, false);
             return new ReceivedMessageHolder(view);
         }
-        Log.e("Check", "Returning null");
+        //Log.e("Check", "Returning null");
         return null;
     }
 
@@ -75,7 +75,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Message message = (Message) mMessageList.get(position);
-        Log.e("Check", "Checking if Bind View Holder works or not");
+        //Log.e("Check", "Checking if Bind View Holder works or not");
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_MESSAGE_SENT:
                 ((SentMessageHolder) holder).bind(message);
