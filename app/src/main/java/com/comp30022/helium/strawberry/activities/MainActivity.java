@@ -9,7 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 
@@ -21,7 +21,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private GoogleApiClient mGoogleApiClient;
@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
 
         // TODO: Permission grant failure : should not continue down onCreate
@@ -39,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         // Solution example:
         // create PermissionActivity that is the entrance, requesting permissions
         // then move to MainActivity once all the permissions are granted
+        setContentView(R.layout.splash);
+
         requestPermission();
 
         setContentView(R.layout.activity_main);
@@ -69,8 +70,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     public void goToMap(View view) {
         Intent intent = new Intent(this, MapViewActivity.class);
-//        EditText editText = (EditText) findViewById(R.id.editText);
-//        String message = editText.getText().toString();
+        //TODO: pass friend tracking here
         intent.putExtra("EXTRA_MESSAGE", "some custom message");
         startActivity(intent);
     }

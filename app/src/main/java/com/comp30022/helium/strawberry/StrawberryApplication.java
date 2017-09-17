@@ -99,4 +99,25 @@ public class StrawberryApplication extends Application {
 
         return address;
     }
+
+    public static void setString(String name, String val) {
+        SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(name, val);
+        editor.apply();
+    }
+
+    public static String getString(String token) {
+        SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
+        return pref.getString(token, null);
+    }
+
+    public static void remove(String name) {
+        SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = pref.edit();
+        editor.remove(name);
+        editor.apply();
+    }
 }
