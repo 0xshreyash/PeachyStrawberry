@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 
 import com.comp30022.helium.strawberry.components.location.LocationService;
+import com.comp30022.helium.strawberry.entities.User;
 
 import eu.kudan.kudan.ARActivity;
 import eu.kudan.kudan.ARGyroPlaceManager;
@@ -61,7 +62,7 @@ public class ARCameraViewActivity extends ARActivity implements SensorEventListe
         this.getARView().getCameraViewPort().getCamera().addChild(arrowModelNode);
         gyroPlaceManager.getWorld().addChild(arrowModelNode);
 
-        this.arrowManager = new ARArrowManager(this,  null, arrowModelNode, locationService);
+        this.arrowManager = new ARArrowManager(this, new User(), arrowModelNode, locationService);
         // this will point the arrow "forwards"
         this.arrowManager.init();
     }
