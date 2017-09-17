@@ -28,9 +28,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private TextView info;
-    private CallbackManager callbackManager;
-    private LoginButton loginButton;
     private GoogleApiClient mGoogleApiClient;
     private LocationService mLocationService;
     private final static int LOCATION_REQ = 111;
@@ -48,35 +45,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         requestPermission();
 
         setContentView(R.layout.activity_main);
-        callbackManager = CallbackManager.Factory.create();
-        info = (TextView) findViewById(R.id.info);
-
-        loginButton = (LoginButton) findViewById(R.id.login_button);
-        LoginManager.getInstance().registerCallback(callbackManager,
-                new FacebookCallback<LoginResult>() {
-                    @Override
-                    public void onSuccess(LoginResult loginResult) {
-                        // App code
-                        info.setText(
-                                "User ID: "
-                                        + loginResult.getAccessToken().getUserId()
-                                        + "\n" +
-                                        "Auth Token: "
-                                        + loginResult.getAccessToken().getToken()
-                        );
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        info.setText("Login attempt canceled.");
-                    }
-
-                    @Override
-                    public void onError(FacebookException exception) {
-                        info.setText(exception.toString());
-                    }
-                });
-
         // Main acts as googleApiClient, for now
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -90,10 +58,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mLocationService.setup(mGoogleApiClient);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        callbackManager.onActivityResult(requestCode, resultCode, data);
-    }
 
     public void goToAR(View view) {
         Intent intent = new Intent(this, ARCameraViewActivity.class);
@@ -116,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
      */
     @Override
     public void onConnected(@Nullable Bundle bundle) throws SecurityException {
-        info.setText(R.string.connection_success);
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationService.getRequest(), mLocationService);
         if (mLastLocation != null) {
@@ -131,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
      */
     @Override
     public void onConnectionSuspended(int i) {
-        info.setText(R.string.connection_suspended);
     }
 
     /**
@@ -141,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
      */
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        info.setText(R.string.connection_failed);
+
     }
 
     private void requestPermission() {
