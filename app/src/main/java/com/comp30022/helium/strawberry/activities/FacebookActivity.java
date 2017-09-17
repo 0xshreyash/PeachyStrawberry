@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry;
+package com.comp30022.helium.strawberry.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.comp30022.helium.strawberry.R;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;

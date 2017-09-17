@@ -1,10 +1,11 @@
-package com.comp30022.helium.strawberry;
+package com.comp30022.helium.strawberry.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.chat.Message;
 import com.comp30022.helium.strawberry.components.chat.MessageListAdapter;
 import com.comp30022.helium.strawberry.components.chat.User;

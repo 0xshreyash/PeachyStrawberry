@@ -33,21 +33,21 @@
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MapViewActivity"></activity>
+        <activity android:name=".activities.MapViewActivity"></activity>
         <activity
             android:name=".components.ar.ARCameraViewActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="fullSensor">
         </activity>
         <activity
-            android:name=".ChatActivity"
+            android:name=".activities.ChatActivity"
             android:screenOrientation="fullSensor">
         </activity>
     </application>
