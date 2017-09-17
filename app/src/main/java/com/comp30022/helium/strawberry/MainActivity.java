@@ -36,11 +36,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private final static int LOCATION_REQ = 111;
     private final static int CAMERA_REQ = 112;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // TODO: Permission grant failure : should not continue down onCreate
+        //       This will cause crashes
+        // Solution example:
+        // create PermissionActivity that is the entrance, requesting permissions
+        // then move to MainActivity once all the permissions are granted
         requestPermission();
+
         setContentView(R.layout.activity_main);
         callbackManager = CallbackManager.Factory.create();
         info = (TextView) findViewById(R.id.info);
@@ -62,26 +68,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                     @Override
                     public void onCancel() {
-                        // App code
                         info.setText("Login attempt canceled.");
                     }
 
                     @Override
                     public void onError(FacebookException exception) {
-                        // App code
-//                        info.setText("Login attempt failed.");
                         info.setText(exception.toString());
                     }
                 });
 
+        // Main acts as googleApiClient, for now
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+
+        // TODO: setup in LocationServiceInitActivity,
+        //       keep the googleAPIclient there
         mLocationService = new LocationService();
         mLocationService.setup(mGoogleApiClient);
-
     }
 
     @Override
@@ -102,6 +108,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         startActivity(intent);
     }
 
+    /**
+     * Google API client connected
+     *
+     * @param bundle
+     * @throws SecurityException
+     */
     @Override
     public void onConnected(@Nullable Bundle bundle) throws SecurityException {
         info.setText(R.string.connection_success);
@@ -112,11 +124,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
+    /**
+     * Google API client suspended
+     *
+     * @param i
+     */
     @Override
     public void onConnectionSuspended(int i) {
         info.setText(R.string.connection_suspended);
     }
 
+    /**
+     * Google API client failed
+     *
+     * @param connectionResult
+     */
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         info.setText(R.string.connection_failed);

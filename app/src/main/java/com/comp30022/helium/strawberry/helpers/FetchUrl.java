@@ -74,12 +74,14 @@ public class FetchUrl extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... url) {
         // For storing data from web service
         String data = "";
+
         try {
             // Fetching the data from web service
             data = downloadUrl(url[0]); // fecth url from web service
         } catch (Exception e) {
             Log.d("Background Task", e.toString());
         }
+
         return data;
     }
 

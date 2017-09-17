@@ -21,32 +21,37 @@ public class LocationService implements Publisher<Location>, LocationListener {
     private LocationRequest mLocationRequest;
     private static LocationService instance;
     private static boolean setupCalled = false;
-    private static final int INTERVAL_SECS = 10;
+    private static final int INTERVAL_SECS = 5;
     private static final int FASTEST_INTERVAL_SECS = 1;
 
     private List<Subscriber<Location>> subscribers; // all subscribers here
 
     static LocationService getInstance() throws NotInstantiatedException {
-
         if (instance == null || !setupCalled)
             throw new NotInstantiatedException();
         return instance;
     }
 
+    /**
+     * Setup current object as the singleton object
+     * @param mGoogleApiClient
+     */
     public void setup(GoogleApiClient mGoogleApiClient) {
-
         if (setupCalled) {
             return;
         }
+
         setupCalled = true;
         /* handle initialization here */
         this.mGoogleApiClient = mGoogleApiClient;
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(INTERVAL_SECS * 1000)        // 10 seconds, in milliseconds
-                .setFastestInterval(FASTEST_INTERVAL_SECS * 1000); // 1 second, in milliseconds
+                .setInterval(INTERVAL_SECS * 1000)
+                .setFastestInterval(FASTEST_INTERVAL_SECS * 1000);
         this.mGoogleApiClient.connect();
+
         instance = this;
+
         subscribers = new ArrayList<>();
     }
 
@@ -60,10 +65,14 @@ public class LocationService implements Publisher<Location>, LocationListener {
     }
 
 
+    // TODO: check if this is really required to exist here,
+    // Note that mGoogleApiClient is from MainActivity only
     void onResume() {
         mGoogleApiClient.connect();
     }
 
+    // TODO: check if this is really required to exist here,
+    // Note that mGoogleApiClient is from MainActivity only
     void onPause() {
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);

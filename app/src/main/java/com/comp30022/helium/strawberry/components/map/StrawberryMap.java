@@ -54,11 +54,11 @@ public class StrawberryMap {
         // Path parser task converts String -> Polyline
         PathParserTask pathParserTask = new PathParserTask(pathName, this);
         // FetchUrl simply downloads something from a url and puts as String
-        FetchUrl FetchUrl = new FetchUrl(pathParserTask);
+        FetchUrl fetchUrl = new FetchUrl(pathParserTask);
 
         // Start downloading json data from Google Directions API
         String url = getPathDownloadUrl(origin, dest);
-        FetchUrl.execute(url);
+        fetchUrl.execute(url);
     }
 
     public void updateMarker(String markerName, String title, Location location) {
