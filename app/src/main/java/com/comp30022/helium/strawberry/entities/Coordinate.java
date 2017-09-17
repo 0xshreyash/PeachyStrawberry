@@ -126,6 +126,7 @@ public class Coordinate {
 
     public Coordinate rotateDegree(double theta) {
         // make sure we're in cartesian space
+        theta = Math.toRadians(theta);
         if (this.isLatLong) {
             this.toLocalCart();
             double newX = this.x * Math.cos(theta) - y * Math.sin(theta);
