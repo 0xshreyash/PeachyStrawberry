@@ -1,5 +1,4 @@
-package com.comp30022.helium.strawberry;
-
+package com.comp30022.helium.strawberry.activities;
 
 import android.Manifest;
 import android.content.Intent;
@@ -10,24 +9,21 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 
-
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
+import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.ar.ARCameraViewActivity;
 import com.comp30022.helium.strawberry.components.location.LocationService;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+    private static final String TAG = MainActivity.class.getSimpleName();
+
     private GoogleApiClient mGoogleApiClient;
     private LocationService mLocationService;
     private final static int LOCATION_REQ = 111;
@@ -35,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         // TODO: Permission grant failure : should not continue down onCreate
@@ -45,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         requestPermission();
 
         setContentView(R.layout.activity_main);
+
         // Main acts as googleApiClient, for now
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -64,6 +62,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         startActivity(intent);
     }
 
+    public void goToChat(View view) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        startActivity(intent);
+    }
+
     public void goToMap(View view) {
         Intent intent = new Intent(this, MapViewActivity.class);
 //        EditText editText = (EditText) findViewById(R.id.editText);
@@ -80,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
      */
     @Override
     public void onConnected(@Nullable Bundle bundle) throws SecurityException {
+        Log.i(TAG, "Connection created");
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationService.getRequest(), mLocationService);
         if (mLastLocation != null) {
@@ -94,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
      */
     @Override
     public void onConnectionSuspended(int i) {
+        Log.w(TAG, "Connection suspended with " + i);
     }
 
     /**
@@ -103,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
      */
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Log.e(TAG, "Connection failed with " + connectionResult.getErrorMessage());
     }
 
     private void requestPermission() {

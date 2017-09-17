@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.services.patterns;
+package com.comp30022.helium.strawberry.patterns;
 
 import org.junit.Test;
 
