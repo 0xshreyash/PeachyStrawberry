@@ -92,7 +92,7 @@ public class ARArrowManager implements Subscriber<Location> {
     private double calculateRotation(double angleToNorth, double angleFromNorth) {
         // calculate target as if the arrow is pointing forward on the screen
         Coordinate target = new Coordinate(0, 1);
-        double theta = -angleToNorth + angleFromNorth * (angleToNorth > 0 ? -1 : 1);
+        double theta = angleToNorth + angleFromNorth;
         target = target.rotateDegree(normalToKudanAngle(theta)).normalize();
 
         // get the rotation angle from old vector to new vector
