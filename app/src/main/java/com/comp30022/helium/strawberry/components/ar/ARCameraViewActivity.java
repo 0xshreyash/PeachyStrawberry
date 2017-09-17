@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.ar;
+package com.comp30022.helium.strawberry.components.ar;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -10,9 +10,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import eu.kudan.kudan.ARActivity;
-import eu.kudan.kudan.ARArbiTrack;
-import eu.kudan.kudan.ARGyroPlaceManager;
-import eu.kudan.kudan.ARNode;
 
 public class ARCameraViewActivity extends ARActivity {
     private static final String KUDAN_AR_TAG = "KUDAN AR::: ";

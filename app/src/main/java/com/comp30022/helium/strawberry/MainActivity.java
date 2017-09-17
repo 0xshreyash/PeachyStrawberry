@@ -2,28 +2,21 @@ package com.comp30022.helium.strawberry;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
-import android.widget.Toast;
 
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.comp30022.helium.strawberry.ar.ARCameraViewActivity;
-import com.comp30022.helium.strawberry.services.LocationService;
+import com.comp30022.helium.strawberry.components.ar.ARCameraViewActivity;
+import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -43,16 +36,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private final static int LOCATION_REQ = 111;
     private final static int CAMERA_REQ = 112;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // TODO: Permission grant failure : should not continue down onCreate
+        //       This will cause crashes
+        // Solution example:
+        // create PermissionActivity that is the entrance, requesting permissions
+        // then move to MainActivity once all the permissions are granted
         requestPermission();
+
         setContentView(R.layout.activity_main);
         callbackManager = CallbackManager.Factory.create();
         info = (TextView) findViewById(R.id.info);
 
-        loginButton = (LoginButton)findViewById(R.id.login_button);
+        loginButton = (LoginButton) findViewById(R.id.login_button);
         LoginManager.getInstance().registerCallback(callbackManager,
                 new FacebookCallback<LoginResult>() {
                     @Override
@@ -69,26 +68,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                     @Override
                     public void onCancel() {
-                        // App code
                         info.setText("Login attempt canceled.");
                     }
 
                     @Override
                     public void onError(FacebookException exception) {
-                        // App code
-//                        info.setText("Login attempt failed.");
                         info.setText(exception.toString());
                     }
                 });
 
+        // Main acts as googleApiClient, for now
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+
+        // TODO: setup in LocationServiceInitActivity,
+        //       keep the googleAPIclient there
         mLocationService = new LocationService();
         mLocationService.setup(mGoogleApiClient);
-
     }
 
     @Override
@@ -109,6 +108,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         startActivity(intent);
     }
 
+    /**
+     * Google API client connected
+     *
+     * @param bundle
+     * @throws SecurityException
+     */
     @Override
     public void onConnected(@Nullable Bundle bundle) throws SecurityException {
         info.setText(R.string.connection_success);
@@ -119,11 +124,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
+    /**
+     * Google API client suspended
+     *
+     * @param i
+     */
     @Override
     public void onConnectionSuspended(int i) {
         info.setText(R.string.connection_suspended);
     }
 
+    /**
+     * Google API client failed
+     *
+     * @param connectionResult
+     */
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         info.setText(R.string.connection_failed);
@@ -141,8 +156,5 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     Manifest.permission.CAMERA
             }, CAMERA_REQ);
         }
-
     }
-
-
 }
