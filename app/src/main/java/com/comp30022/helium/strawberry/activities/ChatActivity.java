@@ -17,7 +17,7 @@ import java.util.List;
  * Created by shreyashpatodia on 15/09/17.
  */
 
-public class ChatActivity extends AppCompatActivity{
+public class ChatActivity extends AppCompatActivity {
     private RecyclerView mMessageRecycler;
     //private MessageListAdapter mMessageAdapter;
 
@@ -41,7 +41,5 @@ public class ChatActivity extends AppCompatActivity{
         //mMessageRecycler.setAdapter(mMessageAdapter);
         mMessageRecycler.setAdapter(mMessageAdapter);
         mMessageRecycler.setLayoutManager(new LinearLayoutManager(this));
-
-
     }
 }

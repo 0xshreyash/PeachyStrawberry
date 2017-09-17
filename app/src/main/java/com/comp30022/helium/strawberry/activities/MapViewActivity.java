@@ -73,8 +73,12 @@ public class MapViewActivity extends LocationServiceActivity implements OnMapRea
           Friend1, Friend2?
      */
     public void update(Location currentLocation) {
-        map.updateMarker("currentLocation", "You are here", currentLocation);
-        map.updatePath("currentLocation", "friendLocation");
+        if (map != null) {
+            map.updateMarker("currentLocation", "You are here", currentLocation);
+            map.updatePath("currentLocation", "friendLocation");
+        } else {
+            Log.e(TAG, "Map has not been initialized yet, ditching new location update");
+        }
     }
 }
 

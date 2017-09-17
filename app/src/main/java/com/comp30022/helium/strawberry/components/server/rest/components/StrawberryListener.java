@@ -25,7 +25,7 @@ public class StrawberryListener {
     }
 
     public Response.Listener<String> getSuccessListener() {
-        if(success == null)
+        if (success == null)
             return new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -37,16 +37,12 @@ public class StrawberryListener {
     }
 
     public Response.ErrorListener getErrorListener() {
-        if(error==null)
+        if (error == null)
             return new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    String errorMessage = "Unknown error";
-                    if(error.getMessage() != null)
-                        errorMessage = error.getMessage();
-
-                    Log.e(TAG, errorMessage);
-                    error.printStackTrace();
+                    String msg = (error.getMessage() == null) ? error.networkResponse.statusCode + " Error" : error.getMessage();
+                    Log.e(TAG, msg);
                 }
             };
 
