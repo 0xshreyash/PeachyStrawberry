@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry;
+package com.comp30022.helium.strawberry.activities;
 
 
 import android.content.Intent;
@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import com.comp30022.helium.strawberry.R;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;

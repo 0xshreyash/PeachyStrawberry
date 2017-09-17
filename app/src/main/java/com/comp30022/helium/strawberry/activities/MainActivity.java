@@ -1,5 +1,4 @@
-package com.comp30022.helium.strawberry;
-
+package com.comp30022.helium.strawberry.activities;
 
 import android.Manifest;
 import android.content.Intent;
@@ -10,13 +9,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 
-
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.ar.ARCameraViewActivity;
 import com.comp30022.helium.strawberry.components.location.LocationService;
+import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         // TODO: Permission grant failure : should not continue down onCreate
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                         "Auth Token: "
                                         + loginResult.getAccessToken().getToken()
                         );
+                        PeachServerInterface.init(loginResult.getAccessToken().getToken());
                     }
 
                     @Override
@@ -97,6 +99,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     public void goToAR(View view) {
         Intent intent = new Intent(this, ARCameraViewActivity.class);
+        startActivity(intent);
+    }
+
+    public void goToChat(View view) {
+        Intent intent = new Intent(this, ChatActivity.class);
         startActivity(intent);
     }
 

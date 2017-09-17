@@ -1,9 +1,10 @@
-package com.comp30022.helium.strawberry;
+package com.comp30022.helium.strawberry.activities;
 
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.location.LocationServiceActivity;
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
 import com.comp30022.helium.strawberry.entities.Friend;
