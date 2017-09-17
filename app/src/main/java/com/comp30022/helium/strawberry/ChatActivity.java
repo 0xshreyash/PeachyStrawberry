@@ -5,9 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import com.comp30022.helium.strawberry.chat.Message;
-import com.comp30022.helium.strawberry.chat.MessageListAdapter;
-import com.comp30022.helium.strawberry.chat.User;
+import com.comp30022.helium.strawberry.components.chat.Message;
+import com.comp30022.helium.strawberry.components.chat.MessageListAdapter;
+import com.comp30022.helium.strawberry.components.chat.User;
 
 import java.util.ArrayList;
 import java.util.List;

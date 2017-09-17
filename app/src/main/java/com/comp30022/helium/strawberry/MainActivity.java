@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.components.ar.ARCameraViewActivity;
 import com.comp30022.helium.strawberry.components.location.LocationService;
+import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                         "Auth Token: "
                                         + loginResult.getAccessToken().getToken()
                         );
+                        PeachServerInterface.init(loginResult.getAccessToken().getToken());
                     }
 
                     @Override

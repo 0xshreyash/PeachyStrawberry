@@ -3,12 +3,10 @@ package com.comp30022.helium.strawberry;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-import com.comp30022.helium.strawberry.services.RequestWrapper;
 
 import java.net.NetworkInterface;
 import java.util.Collections;
@@ -29,7 +27,7 @@ public class StrawberryApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        myApplication=this;
+        myApplication = this;
         SharedPreferences pref = getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putString(MAC_TAG, findMacAddress());
@@ -44,8 +42,8 @@ public class StrawberryApplication extends Application {
     }
 
     public RequestQueue getRequestQueue() {
-        if (requestQueue==null)
-            requestQueue= Volley.newRequestQueue(getApplicationContext());
+        if (requestQueue == null)
+            requestQueue = Volley.newRequestQueue(getApplicationContext());
 
         return requestQueue;
     }
@@ -53,7 +51,8 @@ public class StrawberryApplication extends Application {
     /**
      * Adding something to the request queue should allow us to make the requests
      * in order.
-     * @param tag Either of GET, POST, PUT, DELETE.
+     *
+     * @param tag     Either of GET, POST, PUT, DELETE.
      * @param request The request as a Request object.
      */
     public void addToRequestQueue(String tag, Request request) {
@@ -63,6 +62,7 @@ public class StrawberryApplication extends Application {
 
     /**
      * Cancel all requests with a certain tag, i.e. GET, POST, PUT, DELETE.
+     *
      * @param tag Can be any of GET, POST, PUT, DELETE.
      */
     public void cancelAllRequests(String tag) {

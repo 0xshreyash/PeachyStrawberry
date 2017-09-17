@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.chat;
+package com.comp30022.helium.strawberry.components.chat;
 
 /**
  * Created by shreyashpatodia on 15/09/17.
