@@ -6,10 +6,11 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.util.Log;
 
+import com.comp30022.helium.strawberry.components.ar.ARCameraViewActivity;
+import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.entities.Coordinate;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
-import com.comp30022.helium.strawberry.services.LocationService;
 
 import java.util.Arrays;
 

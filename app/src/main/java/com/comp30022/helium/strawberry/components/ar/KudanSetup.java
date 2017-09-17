@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.ar;
+package com.comp30022.helium.strawberry.components.ar;
 
 
 import eu.kudan.kudan.ARAPIKey;
