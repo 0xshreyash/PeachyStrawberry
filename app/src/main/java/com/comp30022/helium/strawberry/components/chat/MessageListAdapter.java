@@ -26,7 +26,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     public MessageListAdapter(Context context, List<Message> messageList) {
         mContext = context;
         //Log.e("Check", "Checking if Bind View Holder works or not");
-        //Log.d("New list received", messageList.get(0).getMessage());
+        //Log.d("New list received", messageList.getString(0).getMessage());
         mMessageList = new ArrayList<>(messageList);
     }
 

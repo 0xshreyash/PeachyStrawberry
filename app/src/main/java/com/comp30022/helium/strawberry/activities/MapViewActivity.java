@@ -28,7 +28,7 @@ public class MapViewActivity extends LocationServiceActivity implements OnMapRea
     protected void onCreateAction(Bundle savedInstanceState) {
         // Google Map
         setContentView(R.layout.activity_map_view);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        // Obtain the SupportMapFragment and getString notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }

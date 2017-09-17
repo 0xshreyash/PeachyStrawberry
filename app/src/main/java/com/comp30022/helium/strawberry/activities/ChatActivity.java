@@ -30,7 +30,7 @@ public class ChatActivity extends AppCompatActivity {
         Message second = new Message("I'm good thank you", them, 100000003);
         messages.add(first);
         messages.add(second);
-        // TODO: Actually get messages from somewhere.
+        // TODO: Actually getString messages from somewhere.
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
