@@ -2,28 +2,21 @@ package com.comp30022.helium.strawberry;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
-import android.widget.Toast;
 
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.comp30022.helium.strawberry.ar.ARCameraViewActivity;
-import com.comp30022.helium.strawberry.services.LocationService;
+import com.comp30022.helium.strawberry.components.ar.ARCameraViewActivity;
+import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -52,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         callbackManager = CallbackManager.Factory.create();
         info = (TextView) findViewById(R.id.info);
 
-        loginButton = (LoginButton)findViewById(R.id.login_button);
+        loginButton = (LoginButton) findViewById(R.id.login_button);
         LoginManager.getInstance().registerCallback(callbackManager,
                 new FacebookCallback<LoginResult>() {
                     @Override
@@ -141,8 +134,5 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     Manifest.permission.CAMERA
             }, CAMERA_REQ);
         }
-
     }
-
-
 }

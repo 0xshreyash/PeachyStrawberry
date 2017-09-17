@@ -1,8 +1,9 @@
-package com.comp30022.helium.strawberry.services;
+package com.comp30022.helium.strawberry.components.location;
 
 import android.location.Location;
 
 import com.comp30022.helium.strawberry.entities.Friend;
+import com.comp30022.helium.strawberry.components.location.exceptions.NotInstantiatedException;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -13,9 +14,6 @@ import com.google.android.gms.location.LocationServices;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Make sure to call onResume and onPause
- */
 public class LocationService implements Publisher<Location>, LocationListener {
 
     private GoogleApiClient mGoogleApiClient;
@@ -28,7 +26,7 @@ public class LocationService implements Publisher<Location>, LocationListener {
 
     private List<Subscriber<Location>> subscribers; // all subscribers here
 
-    public static LocationService getInstance() throws NotInstantiatedException {
+    static LocationService getInstance() throws NotInstantiatedException {
 
         if (instance == null || !setupCalled)
             throw new NotInstantiatedException();
@@ -62,11 +60,11 @@ public class LocationService implements Publisher<Location>, LocationListener {
     }
 
 
-    public void onResume() {
+    void onResume() {
         mGoogleApiClient.connect();
     }
 
-    public void onPause() {
+    void onPause() {
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
@@ -77,8 +75,6 @@ public class LocationService implements Publisher<Location>, LocationListener {
         mLastLocation = location;
     }
 
-    ;
-
     @Override
     public void onLocationChanged(Location location) {
         setNewLocation(location);
@@ -86,14 +82,19 @@ public class LocationService implements Publisher<Location>, LocationListener {
         notifyAllSubscribers(location);
     }
 
-
     public Location getUserLocation(Friend user) {
+        Location location = new Location("LocationService.user." + user.getName());
+
+        // TODO
         // this method should translate Friend (java Type) into information
         // that the Query language can use
         // to uniquely find the user in the database, then we can return
         // the last known location of this user
         // from the database. (REST calls)
-        return null;
+        location.setLongitude(144.960961);
+        location.setLatitude(-37.796927);
+
+        return location;
     }
 
     public void registerSubscriber(Subscriber<Location> sub) {

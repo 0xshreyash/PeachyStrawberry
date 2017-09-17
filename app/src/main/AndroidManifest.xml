@@ -42,7 +42,7 @@
         </activity>
         <activity android:name=".MapViewActivity"></activity>
         <activity
-            android:name=".ar.ARCameraViewActivity"
+            android:name=".components.ar.ARCameraViewActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="fullSensor">
         </activity>

@@ -1,6 +1,12 @@
 package com.comp30022.helium.strawberry.entities;
 
 
+/**
+ * TODO
+ * Replace all usage of this with Location or LatLng
+ * Then, use only Location or LatLng
+ */
+@Deprecated
 public class Coordinate {
     private final double x;
     private final double y;
