@@ -1,5 +1,7 @@
 package com.comp30022.helium.strawberry.components.server.rest.components;
 
+import android.util.Log;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
@@ -8,12 +10,13 @@ import com.comp30022.helium.strawberry.StrawberryApplication;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.comp30022.helium.strawberry.StrawberryApplication.MAC_TAG;
+
 /**
  * Created by noxm on 17/09/17.
  */
 
 public class StrawberryRequest extends StringRequest {
-    private static final String MAC_TAG = "mac";
     private Map<String, String> params = null;
 
     public StrawberryRequest(int method, String url, Response.Listener<String> listener, Response.ErrorListener errorListener) {
@@ -29,17 +32,12 @@ public class StrawberryRequest extends StringRequest {
         this.params = params;
     }
 
-    /**
-     * header for peach server
-     * @return
-     * @throws AuthFailureError
-     */
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
-        Map<String, String> params = new HashMap<>();
-        params.put(MAC_TAG, StrawberryApplication.getMacAddress());
+        Map<String, String> header = new HashMap<>();
+        header.put(MAC_TAG, StrawberryApplication.getMacAddress());
 
-        return params;
+        return header;
     }
 
     @Override

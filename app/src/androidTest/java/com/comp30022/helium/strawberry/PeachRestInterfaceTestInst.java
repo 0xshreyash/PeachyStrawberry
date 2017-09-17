@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 public class PeachRestInterfaceTestInst {
     private static final String TAG = PeachRestInterfaceTestInst.class.getSimpleName();
 
-    private static final int testCount = 3;
+    private static final int testCount = 4;
 
     Boolean[] results = new Boolean[testCount];
     Boolean[] returned = new Boolean[testCount];
@@ -39,7 +39,7 @@ public class PeachRestInterfaceTestInst {
         HashMap<String, String> tokenMap = new HashMap<>();
         tokenMap.put("token", sampleFBToken);
 
-        for(int i = 0; i < testCount; i++) {
+        for (int i = 0; i < testCount; i++) {
             results[i] = new Boolean(false);
             returned[i] = new Boolean(false);
         }
@@ -48,15 +48,50 @@ public class PeachRestInterfaceTestInst {
         PeachRestInterface.get(null, new StrawberryListener(getSuccess(0), getError(0)));
 
         // #1
-        PeachRestInterface.get(null, new StrawberryListener(getSuccess(1), getError(1)));
+        PeachRestInterface.get("/user", new StrawberryListener(new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                results[1] = false;
+                returned[1] = true;
+                String msg = (response == null) ? "null" : response;
+                Log.d(TAG, 1 + " SUCCESS: " + msg);
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                results[1] = true;
+                returned[1] = true;
+                String data = new String(error.networkResponse.data);
+
+                String msg = (error.getMessage() == null) ? error.networkResponse.statusCode + " Error" : error.getMessage();
+
+                Log.d(TAG, 1 + " ERROR: " + msg + "\n" + data);
+
+            }
+        }));
+        waitResult(1);
 
         // #2
-        PeachRestInterface.post(null, tokenMap, new StrawberryListener(getSuccess(2), getError(2)));
+        PeachRestInterface.post("/authorize", tokenMap, new StrawberryListener(getSuccess(2), getError(2)));
+        waitResult(2);
+
+        // #3
+        PeachRestInterface.get("/user", new StrawberryListener(getSuccess(3), getError(3)));
+    }
+
+    private void waitResult(int i) {
+        while (!returned[i])
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
     }
 
     @Test
     public void test_results() throws Exception {
-        for(int i = 0; i < testCount; i++) {
+        for (int i = 0; i < testCount; i++) {
             while (!returned[i])
                 Thread.sleep(100);
             assertTrue(results[i]);
@@ -73,6 +108,7 @@ public class PeachRestInterfaceTestInst {
 
     private class TestSuccessListener implements Response.Listener<String> {
         int i;
+
         TestSuccessListener(int i) {
             this.i = i;
         }
@@ -88,6 +124,7 @@ public class PeachRestInterfaceTestInst {
 
     private class TestErrorListener implements Response.ErrorListener {
         int i;
+
         TestErrorListener(int i) {
             this.i = i;
         }
@@ -96,12 +133,11 @@ public class PeachRestInterfaceTestInst {
         public void onErrorResponse(VolleyError error) {
             results[i] = false;
             returned[i] = true;
-            String msg = (error.getMessage() == null) ? "null" : error.getMessage();
-            Log.e(TAG, i + " ERROR: " + msg);
+            String data = new String(error.networkResponse.data);
 
-            for(StackTraceElement st : error.getStackTrace()) {
-                Log.e(TAG, i + " ERROR: " + st.toString());
-            }
+            String msg = (error.getMessage() == null) ? error.networkResponse.statusCode + " Error" : error.getMessage();
+
+            Log.e(TAG, i + " ERROR: " + msg + "\n" + data);
         }
     }
 

@@ -1,24 +1,23 @@
 package com.comp30022.helium.strawberry;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-
-import java.net.NetworkInterface;
-import java.util.Collections;
-import java.util.List;
 
 public class StrawberryApplication extends Application {
 
     private RequestQueue requestQueue;
     private static StrawberryApplication myApplication;
     public static final String MY_PREFS = "my-prefs";
-    private static final String INTERFACE_NAME = "wlan0";
-    private static final String MAC_TAG = "mac";
+
+    public static final String MAC_TAG = "mac";
     public static final String GET_TAG = "getRequest";
     public static final String POST_TAG = "postRequest";
     public static final String PUT_TAG = "putRequest";
@@ -28,11 +27,13 @@ public class StrawberryApplication extends Application {
     public void onCreate() {
         super.onCreate();
         myApplication = this;
+
         SharedPreferences pref = getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
+
         editor.putString(MAC_TAG, findMacAddress());
 
-        // Required initialization logic here!
+        editor.apply();
     }
 
     // Don't need to ensure that myApplication is not null because it
@@ -70,8 +71,10 @@ public class StrawberryApplication extends Application {
     }
 
     public static String getMacAddress() {
-        SharedPreferences preferences = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
-        return preferences.getString(MAC_TAG, "");
+        SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
+        String mac = pref.getString(MAC_TAG, "UNKNOWN");
+
+        return mac;
     }
 
     // Called by the system when the device configuration changes while your component is running.
@@ -90,31 +93,10 @@ public class StrawberryApplication extends Application {
     }
 
     private static String findMacAddress() {
-        try {
-            // get all the interfaces
-            List<NetworkInterface> all = Collections.list(NetworkInterface.getNetworkInterfaces());
-            //find network interface wlan0
-            for (NetworkInterface networkInterface : all) {
-                if (!networkInterface.getName().equalsIgnoreCase(INTERFACE_NAME))
-                    continue;
-                //get the hardware address (MAC) of the interface
-                byte[] macBytes = networkInterface.getHardwareAddress();
-                if (macBytes == null) {
-                    return "";
-                }
-                StringBuilder res1 = new StringBuilder();
-                for (byte b : macBytes) {
-                    //gets the last byte of b
-                    res1.append(Integer.toHexString(b & 0xFF) + ":");
-                }
-                if (res1.length() > 0) {
-                    res1.deleteCharAt(res1.length() - 1);
-                }
-                return res1.toString();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
+        WifiManager manager = (WifiManager) getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = manager.getConnectionInfo();
+        String address = info.getMacAddress();
+
+        return address;
     }
 }
