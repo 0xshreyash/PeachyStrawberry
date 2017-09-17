@@ -86,14 +86,14 @@ public class ARArrowManager implements Subscriber<Location> {
         modelNode.rotateByDegrees((float)normalToKudanAngle(rotBy), 0, 0, 1);
 
         // record current directional vector
-        this.lastDirection = this.lastDirection.rotateDegree(normalToKudanAngle(rotBy)).normalize();
+        this.lastDirection = this.lastDirection.rotateDegree(rotBy).normalize();
     }
 
     private double calculateRotation(double angleToNorth, double angleFromNorth) {
         // calculate target as if the arrow is pointing forward on the screen
         Coordinate target = new Coordinate(0, 1);
         double theta = angleToNorth + angleFromNorth;
-        target = target.rotateDegree(normalToKudanAngle(theta)).normalize();
+        target = target.rotateDegree(theta).normalize();
 
         // get the rotation angle from old vector to new vector
         double angle = Math.atan2(target.getY(), target.getX()) -
