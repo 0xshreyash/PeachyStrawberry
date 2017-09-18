@@ -8,4 +8,7 @@
     <string name="connection_suspended">connection is suspended</string>
     <string name="connection_failed">connection is failed</string>
     <string name="google_api">google API client is null</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

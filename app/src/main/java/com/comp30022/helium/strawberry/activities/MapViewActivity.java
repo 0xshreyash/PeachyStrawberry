@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry;
+package com.comp30022.helium.strawberry.activities;
 
 import android.location.Location;
 import android.os.Bundle;
@@ -12,6 +12,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import android.util.Log;
 
+import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.location.LocationServiceActivity;
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,7 +34,7 @@ public class MapViewActivity extends LocationServiceActivity implements OnMapRea
     protected void onCreateAction(Bundle savedInstanceState) {
         // Google Map
         setContentView(R.layout.activity_map_view);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        // Obtain the SupportMapFragment and getString notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
@@ -78,8 +79,12 @@ public class MapViewActivity extends LocationServiceActivity implements OnMapRea
           Friend1, Friend2?
      */
     public void update(Location currentLocation) {
-        map.updateMarker("currentLocation", "You are here", currentLocation);
-        map.updatePath("currentLocation", "friendLocation");
+        if (map != null) {
+            map.updateMarker("currentLocation", "You are here", currentLocation);
+            map.updatePath("currentLocation", "friendLocation");
+        } else {
+            Log.e(TAG, "Map has not been initialized yet, ditching new location update");
+        }
     }
 }
 

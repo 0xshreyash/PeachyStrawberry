@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.services.services;
+package com.comp30022.helium.strawberry.components;
 
 import org.junit.Test;
 
