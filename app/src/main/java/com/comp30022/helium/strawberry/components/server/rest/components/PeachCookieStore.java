@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry;
+package com.comp30022.helium.strawberry.components.server.rest.components;
 
 import android.util.Log;
 
@@ -16,12 +16,16 @@ import java.util.Map;
  * Created by noxm on 19/09/17.
  */
 
-class PeachCookieStore implements CookieStore {
+public class PeachCookieStore implements CookieStore {
     private static final String TAG = PeachCookieStore.class.getSimpleName();
     private static final String AUTH_SUB_PATH = "authorize";
 
     Map<URI, List<HttpCookie>> cookieMap = new HashMap<>();
     HttpCookie authCookie = null;
+
+    public PeachCookieStore() {
+
+    }
 
     @Override
     public void add(URI uri, HttpCookie httpCookie) {
