@@ -11,6 +11,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.CookieStore;
+
 public class StrawberryApplication extends Application {
 
     private RequestQueue requestQueue;
@@ -34,6 +39,10 @@ public class StrawberryApplication extends Application {
         editor.putString(MAC_TAG, findMacAddress());
 
         editor.apply();
+
+        CookieStore cookieStore = new PeachCookieStore();
+        CookieManager manager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
+        CookieHandler.setDefault(manager);
     }
 
     // Don't need to ensure that myApplication is not null because it
