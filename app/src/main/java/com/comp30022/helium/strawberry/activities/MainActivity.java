@@ -69,7 +69,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     public void goToMap(View view) {
-        Intent intent = new Intent(this, MapViewActivity.class);
+        Intent intent = new Intent(this, MapFragmentTestActivity.class);
         //TODO: pass friend tracking here
         intent.putExtra("EXTRA_MESSAGE", "some custom message");
         startActivity(intent);
