@@ -40,15 +40,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.MapViewActivity" />
+
         <activity
             android:name=".components.ar.ARCameraViewActivity"
             android:configChanges="orientation|screenSize"
-            android:screenOrientation="fullSensor"></activity>
-        <activity
-            android:name=".activities.ChatActivity"
-            android:screenOrientation="fullSensor"></activity>
-        <activity android:name=".activities.MapFragmentTestActivity"></activity>
+            android:screenOrientation="fullSensor" />
+        <activity android:name=".activities.ChatActivity"/>
+        <activity android:name=".activities.MapFragmentTestActivity" />
     </application>
 
 </manifest>

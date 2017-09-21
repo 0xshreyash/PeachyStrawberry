@@ -34,8 +34,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
         mMapView = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
