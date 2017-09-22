@@ -2,6 +2,7 @@ package com.comp30022.helium.strawberry.components.location;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -11,13 +12,13 @@ import com.comp30022.helium.strawberry.patterns.Subscriber;
  * Created by noxm on 17/09/17.
  */
 
-public abstract class LocationServiceActivity extends AppCompatActivity implements Subscriber<Location> {
-    private static final String TAG = "LocationServiceActivity";
+public abstract class LocationServiceFragment extends Fragment implements Subscriber<Location> {
+    private static final String TAG = "LocationServiceFragment";
 
     protected LocationService locationService;
 
     @Override
-    protected final void onCreate(Bundle savedInstanceState) {
+    public final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         locationService = LocationService.getInstance();
@@ -28,14 +29,14 @@ public abstract class LocationServiceActivity extends AppCompatActivity implemen
     }
 
     @Override
-    protected final void onResume() {
+    public final void onResume() {
         super.onResume();
         locationService.onResume();
         onResumeAction();
     }
 
     @Override
-    protected final void onPause() {
+    public final void onPause() {
         super.onPause();
         locationService.onPause();
         onPauseAction();
