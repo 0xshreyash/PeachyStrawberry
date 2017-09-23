@@ -3,10 +3,13 @@
     <string name="facebook_app_id">696462567210114</string>
     <string name="fb_login_protocol_scheme">fb696462567210114</string>
 
-    <string name="walk">Walking</string>
-    <string name="drive">Driving</string>
-    <string name="bicycle">Bicycling</string>
-    <string name="tranist">Tranist</string>
+    <string name="walk_mode">walking</string>
+    <string name="drive_mode">driving</string>
+    <string name="bicycle_mode">bicycling</string>
+    <string name="tranist_mode">transit</string>
+
+    <string name="arrival_time">The estimated arrival time is  </string>
+    <string name="arrival_distance">The estimated distance is  </string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

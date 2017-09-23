@@ -125,7 +125,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                     lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 }
                 lastChanged = drive;
-                map.setMode("driving");
+                map.setMode(getString(R.string.drive_mode));
                 map.updatePath("currentLocation", "friendLocation");
                 drive.setBackgroundResource(R.drawable.mode_colour);
                 break;
@@ -135,7 +135,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                     lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 }
                 lastChanged = walk;
-                map.setMode("walking");
+                map.setMode(getString(R.string.walk_mode));
                 map.updatePath("currentLocation", "friendLocation");
                 walk.setBackgroundResource(R.drawable.mode_colour);
                 break;
@@ -145,7 +145,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                     lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 }
                 lastChanged = bicycle;
-                map.setMode("bicycling");
+                map.setMode(getString(R.string.bicycle_mode));
                 map.updatePath("currentLocation", "friendLocation");
                 bicycle.setBackgroundResource(R.drawable.mode_colour);
                 break;
@@ -155,7 +155,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                     lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 }
                 lastChanged = transit;
-                map.setMode("transit");
+                map.setMode(getString(R.string.tranist_mode));
                 map.updatePath("currentLocation", "friendLocation");
                 transit.setBackgroundResource(R.drawable.mode_colour);
                 break;
@@ -168,13 +168,16 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
     // Update the arrival time and distance which will be shown in the textview.
     public void changeText(String name, String value) {
+        String content;
         switch (name) {
             case "distance":
-                arrival_distance.setText("The estimated distance is " + value);
+                content = getString(R.string.arrival_distance) + value;
+                arrival_distance.setText(content);
                 break;
 
             case "duration":
-                arrival_time.setText("The estimated arrival time is " + value);
+                content = getString(R.string.arrival_time) + value;
+                arrival_time.setText(content);
                 break;
 
             default:

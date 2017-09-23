@@ -18,7 +18,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/drive"
+        android:text="@string/drive_mode"
         android:id="@+id/drive"
         android:background="@drawable/mode_stytle"
         android:layout_alignParentBottom="true"
@@ -27,7 +27,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/walk"
+        android:text="@string/walk_mode"
         android:id="@+id/walk"
         android:background="@drawable/mode_stytle"
         android:layout_alignParentBottom="true"
@@ -36,7 +36,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/bicycle"
+        android:text="@string/bicycle_mode"
         android:id="@+id/bicycle"
         android:background="@drawable/mode_stytle"
         android:layout_alignParentBottom="true"
@@ -45,7 +45,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/tranist"
+        android:text="@string/tranist_mode"
         android:id="@+id/transit"
         android:background="@drawable/mode_stytle"
         android:layout_alignParentBottom="true"
