@@ -2,8 +2,7 @@ package com.comp30022.helium.strawberry.components.location;
 
 import android.location.Location;
 
-import com.comp30022.helium.strawberry.entities.Friend;
-import com.comp30022.helium.strawberry.components.location.exceptions.NotInstantiatedException;
+import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -26,9 +25,9 @@ public class LocationService implements Publisher<Location>, LocationListener {
 
     private List<Subscriber<Location>> subscribers; // all subscribers here
 
-    static LocationService getInstance() throws NotInstantiatedException {
+    public static LocationService getInstance() {
         if (instance == null || !setupCalled)
-            throw new NotInstantiatedException();
+            return null;
         return instance;
     }
 
@@ -65,15 +64,11 @@ public class LocationService implements Publisher<Location>, LocationListener {
     }
 
 
-    // TODO: check if this is really required to exist here,
-    // Note that mGoogleApiClient is from MainActivity only
-    void onResume() {
+    public void onResume() {
         mGoogleApiClient.connect();
     }
 
-    // TODO: check if this is really required to exist here,
-    // Note that mGoogleApiClient is from MainActivity only
-    void onPause() {
+    public void onPause() {
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
@@ -91,7 +86,9 @@ public class LocationService implements Publisher<Location>, LocationListener {
         notifyAllSubscribers(location);
     }
 
-    public Location getUserLocation(Friend user) {
+
+    public Location getUserLocation(User user) {
+        // this method should translate User (java Type) into information
         Location location = new Location("LocationService.user." + user.getName());
 
         // TODO
@@ -102,7 +99,6 @@ public class LocationService implements Publisher<Location>, LocationListener {
         // from the database. (REST calls)
         location.setLongitude(144.960961);
         location.setLatitude(-37.796927);
-
         return location;
     }
 

@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.comp30022.helium.strawberry.patterns.Subscriber;
-import com.comp30022.helium.strawberry.components.location.exceptions.NotInstantiatedException;
 
 /**
  * Created by noxm on 17/09/17.
@@ -22,11 +21,7 @@ public abstract class LocationServiceFragment extends Fragment implements Subscr
     public final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        try {
-            locationService = LocationService.getInstance();
-        } catch (NotInstantiatedException e) {
-            Log.e(TAG, e.getMessage());
-        }
+        locationService = LocationService.getInstance();
 
         locationService.registerSubscriber(this);
 

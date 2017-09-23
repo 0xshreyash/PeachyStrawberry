@@ -1,56 +1,106 @@
 package com.comp30022.helium.strawberry.components.ar;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import eu.kudan.kudan.ARActivity;
 
-public class ARCameraViewActivity extends ARActivity {
-    private static final String KUDAN_AR_TAG = "KUDAN AR::: ";
-    private static final int CAMERA_PERM = 111;
+import com.comp30022.helium.strawberry.components.location.LocationService;
+import com.comp30022.helium.strawberry.entities.User;
+
+import eu.kudan.kudan.ARActivity;
+import eu.kudan.kudan.ARGyroPlaceManager;
+import eu.kudan.kudan.ARLightMaterial;
+import eu.kudan.kudan.ARMeshNode;
+import eu.kudan.kudan.ARModelImporter;
+import eu.kudan.kudan.ARModelNode;
+import eu.kudan.kudan.ARTexture2D;
+
+public class ARCameraViewActivity extends ARActivity implements SensorEventListener {
+    private static final String KUDAN_AR_TAG = ARCameraViewActivity.class.getSimpleName();
+    private ARArrowManager arrowManager;
+    private LocationService locationService;
+    private SensorManager sensorManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        locationService = LocationService.getInstance();
         if (!KudanSetup.setupKudan()) {
             Log.d(KUDAN_AR_TAG, "Failed to verify API key!");
         }
-        getCameraPermission();
+        this.sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
     }
 
     @Override
     public void setup() {
         super.setup();
+
+        ARGyroPlaceManager gyroPlaceManager = ARGyroPlaceManager.getInstance();
+        gyroPlaceManager.initialise();
+
+        ARModelImporter arModelImporter = new ARModelImporter();
+        arModelImporter.loadFromAsset("narrow.armodel");
+        ARModelNode arrowModelNode = arModelImporter.getNode();
+
+        ARTexture2D texture2D = new ARTexture2D();
+        texture2D.loadFromAsset("target.png");
+
+        ARLightMaterial material = new ARLightMaterial();
+        material.setTexture(texture2D);
+        material.setAmbient(.8f, .8f, .8f);
+
+        for (ARMeshNode m : arrowModelNode.getMeshNodes()) {
+            m.setMaterial(material);
+        }
+        arrowModelNode.scaleByUniform(100f);
+
+        this.getARView().getCameraViewPort().getCamera().addChild(arrowModelNode);
+        gyroPlaceManager.getWorld().addChild(arrowModelNode);
+
+        this.arrowManager = new ARArrowManager(this, new User(), arrowModelNode, locationService);
+        // this will point the arrow "forwards"
+        this.arrowManager.init();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        locationService.onResume();
+        Sensor mAccel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        Sensor mMag = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        sensorManager.registerListener(this, mAccel, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, mMag, SensorManager.SENSOR_DELAY_NORMAL);
+    }
 
-    private void getCameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) !=
-                PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA},
-                    CAMERA_PERM);
+    @Override
+    public void onPause() {
+        super.onPause();
+        locationService.onPause();
+        sensorManager.unregisterListener(this);
+    }
+
+    // TODO: remove, this is for debugging only
+    public void debugMessage(String message) {
+        Toast.makeText(getApplicationContext(),
+                message,
+                Toast.LENGTH_LONG).show();
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (arrowManager != null) {
+            arrowManager.sensorChanged(sensorEvent);
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case CAMERA_PERM:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // successfully got camera permission from user!
-                } else {
-                    Toast.makeText(getApplicationContext(), "Camera permission is required for" +
-                            " this augmented reality functionality.", Toast.LENGTH_LONG).show();
-                    getCameraPermission();
-                }
-        }
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
-
-
 }
