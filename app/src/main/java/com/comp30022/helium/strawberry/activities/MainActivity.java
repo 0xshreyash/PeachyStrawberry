@@ -32,7 +32,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // TODO: Permission grant failure : should not continue down onCreate
         //       This will cause crashes
         // Solution example:

@@ -2,6 +2,8 @@ package com.comp30022.helium.strawberry.activities;
 
 import android.location.Location;
 import android.os.Bundle;
+
+import com.comp30022.helium.strawberry.entities.User;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,9 +14,7 @@ import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationServiceFragment;
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
-import com.comp30022.helium.strawberry.entities.Friend;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -57,7 +57,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         map = new StrawberryMap(googleMap);
 
         // TODO: update with real friend object
-        Friend friend = new Friend();
+        User friend = new User();
 
         // init locations
         Location friendLoc = locationService.getUserLocation(friend);

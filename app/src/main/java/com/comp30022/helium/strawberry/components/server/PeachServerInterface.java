@@ -1,8 +1,8 @@
 package com.comp30022.helium.strawberry.components.server;
 
-import com.comp30022.helium.strawberry.components.location.exceptions.NotInstantiatedException;
 import com.comp30022.helium.strawberry.components.server.rest.PeachRestInterface;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
+import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
 
 import java.util.HashMap;
 
