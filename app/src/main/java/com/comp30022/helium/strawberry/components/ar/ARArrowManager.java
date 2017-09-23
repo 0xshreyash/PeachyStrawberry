@@ -5,6 +5,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.location.Location;
 
+import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.entities.Coordinate;
 import com.comp30022.helium.strawberry.entities.User;
@@ -14,7 +15,7 @@ import java.util.Arrays;
 
 import eu.kudan.kudan.ARModelNode;
 
-public class ARArrowManager implements Subscriber<Location> {
+public class ARArrowManager implements Subscriber<LocationEvent> {
     private static final String TAG = ARArrowManager.class.getSimpleName();
     private User friend;
     private ARModelNode modelNode;
@@ -55,7 +56,7 @@ public class ARArrowManager implements Subscriber<Location> {
 
 
     @Override
-    public void update(Location location) {
+    public void update(LocationEvent newLocation) {
         // get dot product of this.lastSelfLocation and targetLocation
         Location myLocation = locationService.getDeviceLocation();
         Location friendLocation = locationService.getUserLocation(friend);

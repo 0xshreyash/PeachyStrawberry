@@ -24,7 +24,7 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
     private static boolean setupCalled = false;
     private static final int INTERVAL_SECS = 5;
     private static final int FASTEST_INTERVAL_SECS = 1;
-    private Set<Friend> trackingUsers;
+    private Set<User> trackingUsers;
 
     private List<Subscriber<LocationEvent>> subscribers; // all subscribers here
 
@@ -107,11 +107,11 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         return location;
     }
 
-    public void addTracker(Friend friend) {
+    public void addTracker(User friend) {
         this.trackingUsers.add(friend);
     }
 
-    public void removeTracker(Friend friend) {
+    public void removeTracker(User friend) {
         this.trackingUsers.remove(friend);
     }
 
