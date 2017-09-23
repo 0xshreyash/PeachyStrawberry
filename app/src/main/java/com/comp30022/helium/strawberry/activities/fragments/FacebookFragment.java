@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.activities;
+package com.comp30022.helium.strawberry.activities.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -19,6 +20,7 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 public class FacebookFragment extends Fragment {
+    private static final String TAG = FacebookFragment.class.getSimpleName();
     private TextView info;
 
     private AccessTokenTracker accessTokenTracker;
@@ -84,6 +86,8 @@ public class FacebookFragment extends Fragment {
             info.setText("Saved Token: " + token);
         else
             info.setText("Login for more information");
+
+        PeachServerInterface.init(token);
 
         return view;
     }

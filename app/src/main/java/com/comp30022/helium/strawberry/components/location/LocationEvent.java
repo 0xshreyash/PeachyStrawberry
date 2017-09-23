@@ -3,7 +3,7 @@ package com.comp30022.helium.strawberry.components.location;
 
 import android.location.Location;
 
-import com.comp30022.helium.strawberry.components.chat.User;
+import com.comp30022.helium.strawberry.entities.User;
 
 /**
  * Wrapper class for location. LocationService.java uses this to inform all subscribers

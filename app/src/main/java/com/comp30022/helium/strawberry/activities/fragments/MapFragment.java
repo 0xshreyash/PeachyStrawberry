@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.activities;
+package com.comp30022.helium.strawberry.activities.fragments;
 
 import android.location.Location;
 import android.os.Bundle;
@@ -57,7 +57,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         map = new StrawberryMap(googleMap);
 
         // TODO: update with real friend object
-        User friend = new User();
+        User friend = new User("testid", "testuser");
 
         // init locations
         Location friendLoc = locationService.getUserLocation(friend);

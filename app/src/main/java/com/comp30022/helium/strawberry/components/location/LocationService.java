@@ -67,7 +67,6 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         return mLocationRequest;
     }
 
-
     public void onResume() {
         mGoogleApiClient.connect();
     }
@@ -94,7 +93,7 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
 
     public Location getUserLocation(User user) {
         // this method should translate User (java Type) into information
-        Location location = new Location("LocationService.user." + user.getName());
+        Location location = new Location("LocationService.user." + user.getUsername());
 
         // TODO
         // this method should translate Friend (java Type) into information
