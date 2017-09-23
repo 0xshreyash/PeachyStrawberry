@@ -12,9 +12,11 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
-public class LocationService implements Publisher<Location>, LocationListener {
+public class LocationService implements Publisher<LocationEvent>, LocationListener {
 
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
@@ -23,8 +25,9 @@ public class LocationService implements Publisher<Location>, LocationListener {
     private static boolean setupCalled = false;
     private static final int INTERVAL_SECS = 5;
     private static final int FASTEST_INTERVAL_SECS = 1;
+    private Set<Friend> trackingUsers;
 
-    private List<Subscriber<Location>> subscribers; // all subscribers here
+    private List<Subscriber<LocationEvent>> subscribers; // all subscribers here
 
     static LocationService getInstance() throws NotInstantiatedException {
         if (instance == null || !setupCalled)
@@ -53,6 +56,7 @@ public class LocationService implements Publisher<Location>, LocationListener {
         instance = this;
 
         subscribers = new ArrayList<>();
+        trackingUsers = new LinkedHashSet<>();
     }
 
     public Location getDeviceLocation() {
@@ -87,8 +91,9 @@ public class LocationService implements Publisher<Location>, LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         setNewLocation(location);
-        // Remember to UPDATE database.
-        notifyAllSubscribers(location);
+        // TODO: Remember to UPDATE database.
+        LocationEvent locationEvent = new LocationEvent(location, null);
+        notifyAllSubscribers(locationEvent);
     }
 
     public Location getUserLocation(Friend user) {
@@ -106,20 +111,28 @@ public class LocationService implements Publisher<Location>, LocationListener {
         return location;
     }
 
-    public void registerSubscriber(Subscriber<Location> sub) {
+    public void addTracker(Friend friend) {
+        this.trackingUsers.add(friend);
+    }
+
+    public void removeTracker(Friend friend) {
+        this.trackingUsers.remove(friend);
+    }
+
+    public void registerSubscriber(Subscriber<LocationEvent> sub) {
         // this should add the subscriber into its list
         subscribers.add(sub);
     }
 
-    public void deregisterSubscriber(Subscriber<Location> sub) {
+    public void deregisterSubscriber(Subscriber<LocationEvent> sub) {
         // this should deregister the subscriber from the list
         subscribers.remove(sub);
     }
 
-    private void notifyAllSubscribers(Location location) {
+    private void notifyAllSubscribers(LocationEvent location) {
         // this method will call the update() method on all subscribers that are
         // registered.
-        for (Subscriber<Location> sub : subscribers) {
+        for (Subscriber<LocationEvent> sub : subscribers) {
             sub.update(location);
         }
     }
