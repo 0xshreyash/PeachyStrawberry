@@ -25,14 +25,13 @@ import com.facebook.login.widget.LoginButton;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FacebookFragment extends Fragment implements Publisher<Boolean> {
+public class FacebookFragment extends Fragment implements Publisher<String> {
     private static final String TAG = FacebookFragment.class.getSimpleName();
-    private TextView info;
 
     private AccessTokenTracker accessTokenTracker;
     private CallbackManager callbackManager;
     private LoginButton loginButton;
-    private List<Subscriber<Boolean>> subscribers = new ArrayList<>();
+    private List<Subscriber<String>> subscribers = new ArrayList<>();
 
     public FacebookFragment() {
     }
@@ -50,56 +49,51 @@ public class FacebookFragment extends Fragment implements Publisher<Boolean> {
             protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
                 if (currentAccessToken == null) {
                     StrawberryApplication.remove("token");
-                    info.setText("Log out");
+                    Log.i(TAG, "Logout");
 
                 } else {
                     StrawberryApplication.setString("token", currentAccessToken.getToken());
-                    notifyAllSubscribers(true);
+                    notifyAllSubscribers(currentAccessToken.getToken());
                 }
             }
         };
 
+        // login button config
         loginButton = (LoginButton) view.findViewById(R.id.login_button);
-        info = (TextView) view.findViewById(R.id.info);
-
         loginButton.setReadPermissions("email", "user_friends", "user_likes");
         loginButton.setFragment(this);
-
         // Callback registration
         callbackManager = CallbackManager.Factory.create();
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                info.setText("UserID: " + loginResult.getAccessToken().getUserId() +"\n" +
-                            "AuthToken: " + loginResult.getAccessToken().getToken());
+                Log.i(TAG, "UserID: " + loginResult.getAccessToken().getUserId() +"\n" + "AuthToken: " + loginResult.getAccessToken().getToken());
             }
 
             @Override
             public void onCancel() {
-                info.setText("Login cancelled");
+                Log.w(TAG, "Login cancelled");
             }
 
             @Override
             public void onError(FacebookException exception) {
-                info.setText("Login Error: " + exception.getMessage());
+                Log.e(TAG, "Login Error: " + exception.getMessage());
             }
         });
 
-        // get the saved token and display
+        // get the saved token and log
         String token = StrawberryApplication.getString("token");
         if(token != null) {
-            info.setText("Saved Token: " + token);
+            Log.i(TAG, "Saved Token: " + token);
         } else {
-            info.setText("Login for more information");
+            Log.i(TAG, "Login for more information");
         }
-
-        PeachServerInterface.init(token);
 
         return view;
     }
 
-    private void notifyAllSubscribers(Boolean res) {
-        for(Subscriber<Boolean> sub: subscribers) {
+    private void notifyAllSubscribers(String res) {
+        for(Subscriber<String> sub: subscribers) {
             sub.update(res);
         }
     }
@@ -116,12 +110,12 @@ public class FacebookFragment extends Fragment implements Publisher<Boolean> {
     }
 
     @Override
-    public void registerSubscriber(Subscriber<Boolean> sub) {
+    public void registerSubscriber(Subscriber<String> sub) {
         subscribers.add(sub);
     }
 
     @Override
-    public void deregisterSubscriber(Subscriber<Boolean> sub) {
+    public void deregisterSubscriber(Subscriber<String> sub) {
         subscribers.remove(sub);
     }
 }

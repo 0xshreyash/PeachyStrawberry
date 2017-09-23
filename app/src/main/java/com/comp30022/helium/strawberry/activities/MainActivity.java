@@ -1,24 +1,32 @@
 package com.comp30022.helium.strawberry.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.comp30022.helium.strawberry.R;
+import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.ar.ARCameraViewActivity;
 import com.comp30022.helium.strawberry.components.location.LocationService;
 
+import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
+import com.comp30022.helium.strawberry.patterns.Subscriber;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
-public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Subscriber<Boolean> {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private GoogleApiClient mGoogleApiClient;
@@ -27,7 +35,19 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        // check if we actually have permission
+        checkPermission();
+
+        // wait for rest interface to authorize
+        setContentView(R.layout.splash);
+        String token = StrawberryApplication.getString("token");
+        if(token != null) {
+            PeachServerInterface.init(StrawberryApplication.getString("token"), this);
+        } else {
+            // need to get token again
+            backToStart();
+        }
 
         // Main acts as googleApiClient, for now
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -38,6 +58,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         mLocationService = new LocationService();
         mLocationService.setup(mGoogleApiClient);
+    }
+
+    // if does not have permission, boot to start
+    private void checkPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            backToStart();
+        }
     }
 
 
@@ -92,5 +121,37 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.e(TAG, "Connection failed with " + connectionResult.getErrorMessage());
+        backToStart();
+    }
+
+    /**
+     * get result of rest interface initialization
+     * @param restInit
+     */
+    @Override
+    public void update(Boolean restInit) {
+        if(!restInit) {
+            try {
+                PeachServerInterface.getInstance().deregisterSubscriber(this);
+            } catch (Exception e) {
+                // Should not happen
+                e.printStackTrace();
+            }
+
+            Toast toast = Toast.makeText(this, "Failed to authorize with existing token.", Toast.LENGTH_SHORT);
+            toast.show();
+            backToStart();
+        } else {
+            // successful
+            setContentView(R.layout.activity_main);
+        }
+    }
+
+    private void backToStart() {
+        Intent intent = new Intent(getApplicationContext(), InitActivity.class);
+        LoginManager.getInstance().logOut();
+        startActivity(intent);
+        this.finish();
     }
 }
+
