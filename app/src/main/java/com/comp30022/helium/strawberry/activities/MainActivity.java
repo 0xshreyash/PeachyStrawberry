@@ -131,18 +131,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     public void update(Boolean restInit) {
         if(!restInit) {
-            try {
-                PeachServerInterface.getInstance().deregisterSubscriber(this);
-            } catch (Exception e) {
-                // Should not happen
-                e.printStackTrace();
-            }
-
             Toast toast = Toast.makeText(this, "Failed to authorize with existing token.", Toast.LENGTH_SHORT);
             toast.show();
             backToStart();
         } else {
-            // successful
+            // successful, gurantee that we have permissions
             setContentView(R.layout.activity_main);
         }
     }

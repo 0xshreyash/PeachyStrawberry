@@ -21,4 +21,13 @@ public class User {
     public String getId() {
         return id;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof User) {
+            User other = (User) obj;
+            return other.getId().equals(this.getId());
+        }
+        return false;
+    }
 }

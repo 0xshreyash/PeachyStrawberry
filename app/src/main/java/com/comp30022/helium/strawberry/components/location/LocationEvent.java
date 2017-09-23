@@ -4,31 +4,37 @@ package com.comp30022.helium.strawberry.components.location;
 import android.location.Location;
 
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.patterns.Event;
 
 /**
  * Wrapper class for location. LocationService.java uses this to inform all subscribers
  * the change of user's location. If the user is this device itself, the user field is
  * left as null.
  */
-public class LocationEvent {
+public class LocationEvent implements Event<LocationService, User, Location>{
 
-    private Location location;
-    private User user;
+    private final LocationService source;
+    private final User key;
+    private final Location value;
 
-    LocationEvent(Location location, User user) {
-        this.location = location;
-        this.user = user;
+    LocationEvent(LocationService source, User user, Location location) {
+        this.source = source;
+        this.key = user;
+        this.value = location;
     }
 
-    public Location getLocation() {
-        return location;
+    @Override
+    public LocationService getSource() {
+        return null;
     }
 
-    public User getUser() {
-        return user;
+    @Override
+    public User getKey() {
+        return null;
     }
 
-    public boolean thisDeviceLocationChanged() {
-        return this.user == null;
+    @Override
+    public Location getValue() {
+        return null;
     }
 }

@@ -2,6 +2,7 @@ package com.comp30022.helium.strawberry.components.location;
 
 import android.location.Location;
 
+import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
@@ -85,8 +86,8 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
     @Override
     public void onLocationChanged(Location location) {
         setNewLocation(location);
-        // TODO: Remember to UPDATE database.
-        LocationEvent locationEvent = new LocationEvent(location, null);
+        LocationEvent locationEvent = new LocationEvent(this, PeachServerInterface.currentUser(), location);
+        PeachServerInterface.updateCurrentLocation(location);
         notifyAllSubscribers(locationEvent);
     }
 

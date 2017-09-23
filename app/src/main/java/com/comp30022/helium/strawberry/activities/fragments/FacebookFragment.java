@@ -7,11 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
-import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.facebook.AccessToken;
@@ -64,10 +62,11 @@ public class FacebookFragment extends Fragment implements Publisher<String> {
         loginButton.setFragment(this);
         // Callback registration
         callbackManager = CallbackManager.Factory.create();
+
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.i(TAG, "UserID: " + loginResult.getAccessToken().getUserId() +"\n" + "AuthToken: " + loginResult.getAccessToken().getToken());
+                Log.i(TAG, "UserID: " + loginResult.getAccessToken().getUserId() + "\n" + "AuthToken: " + loginResult.getAccessToken().getToken());
             }
 
             @Override
@@ -83,7 +82,7 @@ public class FacebookFragment extends Fragment implements Publisher<String> {
 
         // get the saved token and log
         String token = StrawberryApplication.getString("token");
-        if(token != null) {
+        if (token != null) {
             Log.i(TAG, "Saved Token: " + token);
         } else {
             Log.i(TAG, "Login for more information");
@@ -93,7 +92,7 @@ public class FacebookFragment extends Fragment implements Publisher<String> {
     }
 
     private void notifyAllSubscribers(String res) {
-        for(Subscriber<String> sub: subscribers) {
+        for (Subscriber<String> sub : subscribers) {
             sub.update(res);
         }
     }

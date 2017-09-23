@@ -1,12 +1,15 @@
 package com.comp30022.helium.strawberry.components.server;
 
+import android.location.Location;
 import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.PeachRestInterface;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
+import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
@@ -17,6 +20,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by noxm on 17/09/17.
@@ -24,9 +28,11 @@ import java.util.List;
 
 public class PeachServerInterface implements Publisher<Boolean>{
     private static final String TAG = "PeachServerInterface";
-    private static final String SUCCESS_MESSAGE = "Successfully authorized";
     private static final long EXPIRE_TIME = 1800000L; // 30mins
+    private static final String CURRENT_USER = "currentUser";
     private static PeachServerInterface instance = null;
+    private static String userId = "";
+
     private List<Subscriber<Boolean>> subs = new ArrayList<>();
     private Long initTime = 0L;
 
@@ -40,7 +46,7 @@ public class PeachServerInterface implements Publisher<Boolean>{
     }
 
     public static void init(String facebookToken, Subscriber<Boolean> toNotify) {
-        if(instance == null || instance.expired())
+        if(instance == null || instance.expired() || userId.length() == 0)
             instance = new PeachServerInterface(facebookToken, toNotify);
         else toNotify.update(true);
     }
@@ -50,6 +56,8 @@ public class PeachServerInterface implements Publisher<Boolean>{
     }
 
     private PeachServerInterface(String token, Subscriber<Boolean> toNotify) {
+        StrawberryApplication.getInstance().getRequestQueue().getCache().clear();
+
         Log.i(TAG, "Initializing with token " + token);
 
         // construct header
@@ -65,14 +73,9 @@ public class PeachServerInterface implements Publisher<Boolean>{
             public void onResponse(String response) {
                 try {
                     JSONObject resJson = new JSONObject(response);
-                    String msg = (String) resJson.get("message");
-                    if(msg.equals(SUCCESS_MESSAGE)) {
-                        notifyAllSubscribers(true);
-                        initTime = System.currentTimeMillis();
-                    } else {
-                        notifyAllSubscribers(false);
-                    }
-
+                    Log.i(TAG, "user id is " + resJson.get("message"));
+                    userId = (String) resJson.get("message");
+                    notifyAllSubscribers(true);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     notifyAllSubscribers(false);
@@ -81,11 +84,13 @@ public class PeachServerInterface implements Publisher<Boolean>{
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                String msg = (error.getMessage() == null) ? error.networkResponse.statusCode + " Error" : error.getMessage();
-                String data = new String(error.networkResponse.data);
-                Log.e(TAG, msg);
-                Log.e(TAG, data);
-                notifyAllSubscribers(false);
+                if(error != null) {
+                    String msg = (error.getMessage() == null) ? error.networkResponse.statusCode + " Error" : error.getMessage();
+                    String data = new String(error.networkResponse.data);
+                    Log.e(TAG, msg);
+                    Log.e(TAG, data);
+                    notifyAllSubscribers(false);
+                }
             }
         }));
     }
@@ -93,6 +98,19 @@ public class PeachServerInterface implements Publisher<Boolean>{
     private void notifyAllSubscribers(boolean b) {
         for(Subscriber<Boolean> sub: subs) {
             sub.update(b);
+        }
+    }
+
+    /**
+     * Rest call to update users current location
+     * @param location
+     */
+    public static void updateCurrentLocation(Location location) {
+        if(userId != null && userId.length() > 0) {
+            Map<String, String> form = new HashMap<>();
+            form.put("longitude", String.valueOf(location.getLongitude()));
+            form.put("latitude", String.valueOf(location.getLatitude()));
+            PeachRestInterface.post("/user/" + userId + "/location", form, new StrawberryListener());
         }
     }
 
@@ -104,5 +122,9 @@ public class PeachServerInterface implements Publisher<Boolean>{
     @Override
     public void deregisterSubscriber(Subscriber<Boolean> sub) {
         subs.remove(sub);
+    }
+
+    public static User currentUser() {
+        return new User(userId, CURRENT_USER);
     }
 }
