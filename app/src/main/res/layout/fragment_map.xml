@@ -1,16 +1,52 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.comp30022.helium.strawberry.activities.MapFragment">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:map="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.example.noxm.googlemapsexample.MapsActivity" />
 
-</FrameLayout>
+    <!--Create the buttons for changing travel modes-->
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/drive"
+        android:id="@+id/drive"
+        android:background="@drawable/mode_stytle"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/walk"
+        android:id="@+id/walk"
+        android:background="@drawable/mode_stytle"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/drive" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bicycle"
+        android:id="@+id/bicycle"
+        android:background="@drawable/mode_stytle"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/transit" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tranist"
+        android:id="@+id/transit"
+        android:background="@drawable/mode_stytle"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+
+</RelativeLayout>

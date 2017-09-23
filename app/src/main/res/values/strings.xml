@@ -3,11 +3,10 @@
     <string name="facebook_app_id">696462567210114</string>
     <string name="fb_login_protocol_scheme">fb696462567210114</string>
 
-    <string name="location_null">Location is null</string>
-    <string name="connection_success">connection is successful</string>
-    <string name="connection_suspended">connection is suspended</string>
-    <string name="connection_failed">connection is failed</string>
-    <string name="google_api">google API client is null</string>
+    <string name="walk">Walking</string>
+    <string name="drive">Driving</string>
+    <string name="bicycle">Bicycling</string>
+    <string name="tranist">Tranist</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

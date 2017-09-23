@@ -28,6 +28,7 @@ import java.util.Map;
 public class StrawberryMap {
     private static final String TAG = StrawberryMap.class.getSimpleName();
     private GoogleMap googleMap;
+    private String mode;
 
     private Map<String, Marker> markers;
     private Map<String, Polyline> paths;
@@ -36,6 +37,7 @@ public class StrawberryMap {
         this.googleMap = googleMap;
         markers = new HashMap<>();
         paths = new HashMap<>();
+        mode = "&mode=transit";
     }
 
     public void updatePath(String markerName1, String markerName2) {
@@ -116,7 +118,7 @@ public class StrawberryMap {
         String sensor = "sensor=false";
 
         // Building the parameters to the web service
-        String parameters = str_origin + "&" + str_dest + "&" + sensor + "&mode=transit";
+        String parameters = str_origin + "&" + str_dest + "&" + sensor + mode;
 
         // Output format
         String output = "json";
@@ -126,6 +128,11 @@ public class StrawberryMap {
 
         return url;
     }
+
+    public void setMode(String newMode){
+        mode = "&mode=" + newMode;
+    }
+
 
     public void updatePolyline(String name, PolylineOptions polylineOptions) {
         Polyline path = paths.get(name);

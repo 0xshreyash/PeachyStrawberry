@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.location.LocationServiceFragment;
@@ -24,10 +25,15 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MapFragment extends LocationServiceFragment implements OnMapReadyCallback {
+public class MapFragment extends LocationServiceFragment implements OnMapReadyCallback, View.OnClickListener {
     private static final String TAG = MapFragment.class.getSimpleName();
     private StrawberryMap map;
     private SupportMapFragment mMapView;
+    private Button drive;
+    private Button walk;
+    private Button bicycle;
+    private Button transit;
+    private Button lastChanged = null;
 
     public MapFragment() {
         // Required empty public constructor
@@ -39,7 +45,15 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         mMapView = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mMapView.onCreate(savedInstanceState);
-        //mMapView.onResume(); // needed to get the map to display immediately
+
+        drive = (Button) view.findViewById(R.id.drive);
+        drive.setOnClickListener(this);
+        walk = (Button) view.findViewById(R.id.walk);
+        walk.setOnClickListener(this);
+        bicycle = (Button) view.findViewById(R.id.bicycle);
+        bicycle.setOnClickListener(this);
+        transit = (Button) view.findViewById(R.id.transit);
+        transit.setOnClickListener(this);
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -90,5 +104,55 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     @Override
     protected void onPauseAction() {
         mMapView.onPause();
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            // Change the background of the clicked button, and change back the previously changed one
+            case R.id.drive:
+                if(lastChanged != null){
+                    lastChanged.setBackgroundResource(R.drawable.mode_stytle);
+                }
+                lastChanged = drive;
+                map.setMode("driving");
+                map.updatePath("currentLocation", "friendLocation");
+                drive.setBackgroundResource(R.drawable.mode_colour);
+                break;
+
+            case R.id.walk:
+                if(lastChanged != null){
+                    lastChanged.setBackgroundResource(R.drawable.mode_stytle);
+                }
+                lastChanged = walk;
+                map.setMode("walking");
+                map.updatePath("currentLocation", "friendLocation");
+                walk.setBackgroundResource(R.drawable.mode_colour);
+                break;
+
+            case R.id.bicycle:
+                if(lastChanged != null){
+                    lastChanged.setBackgroundResource(R.drawable.mode_stytle);
+                }
+                lastChanged = bicycle;
+                map.setMode("bicycling");
+                map.updatePath("currentLocation", "friendLocation");
+                bicycle.setBackgroundResource(R.drawable.mode_colour);
+                break;
+
+            case R.id.transit:
+                if(lastChanged != null){
+                    lastChanged.setBackgroundResource(R.drawable.mode_stytle);
+                }
+                lastChanged = transit;
+                map.setMode("transit");
+                map.updatePath("currentLocation", "friendLocation");
+                transit.setBackgroundResource(R.drawable.mode_colour);
+                break;
+
+            default:
+                Log.d("onClick","Cannot find any button");
+                break;
+        }
     }
 }
