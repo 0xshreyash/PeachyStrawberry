@@ -51,6 +51,8 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
     @Override
     protected void onPostExecute(List<List<HashMap<String, String>>> result) {
         ArrayList<LatLng> points;
+        String distance = "";
+        String duration = "";
 
         PolylineOptions lineOptions = null;
         // Traversing through all the routes
@@ -65,6 +67,14 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
             // Fetching all the points in i-th route
             for (int j = 0; j < path.size(); j++) {
                 HashMap<String, String> point = path.get(j);
+
+                if(j==0){    // Get distance from the list
+                    distance = (String)point.get("distance");
+                    continue;
+                }else if(j==1){ // Get duration from the list
+                    duration = (String)point.get("duration");
+                    continue;
+                }
 
                 double lat = Double.parseDouble(point.get("lat"));
                 double lng = Double.parseDouble(point.get("lng"));
@@ -84,6 +94,18 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
             strawberryMap.updatePolyline(pathName, lineOptions);
         } else {
             Log.d("onPostExecute", "without Polylines drawn");
+        }
+
+        if(distance != null){
+            strawberryMap.changeText("distance", distance);
+        }else {
+            Log.d("onPostExecute", "without distance");
+        }
+
+        if(duration != null){
+            strawberryMap.changeText("duration", duration);
+        }else {
+            Log.d("onPostExecute", "without duration");
         }
     }
 }

@@ -4,12 +4,14 @@ import android.location.Location;
 import android.os.Bundle;
 
 import com.comp30022.helium.strawberry.entities.User;
+
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.location.LocationServiceFragment;
@@ -18,6 +20,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +38,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private Button bicycle;
     private Button transit;
     private Button lastChanged = null;
+    private TextView arrival_time;
+    private TextView arrival_distance;
 
     public MapFragment() {
         // Required empty public constructor
@@ -45,6 +51,9 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         mMapView = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mMapView.onCreate(savedInstanceState);
+
+        arrival_time = (TextView) view.findViewById(R.id.arrival_time);
+        arrival_distance = (TextView) view.findViewById(R.id.arrival_distance);
 
         drive = (Button) view.findViewById(R.id.drive);
         drive.setOnClickListener(this);
@@ -67,7 +76,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        map = new StrawberryMap(googleMap);
+        map = new StrawberryMap(googleMap, this);
 
         // TODO: update with real friend object
         User friend = new User();
@@ -106,12 +115,13 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         mMapView.onPause();
     }
 
+    // Change the travel mode.
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             // Change the background of the clicked button, and change back the previously changed one
             case R.id.drive:
-                if(lastChanged != null){
+                if (lastChanged != null) {
                     lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 }
                 lastChanged = drive;
@@ -121,7 +131,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 break;
 
             case R.id.walk:
-                if(lastChanged != null){
+                if (lastChanged != null) {
                     lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 }
                 lastChanged = walk;
@@ -131,7 +141,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 break;
 
             case R.id.bicycle:
-                if(lastChanged != null){
+                if (lastChanged != null) {
                     lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 }
                 lastChanged = bicycle;
@@ -141,7 +151,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 break;
 
             case R.id.transit:
-                if(lastChanged != null){
+                if (lastChanged != null) {
                     lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 }
                 lastChanged = transit;
@@ -151,8 +161,24 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 break;
 
             default:
-                Log.d("onClick","Cannot find any button");
+                Log.d("onClick", "Cannot find any button");
                 break;
+        }
+    }
+
+    // Update the arrival time and distance which will be shown in the textview.
+    public void changeText(String name, String value) {
+        switch (name) {
+            case "distance":
+                arrival_distance.setText("The estimated distance is " + value);
+                break;
+
+            case "duration":
+                arrival_time.setText("The estimated arrival time is " + value);
+                break;
+
+            default:
+                Log.d("changeText", "The text is changed successfully");
         }
     }
 }

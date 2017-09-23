@@ -3,6 +3,7 @@ package com.comp30022.helium.strawberry.components.map;
 import android.location.Location;
 
 import com.comp30022.helium.strawberry.R;
+import com.comp30022.helium.strawberry.activities.MapFragment;
 import com.comp30022.helium.strawberry.components.map.exceptions.NoSuchMarkerException;
 import com.comp30022.helium.strawberry.helpers.FetchUrl;
 import com.comp30022.helium.strawberry.components.location.PathParserTask;
@@ -29,12 +30,14 @@ public class StrawberryMap {
     private static final String TAG = StrawberryMap.class.getSimpleName();
     private GoogleMap googleMap;
     private String mode;
+    private MapFragment mapFragment;
 
     private Map<String, Marker> markers;
     private Map<String, Polyline> paths;
 
-    public StrawberryMap(GoogleMap googleMap) {
+    public StrawberryMap(GoogleMap googleMap, MapFragment mapFragment) {
         this.googleMap = googleMap;
+        this.mapFragment = mapFragment;
         markers = new HashMap<>();
         paths = new HashMap<>();
         mode = "&mode=transit";
@@ -142,5 +145,9 @@ public class StrawberryMap {
 
         path = googleMap.addPolyline(polylineOptions);
         paths.put(name, path);
+    }
+
+    public void changeText(String name, String value){
+        mapFragment.changeText(name, value);
     }
 }
