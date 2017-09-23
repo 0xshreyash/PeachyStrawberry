@@ -26,7 +26,7 @@ import java.util.Map;
  * Created by noxm on 17/09/17.
  */
 
-public class PeachServerInterface implements Publisher<Boolean>{
+public class PeachServerInterface implements Publisher<Boolean> {
     private static final String TAG = "PeachServerInterface";
     private static final long EXPIRE_TIME = 1800000L; // 30mins
     private static final String CURRENT_USER = "currentUser";
@@ -37,16 +37,16 @@ public class PeachServerInterface implements Publisher<Boolean>{
     private Long initTime = 0L;
 
     public static PeachServerInterface getInstance() throws NotInstantiatedException, InstanceExpiredException {
-        if(instance == null)
+        if (instance == null)
             throw new NotInstantiatedException();
-        if(instance.expired())
+        if (instance.expired())
             throw new InstanceExpiredException();
 
         return instance;
     }
 
     public static void init(String facebookToken, Subscriber<Boolean> toNotify) {
-        if(instance == null || instance.expired() || userId.length() == 0)
+        if (instance == null || instance.expired() || userId.length() == 0)
             instance = new PeachServerInterface(facebookToken, toNotify);
         else toNotify.update(true);
     }
@@ -65,7 +65,7 @@ public class PeachServerInterface implements Publisher<Boolean>{
         tokenMap.put("token", token);
 
         // register notifiers
-        if(toNotify != null)
+        if (toNotify != null)
             registerSubscriber(toNotify);
 
         PeachRestInterface.post("/authorize", tokenMap, new StrawberryListener(new Response.Listener<String>() {
@@ -84,7 +84,7 @@ public class PeachServerInterface implements Publisher<Boolean>{
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                if(error != null) {
+                if (error != null) {
                     String msg = (error.getMessage() == null) ? error.networkResponse.statusCode + " Error" : error.getMessage();
                     String data = new String(error.networkResponse.data);
                     Log.e(TAG, msg);
@@ -96,17 +96,18 @@ public class PeachServerInterface implements Publisher<Boolean>{
     }
 
     private void notifyAllSubscribers(boolean b) {
-        for(Subscriber<Boolean> sub: subs) {
+        for (Subscriber<Boolean> sub : subs) {
             sub.update(b);
         }
     }
 
     /**
      * Rest call to update users current location
+     *
      * @param location
      */
     public static void updateCurrentLocation(Location location) {
-        if(userId != null && userId.length() > 0) {
+        if (userId != null && userId.length() > 0) {
             Map<String, String> form = new HashMap<>();
             form.put("longitude", String.valueOf(location.getLongitude()));
             form.put("latitude", String.valueOf(location.getLatitude()));
@@ -126,5 +127,11 @@ public class PeachServerInterface implements Publisher<Boolean>{
 
     public static User currentUser() {
         return new User(userId, CURRENT_USER);
+    }
+
+    public static void getUserLocation(User friend, StrawberryListener strawberryListener) {
+        if (userId != null && userId.length() > 0) {
+            PeachRestInterface.get("/user/" + friend.getId() + "/location", strawberryListener);
+        }
     }
 }
