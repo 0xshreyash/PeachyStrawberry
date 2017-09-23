@@ -27,13 +27,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // TODO: Permission grant failure : should not continue down onCreate
-        //       This will cause crashes
-        // Solution example:
-        // create PermissionActivity that is the entrance, requesting permissions
-        // then move to MainActivity once all the permissions are granted
-        setContentView(R.layout.splash);
-
         setContentView(R.layout.activity_main);
 
         // Main acts as googleApiClient, for now
@@ -43,8 +36,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 .addApi(LocationServices.API)
                 .build();
 
-        // TODO: setup in LocationServiceInitActivity,
-        //       keep the googleAPIclient there
         mLocationService = new LocationService();
         mLocationService.setup(mGoogleApiClient);
     }
