@@ -12,7 +12,7 @@ import com.comp30022.helium.strawberry.patterns.Subscriber;
  * Created by noxm on 17/09/17.
  */
 
-public abstract class LocationServiceFragment extends Fragment implements Subscriber<Location> {
+public abstract class LocationServiceFragment extends Fragment implements Subscriber<LocationEvent> {
     private static final String TAG = "LocationServiceFragment";
 
     protected LocationService locationService;

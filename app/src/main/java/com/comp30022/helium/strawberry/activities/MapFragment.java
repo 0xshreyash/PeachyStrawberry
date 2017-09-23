@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.comp30022.helium.strawberry.R;
+import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationServiceFragment;
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
 import com.google.android.gms.maps.GoogleMap;
@@ -73,12 +74,20 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     }
 
     @Override
-    public void update(Location currentLocation) {
-        if (map != null) {
-            map.updateMarker("currentLocation", "You are here", currentLocation);
-            map.updatePath("currentLocation", "friendLocation");
+    public void update(LocationEvent updatedLocation) {
+        Location currentLocation = updatedLocation.getLocation();
+
+        // if the updated location belongs to this device
+        if (updatedLocation.thisDeviceLocationChanged()) {
+            if (map != null) {
+                map.updateMarker("currentLocation", "You are here", currentLocation);
+                map.updatePath("currentLocation", "friendLocation");
+            } else {
+                Log.e(TAG, "Map has not been initialized yet, ditching new location update");
+            }
         } else {
-            Log.e(TAG, "Map has not been initialized yet, ditching new location update");
+            // if the updated location belongs to a friend this class is tracking
+            // TODO: do something (update friend's location marker)
         }
     }
 
