@@ -37,7 +37,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private Button walk;
     private Button bicycle;
     private Button transit;
-    private Button lastChanged = null;
+    private Button lastChanged;
     private TextView arrival_time;
     private TextView arrival_distance;
 
@@ -57,12 +57,17 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         drive = (Button) view.findViewById(R.id.drive);
         drive.setOnClickListener(this);
+
         walk = (Button) view.findViewById(R.id.walk);
         walk.setOnClickListener(this);
+
         bicycle = (Button) view.findViewById(R.id.bicycle);
         bicycle.setOnClickListener(this);
+
         transit = (Button) view.findViewById(R.id.transit);
         transit.setOnClickListener(this);
+        transit.setBackgroundResource(R.drawable.mode_colour);
+        lastChanged = transit;
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -121,9 +126,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         switch (view.getId()) {
             // Change the background of the clicked button, and change back the previously changed one
             case R.id.drive:
-                if (lastChanged != null) {
-                    lastChanged.setBackgroundResource(R.drawable.mode_stytle);
-                }
+                lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 lastChanged = drive;
                 map.setMode("driving");
                 map.updatePath("currentLocation", "friendLocation");
@@ -131,9 +134,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 break;
 
             case R.id.walk:
-                if (lastChanged != null) {
-                    lastChanged.setBackgroundResource(R.drawable.mode_stytle);
-                }
+                lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 lastChanged = walk;
                 map.setMode("walking");
                 map.updatePath("currentLocation", "friendLocation");
@@ -141,9 +142,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 break;
 
             case R.id.bicycle:
-                if (lastChanged != null) {
-                    lastChanged.setBackgroundResource(R.drawable.mode_stytle);
-                }
+                lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 lastChanged = bicycle;
                 map.setMode("bicycling");
                 map.updatePath("currentLocation", "friendLocation");
@@ -151,9 +150,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 break;
 
             case R.id.transit:
-                if (lastChanged != null) {
-                    lastChanged.setBackgroundResource(R.drawable.mode_stytle);
-                }
+                lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 lastChanged = transit;
                 map.setMode("transit");
                 map.updatePath("currentLocation", "friendLocation");

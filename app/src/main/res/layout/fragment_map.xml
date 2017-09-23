@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,46 +11,51 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.example.noxm.googlemapsexample.MapsActivity"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        tools:context="com.example.noxm.googlemapsexample.MapsActivity" />
 
-    <!--Create the buttons for changing travel modes-->
-    <Button
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Driving"
-        android:id="@+id/drive"
-        android:background="@drawable/mode_stytle"
+        android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Walking"
-        android:id="@+id/walk"
-        android:background="@drawable/mode_stytle"
-        android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@+id/drive" />
+        <!--Create the buttons for changing travel modes-->
+        <Button
+            android:id="@+id/drive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/mode_stytle"
+            android:text="Driving"  />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bicycling"
-        android:id="@+id/bicycle"
-        android:background="@drawable/mode_stytle"
-        android:layout_alignParentBottom="true"
-        android:layout_toStartOf="@+id/transit" />
+        <Button
+            android:id="@+id/walk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/mode_stytle"
+            android:text="Walking"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Transit"
-        android:id="@+id/transit"
-        android:background="@drawable/mode_stytle"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
+        <Button
+            android:id="@+id/bicycle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/mode_stytle"
+            android:text="Bicycling" />
+
+        <Button
+            android:id="@+id/transit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/mode_stytle"
+            android:text="Transit" />
+    </LinearLayout>
+
 
     <!--Add a textview to show the distance-->
     <TextView
@@ -63,8 +69,8 @@
         android:id="@+id/arrival_distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/arrival_time"
         android:layout_centerHorizontal="true"
-        android:text="Loading the estimated arrival time"
-        android:layout_below="@+id/arrival_time" />
+        android:text="Loading the estimated arrival time" />
 
 </RelativeLayout>
