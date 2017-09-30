@@ -173,7 +173,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             Log.e(TAG, StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
             //FriendListAdapter.this.notify()
             //notifyDataSetChanged();
-            notifyItemChanged(position);
+            //notifyItemChanged(position);
             Log.e(TAG, position + " " + this.getAdapterPosition());
         }
     }
