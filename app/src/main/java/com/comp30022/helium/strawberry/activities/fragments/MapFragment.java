@@ -1,8 +1,9 @@
-package com.comp30022.helium.strawberry.activities;
+package com.comp30022.helium.strawberry.activities.fragments;
 
 import android.location.Location;
 import android.os.Bundle;
 
+import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -57,7 +58,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         map = new StrawberryMap(googleMap);
 
         // TODO: update with real friend object
-        User friend = new User();
+        User friend = new User("testid", "testuser");
 
         // init locations
         Location friendLoc = locationService.getUserLocation(friend);
@@ -75,20 +76,22 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
     @Override
     public void update(LocationEvent updatedLocation) {
-        Location currentLocation = updatedLocation.getLocation();
-
-        // if the updated location belongs to this device
-        if (updatedLocation.thisDeviceLocationChanged()) {
-            if (map != null) {
-                map.updateMarker("currentLocation", "You are here", currentLocation);
-                map.updatePath("currentLocation", "friendLocation");
-            } else {
-                Log.e(TAG, "Map has not been initialized yet, ditching new location update");
-            }
-        } else {
-            // if the updated location belongs to a friend this class is tracking
-            // TODO: do something (update friend's location marker)
+        if (map == null) {
+            Log.e(TAG, "Map has not been initialized yet, ditching new location update");
+            return;
         }
+
+        User user = updatedLocation.getKey();
+        Location currentLocation = updatedLocation.getValue();
+
+
+        if(user.equals(PeachServerInterface.currentUser())) {
+            map.updateMarker("currentLocation", "You are here", currentLocation);
+        } else {
+            map.updateMarker("friendLocation", "Friend location", currentLocation);
+        }
+
+        map.updatePath("currentLocation", "friendLocation");
     }
 
     @Override

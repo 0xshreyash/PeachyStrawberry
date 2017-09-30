@@ -41,8 +41,15 @@ public class StrawberryListener {
             return new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    String msg = (error.getMessage() == null) ? error.networkResponse.statusCode + " Error" : error.getMessage();
-                    Log.e(TAG, msg);
+                    if(error != null) {
+                        String msg = (error.getMessage() == null) ? error.networkResponse.statusCode + " Error" : error.getMessage();
+                        String data = new String(error.networkResponse.data);
+
+                        Log.e(TAG, msg);
+                        Log.d(TAG, 1 + " ERROR: " + msg + "\n" + data);
+                    } else {
+                        Log.e(TAG, "Unknown error");
+                    }
                 }
             };
 
