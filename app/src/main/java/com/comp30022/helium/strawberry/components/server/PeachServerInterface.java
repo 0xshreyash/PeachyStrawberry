@@ -29,7 +29,6 @@ import java.util.Map;
 public class PeachServerInterface implements Publisher<Boolean> {
     private static final String TAG = "PeachServerInterface";
     private static final long EXPIRE_TIME = 1800000L; // 30mins
-    private static final String CURRENT_USER = "currentUser";
     private static PeachServerInterface instance = null;
     private static String userId = "";
 
@@ -140,7 +139,7 @@ public class PeachServerInterface implements Publisher<Boolean> {
     }
 
     public static User currentUser() {
-        return new User(userId, CURRENT_USER);
+        return new User(userId);
     }
 
     public static void getUserLocation(User friend, StrawberryListener strawberryListener) {
@@ -159,5 +158,16 @@ public class PeachServerInterface implements Publisher<Boolean> {
         if (userId != null && userId.length() > 0) {
             PeachRestInterface.get("/user/" + id, strawberryListener);
         }
+    }
+
+    public void getChatLog(User friend, Long start, StrawberryListener strawberryListener) {
+        PeachRestInterface.get("/chat?start=" + start.toString() + "&from=" + friend.getId(), strawberryListener);
+    }
+
+    public void postChat(String message, String to, StrawberryListener strawberryListener) {
+        Map<String, String> form = new HashMap<>();
+        form.put("to", to);
+        form.put("message", message);
+        PeachRestInterface.post("/chat", form, strawberryListener);
     }
 }

@@ -41,4 +41,13 @@ public class Message {
     public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Message) {
+            Message other = (Message) obj;
+            return this.message.equals(other.message) && this.createdAt == other.createdAt;
+        }
+        return false;
+    }
 }

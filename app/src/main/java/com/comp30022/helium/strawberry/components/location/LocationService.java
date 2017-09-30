@@ -122,9 +122,7 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         LocationEvent locationEvent = new LocationEvent(this, PeachServerInterface.currentUser(), location);
         try {
             PeachServerInterface.getInstance().updateCurrentLocation(location);
-        } catch (NotInstantiatedException e) {
-            e.printStackTrace();
-        } catch (InstanceExpiredException e) {
+        } catch (NotInstantiatedException | InstanceExpiredException e) {
             e.printStackTrace();
         }
         notifyAllSubscribers(locationEvent);
