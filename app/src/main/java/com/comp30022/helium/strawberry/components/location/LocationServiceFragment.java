@@ -1,10 +1,7 @@
 package com.comp30022.helium.strawberry.components.location;
 
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 
@@ -13,7 +10,7 @@ import com.comp30022.helium.strawberry.patterns.Subscriber;
  */
 
 public abstract class LocationServiceFragment extends Fragment implements Subscriber<LocationEvent> {
-    private static final String TAG = "LocationServiceFragment";
+    private static final String TAG = LocationServiceFragment.class.getSimpleName();
 
     protected LocationService locationService;
 

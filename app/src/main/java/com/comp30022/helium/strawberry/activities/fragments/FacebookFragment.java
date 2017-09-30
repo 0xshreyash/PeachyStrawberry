@@ -1,15 +1,17 @@
-package com.comp30022.helium.strawberry.activities;
+package com.comp30022.helium.strawberry.activities.fragments;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.patterns.Publisher;
+import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -18,15 +20,18 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
-public class FacebookFragment extends Fragment {
-    private TextView info;
+import java.util.ArrayList;
+import java.util.List;
+
+public class FacebookFragment extends Fragment implements Publisher<String> {
+    private static final String TAG = FacebookFragment.class.getSimpleName();
 
     private AccessTokenTracker accessTokenTracker;
     private CallbackManager callbackManager;
     private LoginButton loginButton;
+    private List<Subscriber<String>> subscribers = new ArrayList<>();
 
     public FacebookFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -42,50 +47,54 @@ public class FacebookFragment extends Fragment {
             protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
                 if (currentAccessToken == null) {
                     StrawberryApplication.remove("token");
-                    info.setText("Log out");
+                    Log.i(TAG, "Logout");
 
                 } else {
                     StrawberryApplication.setString("token", currentAccessToken.getToken());
+                    notifyAllSubscribers(currentAccessToken.getToken());
                 }
             }
         };
 
+        // login button config
         loginButton = (LoginButton) view.findViewById(R.id.login_button);
-        info = (TextView) view.findViewById(R.id.info);
-
-        loginButton.setReadPermissions("email",
-                "user_friends",
-                "user_likes");
+        loginButton.setReadPermissions("email", "user_friends", "user_likes");
         loginButton.setFragment(this);
-
         // Callback registration
         callbackManager = CallbackManager.Factory.create();
+
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                info.setText("UserID: " + loginResult.getAccessToken().getUserId() +"\n" +
-                            "AuthToken: " + loginResult.getAccessToken().getToken());
+                Log.i(TAG, "UserID: " + loginResult.getAccessToken().getUserId() + "\n" + "AuthToken: " + loginResult.getAccessToken().getToken());
             }
 
             @Override
             public void onCancel() {
-                info.setText("Login cancelled");
+                Log.w(TAG, "Login cancelled");
             }
 
             @Override
             public void onError(FacebookException exception) {
-                info.setText("Login Error: " + exception.getMessage());
+                Log.e(TAG, "Login Error: " + exception.getMessage());
             }
         });
 
-        // get the saved token and display
+        // get the saved token and log
         String token = StrawberryApplication.getString("token");
-        if(token != null)
-            info.setText("Saved Token: " + token);
-        else
-            info.setText("Login for more information");
+        if (token != null) {
+            Log.i(TAG, "Saved Token: " + token);
+        } else {
+            Log.i(TAG, "Login for more information");
+        }
 
         return view;
+    }
+
+    private void notifyAllSubscribers(String res) {
+        for (Subscriber<String> sub : subscribers) {
+            sub.update(res);
+        }
     }
 
     @Override
@@ -97,5 +106,15 @@ public class FacebookFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void registerSubscriber(Subscriber<String> sub) {
+        subscribers.add(sub);
+    }
+
+    @Override
+    public void deregisterSubscriber(Subscriber<String> sub) {
+        subscribers.remove(sub);
     }
 }

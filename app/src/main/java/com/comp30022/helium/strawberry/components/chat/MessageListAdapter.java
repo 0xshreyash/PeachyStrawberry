@@ -42,7 +42,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         Message message = mMessageList.get(position);
         //Log.e("Check", "User ID is nothing");
         // TODO: Get current user ID and check if they are equal
-        if (message.getSender().getUserId() == 1) {
+        if (message.getSender().getId().equals("1")) {
 
             // If the current user is the sender of the message
             return VIEW_TYPE_MESSAGE_SENT;
