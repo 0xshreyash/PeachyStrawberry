@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,7 +13,6 @@ import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.entities.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,6 +23,8 @@ public class FriendListAdapter extends RecyclerView.Adapter {
 
     // The context
     private Context context;
+
+    private String selectedId;
 
     // List of friends
     private List<User> friendList;
@@ -37,6 +37,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
 
     // Makeshift friend for the demoonstration
     private static final int FRIEND = 3;
+    private static final int SELECTED_FRIEND = 4;
 
     /**
      * Constructor for the adapter
@@ -51,6 +52,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         }
         */
         this.context = context;
+        this.selectedId = "";
     }
 
     /**
@@ -70,7 +72,10 @@ public class FriendListAdapter extends RecyclerView.Adapter {
      */
     @Override
     public int getItemViewType(int position) {
-        //User friend = friendList.get(position);
+        User friend = friendList.get(position);
+        if(friend != null && selectedId.equals(friend.getUsername())) {
+            return SELECTED_FRIEND;
+        }
         //Log.i(TAG, "Getting the view type of the user");
         return FRIEND;
     }
@@ -91,12 +96,20 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             return new FriendHolder(view);
         }
         */
-
+        if(viewType == FRIEND) {
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_friend, parent, false);
+            return new FriendHolder(view);
+        }
+        else if(viewType == SELECTED_FRIEND) {
+            Log.e(TAG, "Selected Friend Done");
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_selected_friend, parent, false);
+            return new FriendHolder(view);
+        }
+        return null;
         //Log.e("Check", "Returning null");
 
-        view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_friend, parent, false);
-        return new FriendHolder(view);
     }
 
     // Passes the message object to a ViewHolder so that the contents can be bound to UI.
@@ -104,11 +117,13 @@ public class FriendListAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         User friend = friendList.get(position);
-
-        switch(this.getItemViewType(position)) {
+        switch(holder.getItemViewType()) {
             case FRIEND:
                 //Log.e(TAG, "The person was a friend");
-                ((FriendHolder)holder).bind(friend);
+                ((FriendHolder)holder).bind(friend, position);
+                break;
+            case SELECTED_FRIEND:
+                ((FriendHolder)holder).bind(friend, position);
             /*
             case ADDABLE_FRIEND:
                 ((AddableFriendHolder) holder).bind(friend);
@@ -132,6 +147,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         ImageView profileImage;
         String id;
         String username;
+        int position;
 
         FriendHolder(View itemView) {
             super(itemView);
@@ -141,17 +157,24 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             itemView.setOnClickListener(this);
         }
 
-        void bind(User friend) {
+        void bind(User friend, int position) {
             userNameText.setText(friend.getUsername());
             id = friend.getId();
             username = friend.getUsername();
+            this.position = position;
 
         }
 
         @Override
         public void onClick(View view) {
             Log.e(TAG, "onClick of " + username + " with id " + id);
+            selectedId = this.id;
             StrawberryApplication.setString(StrawberryApplication.SELECTED_USER_TAG, id);
+            Log.e(TAG, StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
+            //FriendListAdapter.this.notify()
+            //notifyDataSetChanged();
+            notifyItemChanged(position);
+            Log.e(TAG, position + " " + this.getAdapterPosition());
         }
     }
 
