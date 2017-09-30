@@ -1,8 +1,25 @@
 package com.comp30022.helium.strawberry.entities;
 
 
+import android.util.Log;
+
+import com.android.volley.Response;
+import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
+import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
+import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
+import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class User {
-    private final String id, username;
+    private String id, username;
+
+    public User(String id) {
+        this.id = id;
+        this.username = "";
+        getLatestUsername();
+    }
 
     public User(String id, String username) {
         this.id = id;
@@ -31,11 +48,23 @@ public class User {
         return false;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id='" + id + '\'' +
-                ", username='" + username + '\'' +
-                '}';
+    private void getLatestUsername() {
+        try {
+            PeachServerInterface.getInstance().getUser(id, new StrawberryListener(new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        JSONObject self = new JSONObject(response.toString());
+                        username = self.get("username").toString();
+                        Log.d("PeachUser", "Username updated to " + username);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, null));
+
+        } catch (NotInstantiatedException | InstanceExpiredException e) {
+            e.printStackTrace();
+        }
     }
 }
