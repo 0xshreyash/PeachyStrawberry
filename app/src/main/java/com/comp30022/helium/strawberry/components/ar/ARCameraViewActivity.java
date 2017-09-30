@@ -62,7 +62,7 @@ public class ARCameraViewActivity extends ARActivity implements SensorEventListe
         this.getARView().getCameraViewPort().getCamera().addChild(arrowModelNode);
         gyroPlaceManager.getWorld().addChild(arrowModelNode);
 
-        this.arrowManager = new ARArrowManager(this, new User(), arrowModelNode, locationService);
+        this.arrowManager = new ARArrowManager(this, new User("testId", "testuser"), arrowModelNode, locationService);
         // this will point the arrow "forwards"
         this.arrowManager.init();
     }

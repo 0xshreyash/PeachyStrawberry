@@ -33,7 +33,7 @@ public class PeachCookieStore implements CookieStore {
         if (uri.getHost().equals(PeachRestInterface.HOSTNAME) && uri.getPath().contains(AUTH_SUB_PATH))
             authCookie = httpCookie;
 
-        Log.d(TAG, "Added cookie " + httpCookie);
+//        Log.d(TAG, "Added cookie " + httpCookie);
         if (!cookieMap.containsKey(uri)) {
             cookieMap.put(uri, new ArrayList<HttpCookie>());
         }
@@ -43,7 +43,7 @@ public class PeachCookieStore implements CookieStore {
 
     @Override
     public List<HttpCookie> get(URI uri) {
-        Log.d(TAG, "Get cookie " + uri);
+//        Log.d(TAG, "Get cookie " + uri);
         List<HttpCookie> cookieList = (cookieMap.containsKey(uri)) ? cookieMap.get(uri) : new ArrayList<HttpCookie>();
 
         // embed our server auth cookie

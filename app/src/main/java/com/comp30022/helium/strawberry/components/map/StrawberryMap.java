@@ -3,7 +3,7 @@ package com.comp30022.helium.strawberry.components.map;
 import android.location.Location;
 
 import com.comp30022.helium.strawberry.R;
-import com.comp30022.helium.strawberry.activities.MapFragment;
+import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
 import com.comp30022.helium.strawberry.components.map.exceptions.NoSuchMarkerException;
 import com.comp30022.helium.strawberry.helpers.FetchUrl;
 import com.comp30022.helium.strawberry.components.location.PathParserTask;

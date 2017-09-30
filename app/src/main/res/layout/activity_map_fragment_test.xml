@@ -8,9 +8,9 @@
 
     <fragment
         android:id="@+id/map_fragment_test"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:name="com.comp30022.helium.strawberry.activities.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.comp30022.helium.strawberry.activities.fragments.MapFragment"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
