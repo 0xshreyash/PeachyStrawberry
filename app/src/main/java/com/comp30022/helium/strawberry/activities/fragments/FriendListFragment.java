@@ -38,7 +38,8 @@ public class FriendListFragment extends Fragment {
         // Connect to facebook and get the users.
         User firstFriend = new User("1", "Shreyash");
         User secondFriend = new User("2", "Harry");
-
+        friends.add(firstFriend);
+        friends.add(secondFriend);
         // TODO: Actually getString messages from somewhere.
 
         super.onCreate(savedInstanceState);
@@ -68,9 +69,8 @@ public class FriendListFragment extends Fragment {
         mFriendRecycler = (RecyclerView)view.findViewById(R.id.recyclerview_friend_list);
 
         // TODO: Make sure we use getContext instead of view.getContext()
-        mFriendAdapter = new FriendListAdapter(getActivity(), friends);
-
+        mFriendAdapter = new FriendListAdapter(view.getContext(), friends);
         mFriendRecycler.setAdapter(mFriendAdapter);
-        mFriendRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mFriendRecycler.setLayoutManager(new LinearLayoutManager(view.getContext()));
     }
 }

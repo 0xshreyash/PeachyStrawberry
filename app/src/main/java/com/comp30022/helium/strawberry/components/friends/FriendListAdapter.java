@@ -2,6 +2,7 @@ package com.comp30022.helium.strawberry.components.friends;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,12 +28,14 @@ public class FriendListAdapter extends RecyclerView.Adapter {
     // List of friends
     private List<User> friendList;
 
+    private static final String TAG = "FriendListAdapter";
+
     // TODO: Use the ADDABLE_FRIEND AND ADDED_FRIEND THING LATER
     private static final int ADDABLE_FRIEND = 1;
     private static final int ADDED_FRIEND = 2;
 
     // Makeshift friend for the demoonstration
-    private static final int FRIEND = 0;
+    private static final int FRIEND = 3;
 
     /**
      * Constructor for the adapter
@@ -40,7 +43,10 @@ public class FriendListAdapter extends RecyclerView.Adapter {
      * @param friendList the actual list of friends we need to display
      */
     public FriendListAdapter(Context context, List<User> friendList) {
-        this.friendList = friendList;
+        this.friendList = new ArrayList<>(friendList);
+        for(int i = 0; i < friendList.size(); i++) {
+            Log.d(TAG, friendList.get(i).toString());
+        }
         this.context = context;
     }
 
@@ -50,7 +56,8 @@ public class FriendListAdapter extends RecyclerView.Adapter {
      */
     @Override
     public int getItemCount() {
-        //Log.e("Check", "" + mMessageList.size());
+        Log.e("Check", "The size of the friend list is: " + friendList.size());
+        //Log.e(TAG, "" + friendList.size());
         return friendList.size();
     }
 
@@ -61,6 +68,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemViewType(int position) {
         //User friend = friendList.get(position);
+        Log.e(TAG, "Getting the view type of the user");
         // TODO: Check if the user if a friend or not. If the user is nto a friend
         return FRIEND;
     }
@@ -83,6 +91,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         */
 
         //Log.e("Check", "Returning null");
+
         view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_friend, parent, false);
         return new FriendHolder(view);
@@ -92,10 +101,11 @@ public class FriendListAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        User friend = (User) friendList.get(position);
+        User friend = friendList.get(position);
 
-        switch(holder.getItemViewType()) {
+        switch(this.getItemViewType(position)) {
             case FRIEND:
+                Log.e(TAG, "The person was a friend");
                 ((FriendHolder)holder).bind(friend);
             /*
             case ADDABLE_FRIEND:
