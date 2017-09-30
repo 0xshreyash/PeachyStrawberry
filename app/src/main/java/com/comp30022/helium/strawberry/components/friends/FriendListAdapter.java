@@ -85,7 +85,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         //Log.e("Check", "Returning null");
         view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.friend, parent, false);
-        return new FriendHolder();
+        return new FriendHolder(view);
     }
 
     // Passes the message object to a ViewHolder so that the contents can be bound to UI.
@@ -95,11 +95,16 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         User friend = (User) friendList.get(position);
 
         switch(holder.getItemViewType()) {
+            case FRIEND:
+                ((FriendHolder)holder).bind(friend);
+            /*
             case ADDABLE_FRIEND:
                 ((AddableFriendHolder) holder).bind(friend);
                 break;
             case ADDED_FRIEND:
                 ((FriendHolder) holder).bind(friend);
+                break;
+            */
         }
     }
 
