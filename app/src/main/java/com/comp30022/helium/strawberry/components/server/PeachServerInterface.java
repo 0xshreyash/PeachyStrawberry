@@ -85,11 +85,15 @@ public class PeachServerInterface implements Publisher<Boolean> {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error != null) {
-                    String msg = (error.getMessage() == null) ? error.networkResponse.statusCode + " Error" : error.getMessage();
-                    String data = new String(error.networkResponse.data);
-                    Log.e(TAG, msg);
-                    Log.e(TAG, data);
-                    notifyAllSubscribers(false);
+                    try {
+                        String msg = (error.getMessage() == null) ? error.networkResponse.statusCode + " Error" : error.getMessage();
+                        String data = new String(error.networkResponse.data);
+                        Log.e(TAG, msg);
+                        Log.e(TAG, data);
+                        notifyAllSubscribers(false);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error in volley");
+                    }
                 }
             }
         }));

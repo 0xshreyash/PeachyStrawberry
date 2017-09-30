@@ -3,6 +3,7 @@ package com.comp30022.helium.strawberry.components.map;
 import android.location.Location;
 
 import com.comp30022.helium.strawberry.R;
+import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
 import com.comp30022.helium.strawberry.components.map.exceptions.NoSuchMarkerException;
 import com.comp30022.helium.strawberry.helpers.FetchUrl;
 import com.comp30022.helium.strawberry.components.location.PathParserTask;
@@ -28,14 +29,18 @@ import java.util.Map;
 public class StrawberryMap {
     private static final String TAG = StrawberryMap.class.getSimpleName();
     private GoogleMap googleMap;
+    private String mode;
+    private MapFragment mapFragment;
 
     private Map<String, Marker> markers;
     private Map<String, Polyline> paths;
 
-    public StrawberryMap(GoogleMap googleMap) {
+    public StrawberryMap(GoogleMap googleMap, MapFragment mapFragment) {
         this.googleMap = googleMap;
-        markers = new HashMap<>();
-        paths = new HashMap<>();
+        this.mapFragment = mapFragment;
+        this.markers = new HashMap<>();
+        this.paths = new HashMap<>();
+        setMode("transit");
     }
 
     public void updatePath(String markerName1, String markerName2) {
@@ -64,14 +69,14 @@ public class StrawberryMap {
     public void updateMarker(String markerName, String title, Location location) {
         LatLng curr;
 
-        if(location != null)
+        if (location != null)
             curr = new LatLng(location.getLatitude(), location.getLongitude());
         else
             curr = null;
 
         Marker lastMarker = markers.get(markerName);
 
-        if(curr == null && lastMarker != null) {
+        if (curr == null && lastMarker != null) {
             lastMarker.remove();
         }
 
@@ -116,7 +121,7 @@ public class StrawberryMap {
         String sensor = "sensor=false";
 
         // Building the parameters to the web service
-        String parameters = str_origin + "&" + str_dest + "&" + sensor + "&mode=transit";
+        String parameters = str_origin + "&" + str_dest + "&" + sensor + mode;
 
         // Output format
         String output = "json";
@@ -127,6 +132,14 @@ public class StrawberryMap {
         return url;
     }
 
+    /**
+     * Change transportation mode
+     * @param newMode
+     */
+    public void setMode(String newMode) {
+        mode = "&mode=" + newMode;
+    }
+
     public void updatePolyline(String name, PolylineOptions polylineOptions) {
         Polyline path = paths.get(name);
 
@@ -135,5 +148,9 @@ public class StrawberryMap {
 
         path = googleMap.addPolyline(polylineOptions);
         paths.put(name, path);
+    }
+
+    public void changeText(String name, String value) {
+        mapFragment.changeText(name, value);
     }
 }
