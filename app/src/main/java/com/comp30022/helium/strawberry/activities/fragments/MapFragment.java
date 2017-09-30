@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 
+import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
 
@@ -88,8 +89,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
         map = new StrawberryMap(googleMap, this);
 
-        // TODO: update with real friend object
-        User friend = new User("testid", "testuser");
+        String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
+        User friend = new User(selectedId);
 
         // init locations
         Location friendLoc = locationService.getUserLocation(friend);

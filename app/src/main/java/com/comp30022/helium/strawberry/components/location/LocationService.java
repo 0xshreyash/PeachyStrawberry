@@ -4,6 +4,7 @@ import android.location.Location;
 import android.util.Log;
 
 import com.android.volley.Response;
+import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
@@ -78,6 +79,11 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         subscribers = new ArrayList<>();
         trackingUsers = new LinkedHashSet<>();
         timer = new Timer();
+
+        String selectedUser = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
+        if(selectedUser != null) {
+            trackingUsers.add(new User(selectedUser));
+        }
 
         timer.scheduleAtFixedRate(getLocationQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
     }

@@ -11,6 +11,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.comp30022.helium.strawberry.components.server.rest.components.PeachCookieStore;
+import com.comp30022.helium.strawberry.entities.User;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -29,16 +30,20 @@ public class StrawberryApplication extends Application {
     public static final String PUT_TAG = "putRequest";
     public static final String DELETE_TAG = "deleteRequest";
 
+    public static final String SELECTED_USER_TAG = "selectedUser";
+
     @Override
     public void onCreate() {
         super.onCreate();
         myApplication = this;
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
+
+        // default values edit
         SharedPreferences.Editor editor = pref.edit();
-
         editor.putString(MAC_TAG, findMacAddress());
-
+        //TODO: selected user - development purpose only
+        editor.putString(SELECTED_USER_TAG, "59cf69297aa461766119e8e5");
         editor.apply();
 
         CookieStore cookieStore = new PeachCookieStore();
