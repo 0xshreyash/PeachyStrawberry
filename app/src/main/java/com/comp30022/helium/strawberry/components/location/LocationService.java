@@ -40,9 +40,8 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
     private Set<User> trackingUsers;
 
     private Timer timer;
-    private TimerTask timerTask;
 
-    private HashMap<User, List<Location>> locationCache;
+    private HashMap<User, Location> locationCache;
 
     private List<Subscriber<LocationEvent>> subscribers; // all subscribers here
 
@@ -78,13 +77,12 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         trackingUsers = new LinkedHashSet<>();
         timer = new Timer();
 
-        timerTask = getLocationQueryTimerTask();
-        timer.scheduleAtFixedRate(timerTask, 0, QUERY_TIME_SECS * 1000);
+        timer.scheduleAtFixedRate(getLocationQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
     }
 
     public Location getDeviceLocation() {
         // this method should return this device's current location
-        return mLastLocation;
+        return new Location(mLastLocation);
     }
 
     public LocationRequest getRequest() {
@@ -94,7 +92,7 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
     public void onResume() {
         mGoogleApiClient.connect();
         timer = new Timer();
-        timer.scheduleAtFixedRate(timerTask, 0, QUERY_TIME_SECS * 1000);
+        timer.scheduleAtFixedRate(getLocationQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
     }
 
     public void onPause() {
@@ -120,24 +118,15 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
 
     public Location getUserLocation(User user) {
         // this method should translate User (java Type) into information
-
-        if(locationCache.containsKey(user)) {
-            List<Location> locationList = locationCache.get(user);
-
-            if(locationList.size() == 0) {
-                Location location = new Location("LocationService.user." + user.getUsername());
-                location.setLongitude(144.960961);
-                location.setLatitude(-37.796927);
-                return location;
-            }
-
-            return locationList.get(locationList.size() - 1);
+        if (locationCache.containsKey(user)) {
+            return locationCache.get(user);
 
         } else {
-            Log.e(TAG, "user not found, returning UH");
+            Log.e(TAG, "user and location not found, returning UH");
             Location location = new Location("LocationService.user." + user.getUsername());
             location.setLongitude(144.960961);
             location.setLatitude(-37.796927);
+
             return location;
         }
     }
@@ -183,16 +172,14 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
     }
 
     private void updateLocationCache(User user, Location location) {
-        if (!locationCache.containsKey(user)) {
-            locationCache.put(user, new ArrayList<Location>());
-            locationCache.get(user).add(location);
-        } else {
-            Location lastLoc = locationCache.get(user).get(0);
-            if (lastLoc != location) {
-                locationCache.get(user).add(location);
-                notifyAllSubscribers(new LocationEvent(this, user, location));
-            }
+        if (locationCache.containsKey(user)) {
+            Location lastLoc = locationCache.get(user);
+            if (lastLoc.equals(location))
+                return;
         }
+
+        locationCache.put(user, location);
+        notifyAllSubscribers(new LocationEvent(this, user, location));
     }
 
     public void addTracker(User friend) {

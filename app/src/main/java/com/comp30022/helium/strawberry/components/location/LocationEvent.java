@@ -25,16 +25,16 @@ public class LocationEvent implements Event<LocationService, User, Location>{
 
     @Override
     public LocationService getSource() {
-        return null;
+        return source;
     }
 
     @Override
     public User getKey() {
-        return null;
+        return key;
     }
 
     @Override
     public Location getValue() {
-        return null;
+        return value;
     }
 }

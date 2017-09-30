@@ -18,7 +18,7 @@ public class InitActivity extends AppCompatActivity {
 
     private static final int LOCATION_REQ = 1;
     private static final int CAMERA_REQ = 2;
-    private static final String TAG = "PeachInit";
+    private static final String TAG = "StrawberryInit";
     private Map<Integer, Boolean> permissionMap;
 
     // this exists just to look pretty on launch

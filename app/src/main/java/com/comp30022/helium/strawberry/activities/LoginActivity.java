@@ -10,7 +10,7 @@ import com.comp30022.helium.strawberry.activities.fragments.FacebookFragment;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 
 public class LoginActivity extends AppCompatActivity implements Subscriber<String> {
-    private static final String TAG = "PeachLoginActivity";
+    private static final String TAG = "StrawberryLoginActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
