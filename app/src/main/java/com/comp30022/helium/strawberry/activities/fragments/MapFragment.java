@@ -1,5 +1,6 @@
 package com.comp30022.helium.strawberry.activities.fragments;
 
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 
@@ -22,8 +23,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,8 +67,10 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         transit = (Button) view.findViewById(R.id.transit);
         transit.setOnClickListener(this);
+
         transit.setBackgroundResource(R.drawable.mode_colour);
         lastChanged = transit;
+        lastChanged.setTextColor(Color.WHITE);
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -112,8 +113,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         User user = updatedLocation.getKey();
         Location currentLocation = updatedLocation.getValue();
 
-
-        if(user.equals(PeachServerInterface.currentUser())) {
+        if (user.equals(PeachServerInterface.currentUser())) {
             map.updateMarker("currentLocation", "You are here", currentLocation);
         } else {
             map.updateMarker("friendLocation", "Friend location", currentLocation);
@@ -135,44 +135,41 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     // Change the travel mode.
     @Override
     public void onClick(View view) {
+        lastChanged.setBackgroundResource(R.drawable.mode_style);
+        lastChanged.setTextColor(Color.BLACK);
+
         switch (view.getId()) {
             // Change the background of the clicked button, and change back the previously changed one
             case R.id.drive:
-                lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 lastChanged = drive;
                 map.setMode("driving");
-                map.updatePath("currentLocation", "friendLocation");
-                drive.setBackgroundResource(R.drawable.mode_colour);
                 break;
 
             case R.id.walk:
-                lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 lastChanged = walk;
                 map.setMode("walking");
-                map.updatePath("currentLocation", "friendLocation");
-                walk.setBackgroundResource(R.drawable.mode_colour);
                 break;
 
             case R.id.bicycle:
-                lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 lastChanged = bicycle;
                 map.setMode("bicycling");
-                map.updatePath("currentLocation", "friendLocation");
-                bicycle.setBackgroundResource(R.drawable.mode_colour);
                 break;
 
             case R.id.transit:
-                lastChanged.setBackgroundResource(R.drawable.mode_stytle);
                 lastChanged = transit;
                 map.setMode("transit");
-                map.updatePath("currentLocation", "friendLocation");
-                transit.setBackgroundResource(R.drawable.mode_colour);
                 break;
 
             default:
-                Log.d("onClick", "Cannot find any button");
-                break;
+                Log.e("onClick", "Cannot find any button");
+                return;
         }
+
+        lastChanged.setBackgroundResource(R.drawable.mode_colour);
+        lastChanged.setTextColor(Color.WHITE);
+
+        //TODO: update later if required
+        map.updatePath("currentLocation", "friendLocation");
     }
 
     // Update the arrival time and distance which will be shown in the textview.

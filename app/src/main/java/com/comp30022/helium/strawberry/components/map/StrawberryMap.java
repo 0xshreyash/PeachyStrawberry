@@ -38,9 +38,9 @@ public class StrawberryMap {
     public StrawberryMap(GoogleMap googleMap, MapFragment mapFragment) {
         this.googleMap = googleMap;
         this.mapFragment = mapFragment;
-        markers = new HashMap<>();
-        paths = new HashMap<>();
-        mode = "&mode=transit";
+        this.markers = new HashMap<>();
+        this.paths = new HashMap<>();
+        setMode("transit");
     }
 
     public void updatePath(String markerName1, String markerName2) {
@@ -69,14 +69,14 @@ public class StrawberryMap {
     public void updateMarker(String markerName, String title, Location location) {
         LatLng curr;
 
-        if(location != null)
+        if (location != null)
             curr = new LatLng(location.getLatitude(), location.getLongitude());
         else
             curr = null;
 
         Marker lastMarker = markers.get(markerName);
 
-        if(curr == null && lastMarker != null) {
+        if (curr == null && lastMarker != null) {
             lastMarker.remove();
         }
 
@@ -132,10 +132,13 @@ public class StrawberryMap {
         return url;
     }
 
-    public void setMode(String newMode){
+    /**
+     * Change transportation mode
+     * @param newMode
+     */
+    public void setMode(String newMode) {
         mode = "&mode=" + newMode;
     }
-
 
     public void updatePolyline(String name, PolylineOptions polylineOptions) {
         Polyline path = paths.get(name);
@@ -147,7 +150,7 @@ public class StrawberryMap {
         paths.put(name, path);
     }
 
-    public void changeText(String name, String value){
+    public void changeText(String name, String value) {
         mapFragment.changeText(name, value);
     }
 }

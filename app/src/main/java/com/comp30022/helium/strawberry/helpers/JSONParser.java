@@ -24,14 +24,14 @@ public class JSONParser {
         JSONArray jRoutes;
         JSONArray jLegs;
         JSONArray jSteps;
-        JSONObject jDistance = null;
-        JSONObject jDuration = null;
+        JSONObject jDistance;
+        JSONObject jDuration;
 
         try {
 
             jRoutes = jObject.getJSONArray("routes");
 
-            /** Traversing all routes */
+            // Traversing all routes
             for (int i = 0; i < jRoutes.length(); i++) {
                 jLegs = ((JSONObject) jRoutes.get(i)).getJSONArray("legs");
                 List path = new ArrayList<>();
@@ -77,8 +77,8 @@ public class JSONParser {
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (Exception e) {
+            e.printStackTrace();
         }
-
 
         return routes;
     }
