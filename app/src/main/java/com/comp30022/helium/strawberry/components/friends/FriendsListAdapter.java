@@ -2,25 +2,35 @@ package com.comp30022.helium.strawberry.components.friends;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.entities.User;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by shreyashpatodia on 30/09/17.
+ * A Recycler view is just like a list view but has additional features that
+ * makes it faster and is why I used the RecyclerVieww
  */
-
 public class FriendsListAdapter extends RecyclerView.Adapter {
 
     private Context mContext;
     private List<User> friendList;
 
     private static final int ADDABLE_FRIEND = 1;
+    private static final int ADDED_FRIEND = 2;
 
 
+    public FriendsListAdapter() {
+        friendList = new ArrayList<>();
+    }
     @Override
     public int getItemCount() {
         //Log.e("Check", "" + mMessageList.size());
@@ -30,6 +40,9 @@ public class FriendsListAdapter extends RecyclerView.Adapter {
     // Determines the appropriate ViewType according to the sender of the message.
     @Override
     public int getItemViewType(int position) {
+        User friend = friendList.get(position);
+        // TODO: Check if the user if a friend or not. If the user is nto a friend
+
         return ADDABLE_FRIEND;
     }
 
@@ -38,14 +51,15 @@ public class FriendsListAdapter extends RecyclerView.Adapter {
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
 
-        if (viewType == VIEW_TYPE_MESSAGE_SENT) {
+        if(viewType == ADDABLE_FRIEND) {
             view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_sent_message, parent, false);
-            return new SentMessageHolder(view);
-        } else if (viewType == VIEW_TYPE_MESSAGE_RECEIVED) {
+                    .inflate(R.layout.addable_friend, parent, false);
+            return new AddableFriendHolder(view);
+        }
+        else {
             view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_received_message, parent, false);
-            return new ReceivedMessageHolder(view);
+                    .inflate(R.layout.added_friend, parent, false);
+            return new FriendHolder(view);
         }
         //Log.e("Check", "Returning null");
         return null;
@@ -54,14 +68,15 @@ public class FriendsListAdapter extends RecyclerView.Adapter {
     // Passes the message object to a ViewHolder so that the contents can be bound to UI.
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Message message = (Message) mMessageList.get(position);
-        //Log.e("Check", "Checking if Bind View Holder works or not");
-        switch (holder.getItemViewType()) {
-            case VIEW_TYPE_MESSAGE_SENT:
-                ((SentMessageHolder) holder).bind(message);
+
+        User friend = (User) friendList.get(position);
+
+        switch(holder.getItemViewType()) {
+            case ADDABLE_FRIEND:
+                ((AddableFriendHolder) holder).bind(friend);
                 break;
-            case VIEW_TYPE_MESSAGE_RECEIVED:
-                ((ReceivedMessageHolder) holder).bind(message);
+            case ADDED_FRIEND:
+                ((FriendHolder) holder).bind(friend);
         }
     }
 
