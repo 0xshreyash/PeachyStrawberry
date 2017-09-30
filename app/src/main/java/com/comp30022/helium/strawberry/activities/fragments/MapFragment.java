@@ -1,15 +1,19 @@
 package com.comp30022.helium.strawberry.activities.fragments;
 
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
+
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
@@ -26,10 +30,17 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MapFragment extends LocationServiceFragment implements OnMapReadyCallback {
+public class MapFragment extends LocationServiceFragment implements OnMapReadyCallback, View.OnClickListener {
     private static final String TAG = MapFragment.class.getSimpleName();
     private StrawberryMap map;
     private SupportMapFragment mMapView;
+    private Button drive;
+    private Button walk;
+    private Button bicycle;
+    private Button transit;
+    private Button lastChanged;
+    private TextView arrival_time;
+    private TextView arrival_distance;
 
     public MapFragment() {
         // Required empty public constructor
@@ -41,7 +52,27 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         mMapView = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mMapView.onCreate(savedInstanceState);
-        //mMapView.onResume(); // needed to get the map to display immediately
+
+        arrival_time = (TextView) view.findViewById(R.id.arrival_time);
+        arrival_distance = (TextView) view.findViewById(R.id.arrival_distance);
+
+        drive = (Button) view.findViewById(R.id.drive);
+        drive.setOnClickListener(this);
+
+        walk = (Button) view.findViewById(R.id.walk);
+        walk.setOnClickListener(this);
+
+        bicycle = (Button) view.findViewById(R.id.bicycle);
+        bicycle.setOnClickListener(this);
+
+        transit = (Button) view.findViewById(R.id.transit);
+        transit.setOnClickListener(this);
+
+        //TODO load this instead of hard-coded
+        lastChanged = transit;
+
+        lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
+        lastChanged.setTextColor(Color.WHITE);
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -55,7 +86,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        map = new StrawberryMap(googleMap);
+        map = new StrawberryMap(googleMap, this);
 
         // TODO: update with real friend object
         User friend = new User("testid", "testuser");
@@ -84,8 +115,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         User user = updatedLocation.getKey();
         Location currentLocation = updatedLocation.getValue();
 
-
-        if(user.equals(PeachServerInterface.currentUser())) {
+        if (user.equals(PeachServerInterface.currentUser())) {
             map.updateMarker("currentLocation", "You are here", currentLocation);
         } else {
             map.updateMarker("friendLocation", "Friend location", currentLocation);
@@ -102,5 +132,61 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     @Override
     protected void onPauseAction() {
         mMapView.onPause();
+    }
+
+    // Change the travel mode.
+    @Override
+    public void onClick(View view) {
+        lastChanged.setBackgroundResource(R.drawable.map_mode_default);
+        lastChanged.setTextColor(Color.BLACK);
+
+        switch (view.getId()) {
+            // Change the background of the clicked button, and change back the previously changed one
+            case R.id.drive:
+                lastChanged = drive;
+                map.setMode("driving");
+                break;
+
+            case R.id.walk:
+                lastChanged = walk;
+                map.setMode("walking");
+                break;
+
+            case R.id.bicycle:
+                lastChanged = bicycle;
+                map.setMode("bicycling");
+                break;
+
+            case R.id.transit:
+                lastChanged = transit;
+                map.setMode("transit");
+                break;
+
+            default:
+                Log.e("onClick", "Cannot find any button");
+                return;
+        }
+
+        lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
+        lastChanged.setTextColor(Color.WHITE);
+
+        //TODO: update later if required
+        map.updatePath("currentLocation", "friendLocation");
+    }
+
+    // Update the arrival time and distance which will be shown in the textview.
+    public void changeText(String name, String value) {
+        switch (name) {
+            case "distance":
+                arrival_distance.setText("The estimated distance is " + value);
+                break;
+
+            case "duration":
+                arrival_time.setText("The estimated arrival time is " + value);
+                break;
+
+            default:
+                Log.d("changeText", "The text is changed successfully");
+        }
     }
 }

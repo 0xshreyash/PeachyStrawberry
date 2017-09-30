@@ -21,16 +21,25 @@ import com.comp30022.helium.strawberry.components.location.LocationService;
 
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Subscriber<Boolean> {
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = "MainActivity";
 
     private GoogleApiClient mGoogleApiClient;
     private LocationService mLocationService;
+
+    private boolean added = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +51,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         // wait for rest interface to authorize
         setContentView(R.layout.splash);
         String token = StrawberryApplication.getString("token");
-        if(token != null) {
+        if (token != null) {
             PeachServerInterface.init(StrawberryApplication.getString("token"), this);
         } else {
             // need to get token again
@@ -55,9 +64,33 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+    }
 
-        mLocationService = new LocationService();
-        mLocationService.setup(mGoogleApiClient);
+    private void autoAddFriends() {
+        added = true;
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/me/friends",
+                null,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                        try {
+                            JSONObject jsonObject = response.getJSONObject();
+                            JSONArray friends = new JSONArray(jsonObject.get("data").toString());
+
+                            for (int i = 0; i < friends.length(); i++) {
+                                JSONObject friend = new JSONObject(friends.get(i).toString());
+                                String id = friend.get("id").toString();
+                                Log.d(TAG, "Friend " + id);
+                                PeachServerInterface.getInstance().addFriendFbId(id);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        ).executeAsync();
     }
 
     // if does not have permission, boot to start
@@ -126,16 +159,23 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     /**
      * get result of rest interface initialization
+     *
      * @param restInit
      */
     @Override
     public void update(Boolean restInit) {
-        if(!restInit) {
+        if (!restInit) {
             Toast toast = Toast.makeText(this, "Failed to authorize with existing token.", Toast.LENGTH_SHORT);
             toast.show();
             backToStart();
         } else {
             // successful, gurantee that we have permissions
+            mLocationService = new LocationService();
+            mLocationService.setup(mGoogleApiClient);
+
+            if (!added) {
+                autoAddFriends();
+            }
             setContentView(R.layout.activity_main);
         }
     }
