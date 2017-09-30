@@ -15,7 +15,6 @@ import com.comp30022.helium.strawberry.entities.User;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Fragment which will display the list of friends when instantiated.
  *
@@ -68,9 +67,9 @@ public class FriendListFragment extends Fragment {
         mFriendRecycler = (RecyclerView)view.findViewById(R.id.reyclerview_friend_list);
 
         // TODO: Make sure we use getContext instead of view.getContext()
-        mFriendAdapter = new FriendListAdapter(getContext(), friends);
+        mFriendAdapter = new FriendListAdapter(getActivity(), friends);
 
         mFriendRecycler.setAdapter(mFriendAdapter);
-        mFriendRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        mFriendRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
 }
