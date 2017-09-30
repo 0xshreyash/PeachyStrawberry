@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.comp30022.helium.strawberry.R;
@@ -36,6 +37,7 @@ public class ChatActivity extends AppCompatActivity {
     private static final long RECENT_TIME = 86400000; // 1 day
     private RecyclerView mMessageRecycler;
 
+    boolean blockNotify;
     private Timer timer;
     private User friend;
     private User me;
@@ -44,15 +46,11 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         messages = new ArrayList<>();
+        blockNotify = true;
 
         me = PeachServerInterface.currentUser();
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
         friend = new User(selectedId);
-
-//        Message first = new Message("Hey how are you?", me, 100000002);
-//        Message second = new Message("I'm good thank you", them, 100000003);
-//        messages.add(first);
-//        messages.add(second);
 
         //TODO: update later to STOMP
         timer = new Timer();
@@ -100,6 +98,7 @@ public class ChatActivity extends AppCompatActivity {
                                 sender = friend;
                             updateMessage(new Message(chat.getString("message"), sender, chat.getLong("timestamp")));
                         }
+                        blockNotify = false;
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -130,6 +129,15 @@ public class ChatActivity extends AppCompatActivity {
             MessageListAdapter mMessageAdapter = new MessageListAdapter(this, messages);
             mMessageRecycler.setAdapter(mMessageAdapter);
             mMessageRecycler.setLayoutManager(new LinearLayoutManager(this));
+            mMessageRecycler.scrollToPosition(messages.size() - 1);
+
+            // notify
+            if (!blockNotify) {
+                if (!message.getSender().getId().equals(me.getId())) {
+                    Toast toast = Toast.makeText(this, friend.getUsername() + ": " + message.getMessage(), Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
         }
     }
 
