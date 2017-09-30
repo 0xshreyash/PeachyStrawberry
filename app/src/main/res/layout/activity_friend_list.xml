@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.comp30022.helium.strawberry.activities.">
+    tools:context="com.comp30022.
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/reyclerview_friend_list"
