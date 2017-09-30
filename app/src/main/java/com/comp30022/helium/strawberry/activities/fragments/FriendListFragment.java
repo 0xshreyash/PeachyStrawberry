@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.friends.FriendListAdapter;
 import com.comp30022.helium.strawberry.entities.User;
@@ -64,7 +65,7 @@ public class FriendListFragment extends Fragment {
      */
     public void onViewCreated(View view, Bundle savedInstance) {
 
-        mFriendRecycler = (RecyclerView)view.findViewById(R.id.reyclerview_friend_list);
+        mFriendRecycler = (RecyclerView)view.findViewById(R.id.recyclerview_friend_list);
 
         // TODO: Make sure we use getContext instead of view.getContext()
         mFriendAdapter = new FriendListAdapter(getActivity(), friends);

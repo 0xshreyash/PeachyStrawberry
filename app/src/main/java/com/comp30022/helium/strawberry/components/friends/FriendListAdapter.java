@@ -84,7 +84,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
 
         //Log.e("Check", "Returning null");
         view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.friend, parent, false);
+                    .inflate(R.layout.item_friend, parent, false);
         return new FriendHolder(view);
     }
 

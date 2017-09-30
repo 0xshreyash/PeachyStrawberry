@@ -104,7 +104,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
 
     public void goToAR(View view) {
-        Intent intent = new Intent(this, ARCameraViewActivity.class);
+        Intent intent = new Intent(this, FriendListTestActivity.class);
         startActivity(intent);
     }
 
