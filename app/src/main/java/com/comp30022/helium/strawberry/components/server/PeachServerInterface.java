@@ -46,8 +46,10 @@ public class PeachServerInterface implements Publisher<Boolean> {
     }
 
     public static void init(String facebookToken, Subscriber<Boolean> toNotify) {
-        if (instance == null || instance.expired() || userId.length() == 0)
+        if (instance == null || instance.expired() || userId.length() == 0) {
             instance = new PeachServerInterface(facebookToken, toNotify);
+            instance.initTime = System.currentTimeMillis();
+        }
         else toNotify.update(true);
     }
 
@@ -110,12 +112,20 @@ public class PeachServerInterface implements Publisher<Boolean> {
      *
      * @param location
      */
-    public static void updateCurrentLocation(Location location) {
+    public void updateCurrentLocation(Location location) {
         if (userId != null && userId.length() > 0) {
             Map<String, String> form = new HashMap<>();
             form.put("longitude", String.valueOf(location.getLongitude()));
             form.put("latitude", String.valueOf(location.getLatitude()));
             PeachRestInterface.post("/user/" + userId + "/location", form, new StrawberryListener());
+        }
+    }
+
+    public void addFriendFbId(String id) {
+        if (userId != null && userId.length() > 0) {
+            Map<String, String> form = new HashMap<>();
+            form.put("fbId", id);
+            PeachRestInterface.post("/user/" + userId + "/friend", form, new StrawberryListener());
         }
     }
 

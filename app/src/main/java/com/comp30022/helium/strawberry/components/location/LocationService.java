@@ -5,10 +5,12 @@ import android.util.Log;
 
 import com.android.volley.Response;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
+import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
+import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -112,7 +114,13 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
     public void onLocationChanged(Location location) {
         setNewLocation(location);
         LocationEvent locationEvent = new LocationEvent(this, PeachServerInterface.currentUser(), location);
-        PeachServerInterface.updateCurrentLocation(location);
+        try {
+            PeachServerInterface.getInstance().updateCurrentLocation(location);
+        } catch (NotInstantiatedException e) {
+            e.printStackTrace();
+        } catch (InstanceExpiredException e) {
+            e.printStackTrace();
+        }
         notifyAllSubscribers(locationEvent);
     }
 
