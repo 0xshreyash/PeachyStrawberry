@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
+import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.entities.User;
 
 import java.util.ArrayList;
@@ -43,10 +44,12 @@ public class FriendListAdapter extends RecyclerView.Adapter {
      * @param friendList the actual list of friends we need to display
      */
     public FriendListAdapter(Context context, List<User> friendList) {
-        this.friendList = new ArrayList<>(friendList);
+        this.friendList = friendList;
+        /*
         for(int i = 0; i < friendList.size(); i++) {
-            Log.d(TAG, friendList.get(i).toString());
+            Log.e(TAG, friendList.get(i).toString());
         }
+        */
         this.context = context;
     }
 
@@ -56,7 +59,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
      */
     @Override
     public int getItemCount() {
-        Log.e("Check", "The size of the friend list is: " + friendList.size());
+        //Log.i(TAG, "The size of the friend list is: " + friendList.size());
         //Log.e(TAG, "" + friendList.size());
         return friendList.size();
     }
@@ -68,8 +71,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemViewType(int position) {
         //User friend = friendList.get(position);
-        Log.e(TAG, "Getting the view type of the user");
-        // TODO: Check if the user if a friend or not. If the user is nto a friend
+        //Log.i(TAG, "Getting the view type of the user");
         return FRIEND;
     }
 
@@ -105,7 +107,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
 
         switch(this.getItemViewType(position)) {
             case FRIEND:
-                Log.e(TAG, "The person was a friend");
+                //Log.e(TAG, "The person was a friend");
                 ((FriendHolder)holder).bind(friend);
             /*
             case ADDABLE_FRIEND:
@@ -123,19 +125,33 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    private class FriendHolder extends RecyclerView.ViewHolder {
+    private class FriendHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
+
         TextView userNameText;
         ImageView profileImage;
+        String id;
+        String username;
 
         FriendHolder(View itemView) {
             super(itemView);
 
             userNameText = (TextView)itemView.findViewById(R.id.username);
             profileImage = (ImageView)itemView.findViewById(R.id.image_user_profile);
+            itemView.setOnClickListener(this);
         }
 
         void bind(User friend) {
             userNameText.setText(friend.getUsername());
+            id = friend.getId();
+            username = friend.getUsername();
+
+        }
+
+        @Override
+        public void onClick(View view) {
+            Log.e(TAG, "onClick of " + username + " with id " + id);
+            StrawberryApplication.setString(StrawberryApplication.SELECTED_USER_TAG, id);
         }
     }
 

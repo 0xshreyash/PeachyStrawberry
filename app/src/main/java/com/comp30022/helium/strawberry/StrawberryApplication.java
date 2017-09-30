@@ -43,7 +43,7 @@ public class StrawberryApplication extends Application {
         SharedPreferences.Editor editor = pref.edit();
         editor.putString(MAC_TAG, findMacAddress());
         //TODO: selected user - development purpose only
-        editor.putString(SELECTED_USER_TAG, "59cf69297aa461766119e8e5");
+        editor.putString(SELECTED_USER_TAG, "59cf7b1e2f63f07468f2c77a");
         editor.apply();
 
         CookieStore cookieStore = new PeachCookieStore();
