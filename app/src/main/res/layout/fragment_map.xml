@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/mode_style"
+            android:background="@drawable/map_mode_default"
             android:text="Driving"  />
 
         <Button
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/mode_style"
+            android:background="@drawable/map_mode_default"
             android:text="Walking"/>
 
         <Button
@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/mode_style"
+            android:background="@drawable/map_mode_default"
             android:text="Bicycling" />
 
         <Button
@@ -52,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/mode_style"
+            android:background="@drawable/map_mode_default"
             android:text="Transit" />
     </LinearLayout>
 

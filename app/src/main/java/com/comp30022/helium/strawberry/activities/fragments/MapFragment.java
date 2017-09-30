@@ -68,8 +68,10 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         transit = (Button) view.findViewById(R.id.transit);
         transit.setOnClickListener(this);
 
-        transit.setBackgroundResource(R.drawable.mode_colour);
+        //TODO load this instead of hard-coded
         lastChanged = transit;
+
+        lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
         lastChanged.setTextColor(Color.WHITE);
 
         try {
@@ -135,7 +137,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     // Change the travel mode.
     @Override
     public void onClick(View view) {
-        lastChanged.setBackgroundResource(R.drawable.mode_style);
+        lastChanged.setBackgroundResource(R.drawable.map_mode_default);
         lastChanged.setTextColor(Color.BLACK);
 
         switch (view.getId()) {
@@ -165,7 +167,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 return;
         }
 
-        lastChanged.setBackgroundResource(R.drawable.mode_colour);
+        lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
         lastChanged.setTextColor(Color.WHITE);
 
         //TODO: update later if required
