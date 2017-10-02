@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
+import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,8 +44,8 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         Message message = mMessageList.get(position);
         //Log.e("Check", "User ID is nothing");
         // TODO: Get current user ID and check if they are equal
-        if (message.getSender().getId().equals("1")) {
-
+        String currentUserId = PeachServerInterface.currentUser().getId();
+        if (message.getSender().getId().equals(currentUserId)) {
             // If the current user is the sender of the message
             return VIEW_TYPE_MESSAGE_SENT;
         } else {
