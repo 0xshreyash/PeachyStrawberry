@@ -41,8 +41,8 @@ public class FriendListAdapter extends RecyclerView.Adapter {
     private static final int ADDED_FRIEND = 2;
 
     // Makeshift friend for the demoonstration
-    private static final int FRIEND = 3;
-    private static final int SELECTED_FRIEND = 4;
+    public static final int FRIEND = 3;
+    public static final int SELECTED_FRIEND = 4;
 
     /**
      * Constructor for the adapter
@@ -72,17 +72,17 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         return friendList.size();
     }
 
-    public Integer getSelectedPosition() {
-        return selectedPosition;
-    }
-
-    public void setSelectedPosition(Integer selectedId) {
-        this.selectedPosition = selectedId;
+    /**
+     * Sets the position in the adapter that is selected.
+     * @param selectedPosition the position selected
+     */
+    public void setSelectedPosition(Integer selectedPosition) {
+        this.selectedPosition = selectedPosition;
     }
 
     /**
      * Determines the appropriate ViewType according to the sender of the message.
-     *
+     * @param position the position of the item to get the type of.
      */
     @Override
     public int getItemViewType(int position) {
@@ -95,9 +95,11 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         return FRIEND;
     }
 
-    // Inflates the appropriate layout according to the ViewType.
+    /**
+     * Inflates the appropriate layout according to the ViewType.
+     */
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FriendHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
         /*
         if(viewType == ADDABLE_FRIEND) {
@@ -129,7 +131,12 @@ public class FriendListAdapter extends RecyclerView.Adapter {
 
     }
 
-    // Passes the message object to a ViewHolder so that the contents can be bound to UI.
+    /**
+     * Passes the message object to a ViewHolder so that the contents can be bound to UI.
+     *
+     * @param holder the holder which is binded
+     * @param position the position of the holder.
+     */
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
@@ -167,6 +174,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         String username;
         int position;
         private ArrayList<Subscriber<Integer>> subscribers;
+        private View itemView;
 
         public void registerSubscriber(Subscriber<Integer> sub) {
             subscribers.add(sub);
@@ -175,9 +183,9 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             subscribers.remove(sub);
         }
 
-        FriendHolder(View itemView) {
+        public FriendHolder(View itemView) {
             super(itemView);
-
+            this.itemView = itemView;
             userNameText = (TextView)itemView.findViewById(R.id.username);
             profileImage = (ImageView)itemView.findViewById(R.id.image_user_profile);
             itemView.setOnClickListener(this);
@@ -185,6 +193,19 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             registerSubscriber(parentFragment);
         }
 
+        public View getItemView() {
+            return itemView;
+        }
+
+        public void setItemView(View itemView) {
+            this.itemView = itemView;
+        }
+
+        /**
+         * Bind the View holder to a certain user, and record their position in the friendlist
+         * @param friend
+         * @param position
+         */
         void bind(User friend, int position) {
             userNameText.setText(friend.getUsername());
             id = friend.getId();
@@ -193,6 +214,10 @@ public class FriendListAdapter extends RecyclerView.Adapter {
 
         }
 
+        /**
+         * Defines what to do when the viewholder is clicked.
+         * @param view the view in question
+         */
         @Override
         public void onClick(View view) {
             Log.i(TAG, "onClick of " + username + " with id " + id);
