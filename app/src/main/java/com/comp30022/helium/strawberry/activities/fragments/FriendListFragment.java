@@ -63,13 +63,13 @@ public class FriendListFragment extends Fragment implements Subscriber<Integer> 
                             String username = friend.get("username").toString();
                             String id = friend.get("id").toString();
                             friends.add(new User(id, username));
-                            Log.e(TAG, "Adding " + username + " to friends");
-                            Log.e(TAG, friends.get(i).getUsername());
+                            Log.i(TAG, "Adding " + username + " to friends");
+                            Log.i(TAG, friends.get(i).getUsername());
                             // Set the first person to be selected initially.
                             setRecyclerProperties(DEFAULT_SELECTION);
 
                         }
-                        Log.e(TAG, "Size of friends: " + friends.size());
+                        Log.i(TAG, "Size of friends: " + friends.size());
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -114,7 +114,7 @@ public class FriendListFragment extends Fragment implements Subscriber<Integer> 
 
     public void setRecyclerProperties(Integer info) {
         DEFAULT_SELECTION = info;
-        this.mFriendAdapter = new FriendListAdapter(myView.getContext(), friends, this);
+        this.mFriendAdapter = new FriendListAdapter(this.getView().getContext(), friends, this);
         mFriendAdapter.setSelectedPosition(info);
         mFriendRecycler.setAdapter(mFriendAdapter);
 
@@ -127,5 +127,13 @@ public class FriendListFragment extends Fragment implements Subscriber<Integer> 
         mFriendRecycler = (RecyclerView)myView.findViewById(R.id.recyclerview_friend_list);
         // TODO: Make sure we use getContext instead of view.getContext()
         this.setRecyclerProperties(DEFAULT_SELECTION);
+    }
+
+    public View getView() {
+        return myView;
+    }
+
+    public void setView(View myView) {
+        this.myView = myView;
     }
 }

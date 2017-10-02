@@ -88,7 +88,6 @@ public class StrawberryApplication extends Application {
     public static String getMacAddress() {
         SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
         String mac = pref.getString(MAC_TAG, "UNKNOWN");
-
         return mac;
     }
 

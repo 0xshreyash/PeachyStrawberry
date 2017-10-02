@@ -113,20 +113,22 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             return new FriendHolder(view);
         }
         */
+        FriendHolder holder = null;
         if(viewType == FRIEND) {
+            Log.i(TAG, "This is the normal friend");
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_friend, parent, false);
-            return new FriendHolder(view);
+            holder = new FriendHolder(view);
         }
         else if(viewType == SELECTED_FRIEND) {
-            Log.i(TAG, "Selected Friend Done");
+            Log.i(TAG, "This is the special selected friend");
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_selected_friend, parent, false);
-            return new FriendHolder(view);
+            holder = new FriendHolder(view);
         }
-
-        Log.e("Check", "Returning null");
-        return null;
+        if(holder != null)
+            holder.registerSubscriber(parentFragment);
+        return holder;
 
 
     }
@@ -190,7 +192,6 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             profileImage = (ImageView)itemView.findViewById(R.id.image_user_profile);
             itemView.setOnClickListener(this);
             subscribers = new ArrayList<>();
-            registerSubscriber(parentFragment);
         }
 
         public View getItemView() {
@@ -228,10 +229,14 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             //notifyDataSetChanged();
             //notifyItemChanged(position);
             Log.i(TAG, position + " " + this.getAdapterPosition());
+            this.notifyAllSubscribers();
+
+        }
+
+        public void notifyAllSubscribers() {
             for(Subscriber<Integer> sub : subscribers) {
                 sub.update(this.position);
             }
-
         }
     }
 

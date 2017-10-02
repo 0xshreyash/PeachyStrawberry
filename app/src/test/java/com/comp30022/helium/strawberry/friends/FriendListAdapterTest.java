@@ -1,13 +1,16 @@
 package com.comp30022.helium.strawberry.friends;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
+import android.content.SharedPreferences;
 import android.test.mock.MockContext;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.activities.FriendListTestActivity;
+import com.comp30022.helium.strawberry.activities.fragments.FacebookFragment;
 import com.comp30022.helium.strawberry.activities.fragments.FriendListFragment;
 import com.comp30022.helium.strawberry.components.friends.FriendListAdapter;
 import com.comp30022.helium.strawberry.entities.User;
@@ -18,12 +21,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -38,7 +39,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * Test for FriendListAdapterClass created to be able to have a list of friends.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Log.class, LayoutInflater.class})
+@PrepareForTest({Log.class, LayoutInflater.class, FriendListAdapter.class})
 public class FriendListAdapterTest {
 
     @Mock
@@ -50,9 +51,19 @@ public class FriendListAdapterTest {
     @Mock
     ViewGroup mockParent;
 
-    private Context mockContext;
+    @Mock
+    StrawberryApplication mockStrawberryApplication;
 
-    private FriendListAdapter adapter;
+    @Mock
+    SharedPreferences mockSharedPreferences;
+
+    @Mock
+    FriendListFragment mockFriendListFragment;
+
+    @Mock
+    FriendListTestActivity mockActivity;
+
+    private Context mockContext;
 
     /**
      * Setup befoere the tests is run
@@ -64,10 +75,26 @@ public class FriendListAdapterTest {
         MockitoAnnotations.initMocks(this);
         mockStatic(LayoutInflater.class);
         mockStatic(Log.class);
-        mockContext = new MockContext();
+        mockStatic(FriendListAdapter.class);
+
+        //mockStatic(FacebookFragment.class);
+        mockContext = new MockContext() {
+            public SharedPreferences getSharedPreferences(String s, int i) {
+                Log.d("tests", "Im here");
+                return mockSharedPreferences;
+            }
+        };
+
+        mockStrawberryApplication = new StrawberryApplication() {
+            public Context getApplicationContext() {
+                return mockContext;
+            }
+        };
+
+        mockActivity = new FriendListTestActivity();
+        mockFriendListFragment = new FriendListFragment();
 
     }
-
 
     /**
      * Check if the getItemCount method works
@@ -77,7 +104,7 @@ public class FriendListAdapterTest {
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
         friendList.add(new User("1234", "Shreyash"));
-        friendList.add(new User("5678", "Max"));
+        friendList.add(new User("5678", "Harry"));
         Context fakeContext = new MockContext();
         FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
         assertEquals(2, adapter.getItemCount());
@@ -105,7 +132,7 @@ public class FriendListAdapterTest {
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
         friendList.add(new User("1234", "Shreyash"));
-        friendList.add(new User("5678", "Max"));
+        friendList.add(new User("5678", "Harry"));
         Context fakeContext = new MockContext();
         FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
         adapter.setSelectedPosition(0);
@@ -118,6 +145,61 @@ public class FriendListAdapterTest {
         assertEquals(FriendListAdapter.SELECTED_FRIEND, type);
         type = adapter.getItemViewType(0);
         assertEquals(FriendListAdapter.FRIEND, type);
+    }
+
+    /**
+     * Tests if the publishes subscriber behaviour of the FriendHolder works or
+     * not
+     */
+    @Test
+    public void checkViewHolderCreation() {
+        mockStatic(Log.class);
+
+        List<User> friendList = new ArrayList<>();
+        FriendListFragment fragment = new FriendListFragment();
+        friendList.add(new User("1234", "Shreyash"));
+        friendList.add(new User("5678", "Harry"));
+        Context fakeContext = new MockContext();
+        FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
+
+        when(mockParent.getContext()).thenReturn(mockContext);
+
+        when(LayoutInflater.from(mockContext)).thenReturn(mockInflater);
+
+
+        when(mockInflater.inflate(anyInt(), eq(mockParent), eq(false))).thenReturn(mockView);
+
+        FriendListAdapter.FriendHolder viewHolder = adapter.onCreateViewHolder(mockParent, FriendListAdapter.FRIEND);
+
+        assertNotNull(viewHolder);
+
+        assertEquals(viewHolder.getItemView(), mockView);
+
+    }
+
+    /**
+     * Check for failure of creation when the view type entered is
+     * invalid.
+     */
+    @Test
+    public void checkViewHolderCreationTwo() {
+        List<User> friendList = new ArrayList<>();
+        FriendListFragment fragment = new FriendListFragment();
+        friendList.add(new User("1234", "Shreyash"));
+        friendList.add(new User("5678", "Harry"));
+        Context fakeContext = new MockContext();
+        FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
+
+        when(mockParent.getContext()).thenReturn(mockContext);
+
+        when(LayoutInflater.from(mockContext)).thenReturn(mockInflater);
+
+        when(mockInflater.inflate(anyInt(), eq(mockParent), eq(false))).thenReturn(mockView);
+
+        FriendListAdapter.FriendHolder viewHolder = adapter.onCreateViewHolder(mockParent, 234);
+
+        assertNull(viewHolder);
+
     }
 
     /**
@@ -142,73 +224,28 @@ public class FriendListAdapterTest {
     }
 
     /**
-     * Tests if the publishes subscriber behaviour of the FriendHolder works or
-     * not
-     */
-    @Test
-    public void checkViewHolderCreation() {
-        mockStatic(Log.class);
-
-        List<User> friendList = new ArrayList<>();
-        FriendListFragment fragment = new FriendListFragment();
-        friendList.add(new User("1234", "Shreyash"));
-        friendList.add(new User("5678", "Max"));
-        Context fakeContext = new MockContext();
-        FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
-
-        when(mockParent.getContext()).thenReturn(mockContext);
-
-        // 6. mock the inflater that is returned by LayoutInflater.from()
-        when(LayoutInflater.from(mockContext)).thenReturn(mockInflater);
-
-        // 7. pass anyInt() as a resource id to care of R.layout.fragment_news_view_holder in onCreateViewHolder()
-        when(mockInflater.inflate(anyInt(), eq(mockParent), eq(false))).thenReturn(mockView);
-
-        FriendListAdapter.FriendHolder viewHolder = adapter.onCreateViewHolder(mockParent, FriendListAdapter.FRIEND);
-
-        // OKAY straightfoward right?
-        assertNotNull(viewHolder);
-
-        assertEquals(viewHolder.getItemView(), mockView);
-
-    }
-
-    /**
-     * Check for failure of creation when the view type entered is
-     * invalid.
-     */
-    @Test
-    public void checkViewHolderCreationTwo() {
-        mockStatic(Log.class);
-
-        List<User> friendList = new ArrayList<>();
-        FriendListFragment fragment = new FriendListFragment();
-        friendList.add(new User("1234", "Shreyash"));
-        friendList.add(new User("5678", "Max"));
-        Context fakeContext = new MockContext();
-        FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
-
-        when(mockParent.getContext()).thenReturn(mockContext);
-
-        // 6. mock the inflater that is returned by LayoutInflater.from()
-        when(LayoutInflater.from(mockContext)).thenReturn(mockInflater);
-
-        // 7. pass anyInt() as a resource id to care of R.layout.fragment_news_view_holder in onCreateViewHolder()
-        when(mockInflater.inflate(anyInt(), eq(mockParent), eq(false))).thenReturn(mockView);
-
-        FriendListAdapter.FriendHolder viewHolder = adapter.onCreateViewHolder(mockParent, 234);
-
-        // OKAY straightfoward right?
-        assertNull(viewHolder);
-        //assertEquals(viewHolder.getItemView(), mockView);
-
-    }
-
-    /**
      * Check if the viewHolder actually publishes things.
      */
-    
+    @Test
+    public void checkFriendHolderPublishing() {
+        List<User> friendList = new ArrayList<>();
+        FriendListFragment fragment = new FriendListFragment();
+        friendList.add(new User("1234", "Shreyash"));
+        friendList.add(new User("5678", "Harry"));
 
-
-
+        when(mockParent.getContext()).thenReturn(mockContext);
+        when(LayoutInflater.from(mockContext)).thenReturn(mockInflater);
+        when(mockInflater.inflate(anyInt(), eq(mockParent), eq(false))).thenReturn(mockView);
+        FriendListAdapter friendListAdapter = new FriendListAdapter(mockContext,
+                friendList, fragment);
+        //when(mockFriendListFragment.getView()).thenReturn(mockView);
+        FriendListAdapter.FriendHolder holder = friendListAdapter.new FriendHolder(mockParent);
+        TestViewHolderPublishing viewHolderPublishing = new TestViewHolderPublishing();
+        holder.registerSubscriber(viewHolderPublishing);
+        holder.notifyAllSubscribers();
+        assertEquals(1, viewHolderPublishing.getCalls());
+        holder.deregisterSubscriber(viewHolderPublishing);
+        holder.notifyAllSubscribers();
+        assertEquals(1,viewHolderPublishing.getCalls());
+    }
 }
