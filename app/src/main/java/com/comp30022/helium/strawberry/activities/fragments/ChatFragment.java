@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -71,8 +72,17 @@ public class ChatFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        return inflater.inflate(R.layout.activity_chat, null);
+        View view = inflater.inflate(R.layout.activity_chat, null);
+        Button button = (Button) view.findViewById(R.id.button_chatbox_send);
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                clickSend();
+            }
+        });
+        return view;
     }
 
     public void onViewCreated(View view, Bundle savedInstance) {
@@ -168,8 +178,11 @@ public class ChatFragment extends Fragment {
         return System.currentTimeMillis() - RECENT_TIME;
     }
 
-    public void clickSend(View view) {
-        EditText editText = (EditText)view.findViewById(R.id.edittext_chatbox);
+    public void clickSend() {
+
+        //Log.e(TAG, view.toString());
+        EditText editText = (EditText)this.getView().findViewById(R.id.edittext_chatbox);
+
         String message = editText.getText().toString();
         Log.d(TAG, "sending " + message);
 
