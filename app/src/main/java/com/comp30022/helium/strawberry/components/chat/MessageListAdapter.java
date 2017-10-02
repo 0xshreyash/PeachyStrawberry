@@ -17,6 +17,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Custom adapter for list of messages, stores the number. This
+ * adapter "adapts" what messages are to be displayed to on the screen
+ * and the format they are to be displayed in.
+ */
 public class MessageListAdapter extends RecyclerView.Adapter {
 
     private static final int VIEW_TYPE_MESSAGE_SENT = 1;
@@ -91,6 +96,9 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         super.onAttachedToRecyclerView(recyclerView);
     }
 
+    /**
+     * View holder for messages sent by the current user.
+     */
     private class SentMessageHolder extends RecyclerView.ViewHolder {
         TextView messageText, timeText;
 
@@ -110,6 +118,9 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     * Viewholder for messages received by the current user.
+     */
     private class ReceivedMessageHolder extends RecyclerView.ViewHolder {
         TextView messageText, timeText, nameText;
         ImageView profileImage;

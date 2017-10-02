@@ -6,6 +6,9 @@ import com.comp30022.helium.strawberry.entities.User;
  * Created by shreyashpatodia on 15/09/17.
  */
 
+/**
+ * A message that the users might use to communicate with each other.
+ */
 public class Message {
 
     private String message;

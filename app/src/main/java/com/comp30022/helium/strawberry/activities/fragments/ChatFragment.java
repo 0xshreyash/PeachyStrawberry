@@ -52,6 +52,7 @@ public class ChatFragment extends Fragment {
     List<Message> messages;
     private MessageListAdapter mMessageAdapter;
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         messages = new ArrayList<>();
@@ -68,6 +69,7 @@ public class ChatFragment extends Fragment {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_chat);
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -91,6 +93,10 @@ public class ChatFragment extends Fragment {
         setRecyclerProperties();
     }
 
+    /**
+     * Used to set the recycler properties on creation and on sending/receiving of new
+     * messages.
+     */
     public void setRecyclerProperties() {
 
         mMessageAdapter = new MessageListAdapter(getContext(), messages);
@@ -112,6 +118,9 @@ public class ChatFragment extends Fragment {
         timer = null;
     }
 
+    /**
+     * Gets the chat from the server
+     */
     private void queryChat() {
         try {
             PeachServerInterface.getInstance().getChatLog(friend, recentTime(),
@@ -155,6 +164,10 @@ public class ChatFragment extends Fragment {
         };
     }
 
+    /**
+     * Updates a message
+     * @param message messsage to be updated
+     */
     private void updateMessage(Message message) {
         if (!messages.contains(message)) {
             messages.add(message);
@@ -174,10 +187,17 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    /**
+     * Gets the most recennt time
+     * @return time as long
+     */
     private Long recentTime() {
         return System.currentTimeMillis() - RECENT_TIME;
     }
 
+    /**
+     * Called when the Send button is pressed.
+     */
     public void clickSend() {
 
         //Log.e(TAG, view.toString());
