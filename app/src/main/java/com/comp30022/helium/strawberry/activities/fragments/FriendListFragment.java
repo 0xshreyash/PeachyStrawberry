@@ -17,6 +17,7 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
 
 import org.json.JSONArray;
@@ -30,13 +31,14 @@ import java.util.List;
  * Fragment which will display the list of friends when instantiated.
  *
  */
-public class FriendListFragment extends Fragment {
+public class FriendListFragment extends Fragment implements Subscriber<Integer> {
 
     private RecyclerView mFriendRecycler;
     private FriendListAdapter mFriendAdapter;
     private List<User> friends;
     private String TAG = "FriendListFragment";
     private View myView;
+    private static int DEFAULT_SELECTION = 0;
 
     public FriendListFragment() {
         friends = new ArrayList<>();
@@ -63,7 +65,8 @@ public class FriendListFragment extends Fragment {
                             friends.add(new User(id, username));
                             Log.e(TAG, "Adding " + username + " to friends");
                             Log.e(TAG, friends.get(i).getUsername());
-                            setRecyclerProperties();
+                            // Set the first person to be selected initially.
+                            setRecyclerProperties(DEFAULT_SELECTION);
 
                         }
                         Log.e(TAG, "Size of friends: " + friends.size());
@@ -104,9 +107,17 @@ public class FriendListFragment extends Fragment {
         setRecyclerView(view, savedInstance);
     }
 
-    public void setRecyclerProperties() {
-        this.mFriendAdapter = new FriendListAdapter(myView.getContext(), friends);
+    public void update(Integer info) {
+        setRecyclerProperties(info);
+    }
+
+
+    public void setRecyclerProperties(Integer info) {
+
+        this.mFriendAdapter = new FriendListAdapter(myView.getContext(), friends, this);
+        mFriendAdapter.setSelectedPosition(info);
         mFriendRecycler.setAdapter(mFriendAdapter);
+
         mFriendRecycler.setLayoutManager(new LinearLayoutManager(myView.getContext()));
 
     }
@@ -115,6 +126,6 @@ public class FriendListFragment extends Fragment {
         myView = view;
         mFriendRecycler = (RecyclerView)myView.findViewById(R.id.recyclerview_friend_list);
         // TODO: Make sure we use getContext instead of view.getContext()
-        this.setRecyclerProperties();
+        this.setRecyclerProperties(DEFAULT_SELECTION);
     }
 }

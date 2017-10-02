@@ -11,8 +11,12 @@ import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.activities.fragments.FriendListFragment;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.patterns.Publisher;
+import com.comp30022.helium.strawberry.patterns.Subscriber;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,10 +28,11 @@ public class FriendListAdapter extends RecyclerView.Adapter {
     // The context
     private Context context;
 
-    private String selectedId;
+    private Integer selectedPosition;
 
     // List of friends
     private List<User> friendList;
+    private FriendListFragment parentFragment;
 
     private static final String TAG = "FriendListAdapter";
 
@@ -44,7 +49,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
      * @param context the context for the friend list
      * @param friendList the actual list of friends we need to display
      */
-    public FriendListAdapter(Context context, List<User> friendList) {
+    public FriendListAdapter(Context context, List<User> friendList, FriendListFragment parentFragment) {
         this.friendList = friendList;
         /*
         for(int i = 0; i < friendList.size(); i++) {
@@ -52,7 +57,8 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         }
         */
         this.context = context;
-        this.selectedId = "";
+        this.selectedPosition = 0;
+        this.parentFragment = parentFragment;
     }
 
     /**
@@ -61,9 +67,17 @@ public class FriendListAdapter extends RecyclerView.Adapter {
      */
     @Override
     public int getItemCount() {
-        //Log.i(TAG, "The size of the friend list is: " + friendList.size());
+        Log.i(TAG, "The size of the friend list is: " + friendList.size());
         //Log.e(TAG, "" + friendList.size());
         return friendList.size();
+    }
+
+    public Integer getSelectedPosition() {
+        return selectedPosition;
+    }
+
+    public void setSelectedPosition(Integer selectedId) {
+        this.selectedPosition = selectedId;
     }
 
     /**
@@ -73,10 +87,11 @@ public class FriendListAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemViewType(int position) {
         User friend = friendList.get(position);
-        if(friend != null && selectedId.equals(friend.getUsername())) {
+
+        if(friend != null && selectedPosition.equals(position)) {
             return SELECTED_FRIEND;
         }
-        //Log.i(TAG, "Getting the view type of the user");
+        Log.i(TAG, "Getting the view type of the user");
         return FRIEND;
     }
 
@@ -102,13 +117,15 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             return new FriendHolder(view);
         }
         else if(viewType == SELECTED_FRIEND) {
-            Log.e(TAG, "Selected Friend Done");
+            Log.i(TAG, "Selected Friend Done");
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_selected_friend, parent, false);
             return new FriendHolder(view);
         }
+
+        Log.e("Check", "Returning null");
         return null;
-        //Log.e("Check", "Returning null");
+
 
     }
 
@@ -135,19 +152,28 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         }
     }
 
+    // Called when Adapter is attached to a recyclerview.
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
     }
-
-    private class FriendHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+    
+    public class FriendHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener, Publisher<Integer> {
 
         TextView userNameText;
         ImageView profileImage;
         String id;
         String username;
         int position;
+        private ArrayList<Subscriber<Integer>> subscribers;
+
+        public void registerSubscriber(Subscriber<Integer> sub) {
+            subscribers.add(sub);
+        }
+        public void deregisterSubscriber(Subscriber<Integer> sub) {
+            subscribers.remove(sub);
+        }
 
         FriendHolder(View itemView) {
             super(itemView);
@@ -155,26 +181,32 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             userNameText = (TextView)itemView.findViewById(R.id.username);
             profileImage = (ImageView)itemView.findViewById(R.id.image_user_profile);
             itemView.setOnClickListener(this);
+            subscribers = new ArrayList<>();
+            registerSubscriber(parentFragment);
         }
 
         void bind(User friend, int position) {
             userNameText.setText(friend.getUsername());
             id = friend.getId();
             username = friend.getUsername();
-            this.position = position;
+            this.position = new Integer(position);
 
         }
 
         @Override
         public void onClick(View view) {
-            Log.e(TAG, "onClick of " + username + " with id " + id);
-            selectedId = this.id;
+            Log.i(TAG, "onClick of " + username + " with id " + id);
+            selectedPosition = this.position;
             StrawberryApplication.setString(StrawberryApplication.SELECTED_USER_TAG, id);
-            Log.e(TAG, StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
+            Log.i(TAG, StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
             //FriendListAdapter.this.notify()
             //notifyDataSetChanged();
             //notifyItemChanged(position);
-            Log.e(TAG, position + " " + this.getAdapterPosition());
+            Log.i(TAG, position + " " + this.getAdapterPosition());
+            for(Subscriber<Integer> sub : subscribers) {
+                sub.update(this.position);
+            }
+
         }
     }
 
