@@ -109,7 +109,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     public void goToChat(View view) {
-        Intent intent = new Intent(this, ChatActivity.class);
+        Intent intent = new Intent(this, ChatTestActivity.class);
         startActivity(intent);
     }
 
