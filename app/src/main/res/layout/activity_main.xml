@@ -65,4 +65,19 @@
         android:layout_marginTop="8dp"
         app:layout_constraintVertical_bias="0.974" />
 
+    <Button
+        android:id="@+id/to_friendselection_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginRight="8dp"
+        android:onClick="goToFriendSelection"
+        android:text="Select Friend"
+        android:layout_marginLeft="12dp"
+        app:layout_constraintHorizontal_bias="0.426"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintVertical_bias="0.974" />
+
+
 </android.support.constraint.ConstraintLayout>

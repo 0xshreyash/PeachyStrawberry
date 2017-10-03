@@ -33,6 +33,7 @@ import com.google.android.gms.location.LocationServices;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Subscriber<Boolean> {
     private static final String TAG = "MainActivity";
 
@@ -105,6 +106,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     public void goToAR(View view) {
         Intent intent = new Intent(this, ARCameraViewActivity.class);
+        startActivity(intent);
+    }
+
+    public void goToFriendSelection(View view) {
+        Intent intent = new Intent(this, FriendListTestActivity.class);
         startActivity(intent);
     }
 
