@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.activities.FriendListTestActivity;
-import com.comp30022.helium.strawberry.activities.fragments.FacebookFragment;
 import com.comp30022.helium.strawberry.activities.fragments.FriendListFragment;
 import com.comp30022.helium.strawberry.components.friends.FriendListAdapter;
 import com.comp30022.helium.strawberry.entities.User;
