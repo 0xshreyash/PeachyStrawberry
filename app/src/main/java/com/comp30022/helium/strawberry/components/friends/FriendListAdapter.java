@@ -150,6 +150,7 @@ public class FriendListAdapter extends RecyclerView.Adapter {
                 break;
             case SELECTED_FRIEND:
                 ((FriendHolder)holder).bind(friend, position);
+                break;
             /*
             case ADDABLE_FRIEND:
                 ((AddableFriendHolder) holder).bind(friend);

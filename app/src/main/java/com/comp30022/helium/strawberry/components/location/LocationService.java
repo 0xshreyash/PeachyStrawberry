@@ -37,9 +37,10 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
     private LocationRequest mLocationRequest;
     private static LocationService instance;
     private static boolean setupCalled = false;
-    private static final int INTERVAL_SECS = 5;
-    private static final int FASTEST_INTERVAL_SECS = 1;
-    private static final long QUERY_TIME_SECS = 3;
+    public static final int INTERVAL_SECS = 5;
+    public static final int FASTEST_INTERVAL_SECS = 1;
+    public static final long QUERY_TIME_SECS = 3;
+    public static final long BG_QUERY_TIME_SECS = 15;
     private Set<User> trackingUsers;
 
     private Timer timer;
@@ -80,9 +81,9 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         trackingUsers = new LinkedHashSet<>();
         timer = new Timer();
 
-        String selectedUser = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
-        if(selectedUser != null) {
-            trackingUsers.add(new User(selectedUser));
+        // track all friends
+        for(User friend: StrawberryApplication.getCachedFriends()) {
+            trackingUsers.add(friend);
         }
 
         timer.scheduleAtFixedRate(getLocationQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
@@ -152,32 +153,36 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
                 for (final User friend : trackingUsers) {
                     Log.d(TAG, "Getting users location, query: " + friend);
 
-                    PeachServerInterface.getUserLocation(friend, new StrawberryListener(new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            Log.d(TAG, "Getting users location, got:" + response);
+                    try {
+                        PeachServerInterface.getInstance().getUserLocation(friend, new StrawberryListener(new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.d(TAG, "Getting users location, got:" + response);
 
-                            try {
-                                JSONArray locArr = new JSONArray(response);
-                                if (locArr.length() != 0) {
-                                    JSONObject latestLoc = (JSONObject) locArr.get(0);
-                                    Log.d(TAG, "Getting users location, latest:" + latestLoc);
+                                try {
+                                    JSONArray locArr = new JSONArray(response);
+                                    if (locArr.length() != 0) {
+                                        JSONObject latestLoc = (JSONObject) locArr.get(0);
+                                        Log.d(TAG, "Getting users location, latest:" + latestLoc);
 
-                                    Double longitude = (Double) latestLoc.get("longitude");
-                                    Double latitude = (Double) latestLoc.get("latitude");
-                                    Location newLocation = new Location(this.getClass().getSimpleName());
+                                        Double longitude = (Double) latestLoc.get("longitude");
+                                        Double latitude = (Double) latestLoc.get("latitude");
+                                        Location newLocation = new Location(this.getClass().getSimpleName());
 
-                                    newLocation.setLatitude(latitude);
-                                    newLocation.setLongitude(longitude);
+                                        newLocation.setLatitude(latitude);
+                                        newLocation.setLongitude(longitude);
 
-                                    updateLocationCache(friend, newLocation);
+                                        updateLocationCache(friend, newLocation);
+                                    }
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-                        }
-                    }, null));
+                        }, null));
+                    } catch (NotInstantiatedException | InstanceExpiredException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };
@@ -186,7 +191,8 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
     private void updateLocationCache(User user, Location location) {
         if (locationCache.containsKey(user)) {
             Location lastLoc = locationCache.get(user);
-            if (lastLoc.equals(location))
+            // TODO: update if altitude added
+            if (lastLoc.getLatitude() == location.getLatitude() && lastLoc.getLongitude() == location.getLongitude())
                 return;
         }
 

@@ -17,6 +17,10 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.CookieStore;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 public class StrawberryApplication extends Application {
 
@@ -42,8 +46,7 @@ public class StrawberryApplication extends Application {
         // default values edit
         SharedPreferences.Editor editor = pref.edit();
         editor.putString(MAC_TAG, findMacAddress());
-        //TODO: selected user - development purpose only
-        editor.putString(SELECTED_USER_TAG, "59cf7b1e2f63f07468f2c77a");
+        //editor.putString(SELECTED_USER_TAG, "59cf7b1e2f63f07468f2c77a");
         editor.apply();
 
         CookieStore cookieStore = new PeachCookieStore();
@@ -123,9 +126,36 @@ public class StrawberryApplication extends Application {
         editor.apply();
     }
 
+    public static void setStringSet(String name, Set<String> val) {
+        SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putStringSet(name, val);
+        editor.apply();
+    }
+
     public static String getString(String token) {
         SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
         return pref.getString(token, null);
+    }
+
+    public static Set<String> getStringSet(String name) {
+        SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
+        return pref.getStringSet(name, null);
+    }
+
+    public static List<User> getCachedFriends() {
+        Set<String> friendSet = getStringSet("friends");
+        if(friendSet == null)
+            return Collections.emptyList();
+
+        List<User> list = new ArrayList<>();
+
+        for(String friend: friendSet) {
+            list.add(User.toObject(friend));
+        }
+
+        return list;
     }
 
     public static void remove(String name) {

@@ -10,17 +10,23 @@ import android.support.annotation.Nullable;
 
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.volley.Response;
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.ar.ARCameraViewActivity;
 import com.comp30022.helium.strawberry.components.location.LocationService;
 
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
+import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
+import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
+import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
+import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
@@ -31,8 +37,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Subscriber<Boolean> {
     private static final String TAG = "MainActivity";
@@ -68,7 +77,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     private void autoAddFriends() {
-        added = true;
+        // auto add friends
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
                 "/me/friends",
@@ -83,15 +92,62 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                             for (int i = 0; i < friends.length(); i++) {
                                 JSONObject friend = new JSONObject(friends.get(i).toString());
                                 String id = friend.get("id").toString();
+
                                 Log.d(TAG, "Friend " + id);
                                 PeachServerInterface.getInstance().addFriendFbId(id);
                             }
+
+                            // refresh friends list
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+
+                        refreshFriendsListCache();
                     }
                 }
         ).executeAsync();
+    }
+
+    private void refreshFriendsListCache() {
+        try {
+            PeachServerInterface.getInstance().getFriends(new StrawberryListener(new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    JSONArray friendsJSON = null;
+                    try {
+                        friendsJSON = new JSONArray(response.toString());
+                        //username = self.get("username").toString()
+                        Set<String> friendSet = new HashSet<>();
+
+                        for (int i = 0; i < friendsJSON.length(); i++) {
+                            JSONObject friend = new JSONObject(friendsJSON.get(i).toString());
+                            String id = friend.get("id").toString();
+                            String username = friend.get("username").toString();
+                            String facebookId = friend.get("facebookId").toString();
+
+                            User user = new User(id, username, facebookId);
+                            friendSet.add(user.toString());
+                        }
+
+                        // refresh friends list
+                        Log.i(TAG, "Friend set is " + friendSet);
+                        StrawberryApplication.setStringSet("friends", friendSet);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    // init loc service
+                    mLocationService = new LocationService();
+                    mLocationService.setup(mGoogleApiClient);
+
+                    // finished loading content view
+                    setContentView(R.layout.activity_main);
+                }
+            }, null));
+        } catch (NotInstantiatedException | InstanceExpiredException e) {
+            e.printStackTrace();
+        }
     }
 
     // if does not have permission, boot to start
@@ -175,14 +231,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             toast.show();
             backToStart();
         } else {
-            // successful, gurantee that we have permissions
-            mLocationService = new LocationService();
-            mLocationService.setup(mGoogleApiClient);
-
-            if (!added) {
-                autoAddFriends();
-            }
-            setContentView(R.layout.activity_main);
+            // successful, guarantee that we have permissions
+            // TODO: 3/10/17  replace with simple callback for the chain of events
+            autoAddFriends();
         }
     }
 

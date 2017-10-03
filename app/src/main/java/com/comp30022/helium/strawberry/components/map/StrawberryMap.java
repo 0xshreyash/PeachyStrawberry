@@ -1,6 +1,7 @@
 package com.comp30022.helium.strawberry.components.map;
 
 import android.location.Location;
+import android.util.Log;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
@@ -11,6 +12,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -18,6 +20,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +30,7 @@ import java.util.Map;
  */
 
 public class StrawberryMap {
-    private static final String TAG = StrawberryMap.class.getSimpleName();
+    private static final String TAG = "StrawberryMap";
     private GoogleMap googleMap;
     private String mode;
     private MapFragment mapFragment;
@@ -43,15 +46,23 @@ public class StrawberryMap {
         setMode("transit");
     }
 
-    public void updatePath(String markerName1, String markerName2) {
+    public boolean updatePath(String markerName1, String markerName2) {
         // Checks, whether start and end locations are captured
-        LatLng origin = markers.get(markerName1).getPosition();
-        LatLng dest = markers.get(markerName2).getPosition();
+        Marker marker1 = markers.get(markerName1);
+        Marker marker2 = markers.get(markerName2);
+
+        if(marker1 == null || marker2 == null)
+            return false;
+
+        LatLng origin = marker1.getPosition();
+        LatLng dest = marker2.getPosition();
 
         if (origin == null)
             throw new NoSuchMarkerException(markerName1);
         if (dest == null)
             throw new NoSuchMarkerException(markerName1);
+
+        Log.d(TAG, "Updating path from " + markerName1 + origin + " to " + markerName2 + dest);
 
         // Getting URL to the Google Directions API
         String pathName = markerName1 + markerName2;
@@ -64,6 +75,22 @@ public class StrawberryMap {
         // Start downloading json data from Google Directions API
         String url = getPathDownloadUrl(origin, dest);
         fetchUrl.execute(url);
+
+        List<Location> locations = new ArrayList<>();
+        Location originLoc = new Location("");
+        originLoc.setLongitude(origin.longitude);
+        originLoc.setLatitude(origin.latitude);
+
+        Location destLoc = new Location("");
+        destLoc.setLongitude(dest.longitude);
+        destLoc.setLatitude(dest.latitude);
+
+        // only move to current user's location
+        locations.add(originLoc);
+//        locations.add(destLoc);
+        moveCamera(originLoc, 17);
+
+        return true;
     }
 
     public void updateMarker(String markerName, String title, Location location) {
@@ -90,6 +117,12 @@ public class StrawberryMap {
         }
     }
 
+    public void moveCamera(Location location, float zoom) {
+        CameraPosition cp = CameraPosition.fromLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), zoom);
+        CameraUpdate cu = CameraUpdateFactory.newCameraPosition(cp);
+        googleMap.animateCamera(cu);
+    }
+
     public void moveCamera(List<Location> locations, int bound) {
         //move map camera
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -102,7 +135,6 @@ public class StrawberryMap {
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, bound);
         googleMap.animateCamera(cu);
     }
-
     /**
      * Helper for path finder, download path
      *
@@ -152,5 +184,11 @@ public class StrawberryMap {
 
     public void changeText(String name, String value) {
         mapFragment.changeText(name, value);
+    }
+
+    public void deleteAllPaths() {
+        for(Polyline path : paths.values()) {
+            path.remove();
+        }
     }
 }

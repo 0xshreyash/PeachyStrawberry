@@ -81,4 +81,24 @@ public class User {
     public int hashCode() {
         return id.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return id + " " + username + " " + facebookId;
+    }
+
+    public static User toObject(String str) {
+        String parts[] = str.split(" ");
+
+        if(parts.length == 1) {
+            return new User(parts[0]);
+        } else if (parts.length == 2) {
+            return new User(parts[0], parts[1]);
+
+        } else if (parts.length == 3) {
+            return new User(parts[0], parts[1], parts[2]);
+        }
+
+        return null;
+    }
 }

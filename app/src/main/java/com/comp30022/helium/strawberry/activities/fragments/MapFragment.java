@@ -32,7 +32,7 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  */
 public class MapFragment extends LocationServiceFragment implements OnMapReadyCallback, View.OnClickListener {
-    private static final String TAG = MapFragment.class.getSimpleName();
+    private static final String TAG = "StrawberryMapFragment";
     private StrawberryMap map;
     private SupportMapFragment mMapView;
     private Button drive;
@@ -42,6 +42,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private Button lastChanged;
     private TextView arrival_time;
     private TextView arrival_distance;
+    private ArrayList<Location> locations;
 
     public MapFragment() {
         // Required empty public constructor
@@ -88,23 +89,41 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = new StrawberryMap(googleMap, this);
+        locations = new ArrayList<>();
 
-        String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
-        User friend = new User(selectedId);
+        for (User friend : StrawberryApplication.getCachedFriends()) {
+            Location friendLoc = locationService.getUserLocation(friend);
+            locations.add(friendLoc);
 
-        // init locations
-        Location friendLoc = locationService.getUserLocation(friend);
-        map.updateMarker("friendLocation", "Friend Location", friendLoc);
+            map.updateMarker(friend.getId(), friend.getUsername(), friendLoc);
+            Log.d(TAG, "Added " + friend + " as marker at " + friendLoc);
+        }
 
         Location currentLocation = locationService.getDeviceLocation();
-        map.updateMarker("currentLocation", "You are here", currentLocation);
+        map.updateMarker(PeachServerInterface.currentUser().getId(), "You are here", currentLocation);
 
-        // move camera
-        List<Location> locations = new ArrayList<>();
-        locations.add(friendLoc);
+        // save starting point of locations
         locations.add(currentLocation);
-        map.moveCamera(locations, 200);
+
+        refreshPath();
     }
+
+    private void refreshPath() {
+        String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
+
+        if (selectedId != null) {
+            Log.d(TAG, "Tracking " + selectedId);
+            map.deleteAllPaths();
+
+            if(!map.updatePath(PeachServerInterface.currentUser().getId(), selectedId)) {
+                map.moveCamera(locations, 200);
+                Log.e(TAG, "Failed to refresh path");
+            }
+
+            Log.i(TAG, "Successfully to refresh path");
+        }
+    }
+
 
     @Override
     public void update(LocationEvent updatedLocation) {
@@ -115,14 +134,12 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         User user = updatedLocation.getKey();
         Location currentLocation = updatedLocation.getValue();
+        map.updateMarker(user.getId(), user.getUsername(), currentLocation);
 
-        if (user.equals(PeachServerInterface.currentUser())) {
-            map.updateMarker("currentLocation", "You are here", currentLocation);
-        } else {
-            map.updateMarker("friendLocation", "Friend location", currentLocation);
-        }
+        String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
 
-        map.updatePath("currentLocation", "friendLocation");
+        if(selectedId.equals(user.getId()) || selectedId.equals(PeachServerInterface.currentUser().getId()))
+            refreshPath();
     }
 
     @Override
@@ -171,8 +188,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
         lastChanged.setTextColor(Color.WHITE);
 
-        //TODO: update later if required
-        map.updatePath("currentLocation", "friendLocation");
+        map.updatePath(PeachServerInterface.currentUser().getId(), StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
     }
 
     // Update the arrival time and distance which will be shown in the textview.

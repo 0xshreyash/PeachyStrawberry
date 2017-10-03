@@ -1,8 +1,11 @@
 package com.comp30022.helium.strawberry.components.location;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
+import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.activities.MainActivity;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 
 /**
@@ -18,9 +21,20 @@ public abstract class LocationServiceFragment extends Fragment implements Subscr
     public final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        locationService = LocationService.getInstance();
+        locationService = null;
+        while(locationService == null) {
+            locationService = LocationService.getInstance();
 
-        locationService.registerSubscriber(this);
+            if(locationService != null) {
+                locationService.registerSubscriber(this);
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
         onCreateAction(savedInstanceState);
     }

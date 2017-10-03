@@ -142,7 +142,7 @@ public class PeachServerInterface implements Publisher<Boolean> {
         return new User(userId);
     }
 
-    public static void getUserLocation(User friend, StrawberryListener strawberryListener) {
+    public void getUserLocation(User friend, StrawberryListener strawberryListener) {
         if (userId != null && userId.length() > 0) {
             PeachRestInterface.get("/user/" + friend.getId() + "/location", strawberryListener);
         }
