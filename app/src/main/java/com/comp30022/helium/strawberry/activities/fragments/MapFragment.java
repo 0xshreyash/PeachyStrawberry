@@ -1,11 +1,14 @@
 package com.comp30022.helium.strawberry.activities.fragments;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 
 import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.activities.MainActivity;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
+import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
 
 import android.support.v4.app.Fragment;
@@ -20,19 +23,23 @@ import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationServiceFragment;
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
+import com.comp30022.helium.strawberry.entities.exceptions.FacebookIdNotSetException;
+import com.comp30022.helium.strawberry.helpers.BitmapHelper;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class MapFragment extends LocationServiceFragment implements OnMapReadyCallback, View.OnClickListener {
     private static final String TAG = "StrawberryMapFragment";
+    private String prevRefresh = "";
     private StrawberryMap map;
     private SupportMapFragment mMapView;
     private Button drive;
@@ -42,6 +49,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private Button lastChanged;
     private TextView arrival_time;
     private TextView arrival_distance;
+
     private ArrayList<Location> locations;
 
     public MapFragment() {
@@ -96,11 +104,24 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             locations.add(friendLoc);
 
             map.updateMarker(friend.getId(), friend.getUsername(), friendLoc);
-            Log.d(TAG, "Added " + friend + " as marker at " + friendLoc);
+            try {
+                StrawberryCallback<Bitmap> callback = new StrawberryCallback<Bitmap>() {
+                    @Override
+                    public void run(Bitmap bitmap) {
+                        map.updateMarkerImage((String) attribute, BitmapHelper.makeCircular(bitmap));
+                        Log.d(TAG, "Finished downloading icon for " + attribute);
+                    }
+                };
+                callback.attribute = friend.getId();
+
+                friend.getFbPicture(User.ProfilePictureType.SQUARE, callback);
+            } catch (FacebookIdNotSetException | MalformedURLException e) {
+                e.printStackTrace();
+            }
         }
 
         Location currentLocation = locationService.getDeviceLocation();
-        map.updateMarker(PeachServerInterface.currentUser().getId(), "You are here", currentLocation);
+        map.updateMarker(PeachServerInterface.currentUser().getId(), "You", currentLocation);
 
         // save starting point of locations
         locations.add(currentLocation);
@@ -113,7 +134,9 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         if (selectedId != null) {
             Log.d(TAG, "Tracking " + selectedId);
-            map.deleteAllPaths();
+            if(!selectedId.equals(prevRefresh))
+                map.deleteAllPaths();
+            prevRefresh = selectedId;
 
             if(!map.updatePath(PeachServerInterface.currentUser().getId(), selectedId)) {
                 map.moveCamera(locations, 200);
@@ -138,7 +161,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
 
-        if(selectedId.equals(user.getId()) || selectedId.equals(PeachServerInterface.currentUser().getId()))
+        if(selectedId.equals(user.getId()) || user.getId().equals(PeachServerInterface.currentUser().getId()))
             refreshPath();
     }
 

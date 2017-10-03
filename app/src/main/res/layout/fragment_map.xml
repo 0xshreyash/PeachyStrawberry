@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/map_mode_default"
-            android:text="Bicycling" />
+            android:text="Cycling" />
 
         <Button
             android:id="@+id/transit"

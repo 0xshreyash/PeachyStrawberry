@@ -21,19 +21,13 @@ public abstract class LocationServiceFragment extends Fragment implements Subscr
     public final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        locationService = null;
-        while(locationService == null) {
-            locationService = LocationService.getInstance();
-
-            if(locationService != null) {
-                locationService.registerSubscriber(this);
-            } else {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+        locationService = LocationService.getInstance();
+        if(locationService != null) {
+            locationService.registerSubscriber(this);
+        } else {
+            Intent i = new Intent(this.getActivity(), MainActivity.class);
+            startActivity(i);
+            this.getActivity().finish();
         }
 
         onCreateAction(savedInstanceState);

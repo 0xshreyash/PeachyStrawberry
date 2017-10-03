@@ -1,5 +1,6 @@
 package com.comp30022.helium.strawberry.components.map;
 
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.util.Log;
 
@@ -190,5 +191,22 @@ public class StrawberryMap {
         for(Polyline path : paths.values()) {
             path.remove();
         }
+    }
+
+    /**
+     * THis critically crashes if not on main thread
+     * @param id
+     * @param bitmap
+     */
+    public void updateMarkerImage(final String id, final Bitmap bitmap) {
+        mapFragment.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Marker marker = markers.get(id);
+                if(marker != null) {
+                    marker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+                }
+            }
+        });
     }
 }
