@@ -29,6 +29,12 @@ public class User {
         updateUserInfo();
     }
 
+    public User(String id, String username, String facebookId) {
+        this.id = id;
+        this.username = username;
+        this.facebookId = facebookId;
+    }
+
     private void updateUserInfo() {
         try {
             PeachServerInterface.getInstance().getUser(id, new StrawberryListener(new Response.Listener<String>() {
