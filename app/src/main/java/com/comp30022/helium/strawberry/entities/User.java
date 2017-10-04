@@ -13,30 +13,59 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class User {
-    private String id, username;
+    private String id, username, facebookId;
 
     public User(String id) {
         this.id = id;
         this.username = "";
-        getLatestUsername();
+        this.facebookId = "";
+        updateUserInfo();
     }
 
     public User(String id, String username) {
         this.id = id;
         this.username = username;
+        this.facebookId = "";
+        updateUserInfo();
+    }
+
+    public User(String id, String username, String facebookId) {
+        this.id = id;
+        this.username = username;
+        this.facebookId = facebookId;
+    }
+
+    private void updateUserInfo() {
+        try {
+            PeachServerInterface.getInstance().getUser(id, new StrawberryListener(new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        JSONObject self = new JSONObject(response.toString());
+                        username = self.get("username").toString();
+                        facebookId = self.get("facebookId").toString();
+                        Log.d("PeachUser", "Username updated to " + username);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, null));
+
+        } catch (NotInstantiatedException | InstanceExpiredException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getUsername() {
         return username;
     }
 
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
-
     public String getId() {
         return id;
+    }
+
+    public String getFacebookId() {
+        return facebookId;
     }
 
     @Override
@@ -48,23 +77,8 @@ public class User {
         return false;
     }
 
-    private void getLatestUsername() {
-        try {
-            PeachServerInterface.getInstance().getUser(id, new StrawberryListener(new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    try {
-                        JSONObject self = new JSONObject(response.toString());
-                        username = self.get("username").toString();
-                        Log.d("PeachUser", "Username updated to " + username);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, null));
-
-        } catch (NotInstantiatedException | InstanceExpiredException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }

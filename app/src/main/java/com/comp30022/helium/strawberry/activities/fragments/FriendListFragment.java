@@ -61,8 +61,10 @@ public class FriendListFragment extends Fragment implements Subscriber<Integer> 
                         for(int i = 0; i < friendsJSON.length(); i++) {
                             JSONObject friend = new JSONObject(friendsJSON.get(i).toString());
                             String username = friend.get("username").toString();
+                            String facebookId = friend.get("friendId").toString();
                             String id = friend.get("id").toString();
-                            friends.add(new User(id, username));
+
+                            friends.add(new User(id, username, facebookId));
                             Log.i(TAG, "Adding " + username + " to friends");
                             Log.i(TAG, friends.get(i).getUsername());
                             // Set the first person to be selected initially.
