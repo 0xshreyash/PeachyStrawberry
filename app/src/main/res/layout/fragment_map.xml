@@ -11,16 +11,17 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
+        tools:context="com.example.noxm.googlemapsexample.MapsActivity"
         android:layout_alignParentTop="true"
-        tools:context="com.example.noxm.googlemapsexample.MapsActivity" />
+        android:layout_alignParentStart="true" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:id="@+id/linearLayout">
 
         <!--Create the buttons for changing travel modes-->
         <Button
@@ -57,20 +58,43 @@
     </LinearLayout>
 
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="37sp"
+        map:srcCompat="@color/cardview_shadow_start_color"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
     <!--Add a textview to show the distance-->
     <TextView
         android:id="@+id/arrival_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="Loading the estimated distance" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="Loading the estimated distance"
+        android:textColor="@android:color/white" />
 
     <TextView
         android:id="@+id/arrival_distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Loading the estimated arrival time"
+        android:textColor="@android:color/white"
         android:layout_below="@+id/arrival_time"
-        android:layout_centerHorizontal="true"
-        android:text="Loading the estimated arrival time" />
+        android:layout_alignParentStart="true" />
+
+    <Switch
+        android:id="@+id/toggle_follow_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:paddingRight="3sp"
+        android:paddingTop="3sp"
+        android:text="Follow\nCamera"
+        android:textColor="@android:color/white"
+        android:textSize="12sp" />
 
 </RelativeLayout>

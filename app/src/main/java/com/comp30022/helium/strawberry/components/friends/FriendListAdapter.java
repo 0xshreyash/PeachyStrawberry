@@ -213,7 +213,6 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             id = friend.getId();
             username = friend.getUsername();
             this.position = new Integer(position);
-
         }
 
         /**

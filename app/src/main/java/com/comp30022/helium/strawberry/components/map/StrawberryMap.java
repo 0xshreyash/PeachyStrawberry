@@ -77,19 +77,19 @@ public class StrawberryMap {
         String url = getPathDownloadUrl(origin, dest);
         fetchUrl.execute(url);
 
-        List<Location> locations = new ArrayList<>();
-        Location originLoc = new Location("");
-        originLoc.setLongitude(origin.longitude);
-        originLoc.setLatitude(origin.latitude);
-
-        Location destLoc = new Location("");
-        destLoc.setLongitude(dest.longitude);
-        destLoc.setLatitude(dest.latitude);
-
-        // only move to current user's location
-        locations.add(originLoc);
-//        locations.add(destLoc);
-        moveCamera(originLoc, 17);
+//        List<Location> locations = new ArrayList<>();
+//        Location originLoc = new Location("");
+//        originLoc.setLongitude(origin.longitude);
+//        originLoc.setLatitude(origin.latitude);
+//
+//        Location destLoc = new Location("");
+//        destLoc.setLongitude(dest.longitude);
+//        destLoc.setLatitude(dest.latitude);
+//
+//        // only move to current user's location
+//        locations.add(originLoc);
+////        locations.add(destLoc);
+//        moveCamera(originLoc, 17);
 
         return true;
     }

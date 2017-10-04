@@ -49,8 +49,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private GoogleApiClient mGoogleApiClient;
     private LocationService mLocationService;
 
-    private boolean added = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

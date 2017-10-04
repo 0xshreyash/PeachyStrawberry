@@ -165,4 +165,17 @@ public class StrawberryApplication extends Application {
         editor.remove(name);
         editor.apply();
     }
+
+    public static void setBoolean(String toggleFollowValKey, boolean checked) {
+        SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putBoolean(toggleFollowValKey, checked);
+        editor.apply();
+    }
+
+    public static boolean getBoolean(String key) {
+        SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
+        return pref.getBoolean(key, false);
+    }
 }

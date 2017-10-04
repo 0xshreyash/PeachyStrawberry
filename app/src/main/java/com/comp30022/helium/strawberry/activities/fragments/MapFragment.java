@@ -11,12 +11,14 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
 
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
@@ -39,16 +41,21 @@ import java.util.HashMap;
  */
 public class MapFragment extends LocationServiceFragment implements OnMapReadyCallback, View.OnClickListener {
     private static final String TAG = "StrawberryMapFragment";
+    private static final String TOGGLE_FOLLOW_VAL_KEY = "toggleFollowVal";
     private String prevRefresh = "";
     private StrawberryMap map;
     private SupportMapFragment mMapView;
+
     private Button drive;
     private Button walk;
     private Button bicycle;
     private Button transit;
     private Button lastChanged;
+
     private TextView arrival_time;
     private TextView arrival_distance;
+
+    private Switch toggleFollow;
 
     private ArrayList<Location> locations;
 
@@ -60,6 +67,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
+        // find views
         mMapView = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mMapView.onCreate(savedInstanceState);
 
@@ -77,6 +85,9 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         transit = (Button) view.findViewById(R.id.transit);
         transit.setOnClickListener(this);
+
+        toggleFollow = (Switch) view.findViewById(R.id.toggle_follow_switch);
+        toggleFollow.setChecked(StrawberryApplication.getBoolean(TOGGLE_FOLLOW_VAL_KEY));
 
         //TODO load this instead of hard-coded
         lastChanged = transit;
@@ -127,6 +138,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         locations.add(currentLocation);
 
         refreshPath();
+        map.moveCamera(currentLocation, 15);
     }
 
     private void refreshPath() {
@@ -147,7 +159,6 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         }
     }
 
-
     @Override
     public void update(LocationEvent updatedLocation) {
         if (map == null) {
@@ -163,6 +174,9 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         if(selectedId.equals(user.getId()) || user.getId().equals(PeachServerInterface.currentUser().getId()))
             refreshPath();
+
+        if(toggleFollow.isChecked())
+            map.moveCamera(currentLocation, 16);
     }
 
     @Override
@@ -173,6 +187,9 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     @Override
     protected void onPauseAction() {
         mMapView.onPause();
+
+        Log.d(TAG, "Saving toggle value");
+        StrawberryApplication.setBoolean(TOGGLE_FOLLOW_VAL_KEY, toggleFollow.isChecked());
     }
 
     // Change the travel mode.
