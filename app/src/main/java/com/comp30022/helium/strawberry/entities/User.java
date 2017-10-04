@@ -11,6 +11,7 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.exceptions.FacebookIdNotSetException;
+import com.comp30022.helium.strawberry.helpers.ImageCache;
 import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
 
 import org.json.JSONException;
@@ -23,7 +24,7 @@ import java.util.HashMap;
 
 public class User {
     private String id, username, facebookId;
-    private HashMap<ProfilePictureType, Bitmap> fbPictures = new HashMap<>();
+//    private HashMap<ProfilePictureType, Bitmap> fbPictures = new HashMap<>();
 
     public User(String id) {
         this.id = id;
@@ -151,8 +152,15 @@ public class User {
     }
 
     public void getFbPicture(final ProfilePictureType type, final StrawberryCallback<Bitmap> callback) throws FacebookIdNotSetException, MalformedURLException {
-        if (fbPictures.containsKey(type)) {
-            callback.run(fbPictures.get(type));
+//        if (fbPictures.containsKey(type)) {
+//            callback.run(fbPictures.get(type));
+//            return;
+//        }
+
+        Bitmap cache = ImageCache.getInstance().get(id + type.toString());
+        if(cache != null) {
+            callback.run(cache);
+            return;
         }
 
         if (facebookId.length() > 0) {
@@ -163,7 +171,9 @@ public class User {
                 protected Bitmap doInBackground(URL... urls) {
                     try {
                         Bitmap pic = BitmapFactory.decodeStream(urls[0].openConnection().getInputStream());
-                        fbPictures.put(type, pic);
+//                        fbPictures.put(type, pic);
+
+                        ImageCache.getInstance().put(id + type.toString(), pic);
                         if(callback != null)
                             callback.run(pic);
                         return pic;
@@ -179,13 +189,6 @@ public class User {
         }
 
         throw new FacebookIdNotSetException();
-    }
-
-    public Bitmap getFbPicture(ProfilePictureType type) {
-        if(fbPictures.containsKey(type)) {
-            return fbPictures.get(type);
-        }
-        return null;
     }
 
     /**

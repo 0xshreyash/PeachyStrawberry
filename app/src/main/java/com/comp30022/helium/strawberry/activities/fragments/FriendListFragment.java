@@ -85,7 +85,7 @@ public class FriendListFragment extends Fragment implements Subscriber<Integer> 
 
     public void setRecyclerProperties(Integer info) {
         DEFAULT_SELECTION = info;
-        this.mFriendAdapter = new FriendListAdapter(this.getView().getContext(), friends, this);
+        this.mFriendAdapter = new FriendListAdapter(getActivity(), friends, this);
         mFriendAdapter.setSelectedPosition(info);
         mFriendRecycler.setAdapter(mFriendAdapter);
 
