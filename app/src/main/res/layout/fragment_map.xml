@@ -60,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/linearLayout"
-        android:background="#039be5"
+        android:background="@color/colorPrimaryDark"
         android:padding="5sp">
 
         <TextView

@@ -1,9 +1,9 @@
 package com.comp30022.helium.strawberry.components.location;
 
-import android.graphics.Color;
 import android.util.Log;
 
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
+import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.helpers.JSONParser;
 import com.comp30022.helium.strawberry.helpers.ParserTask;
 import com.google.android.gms.maps.model.LatLng;
@@ -86,7 +86,7 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
             // Adding all the points in the route to LineOptions
             lineOptions.addAll(points);
             lineOptions.width(10);
-            lineOptions.color(Color.RED);
+            lineOptions.color(ColourScheme.ACCENT);
         }
 
         // Drawing polyline in the Google Map for the i-th route
