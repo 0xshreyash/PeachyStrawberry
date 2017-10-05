@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.ObbInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
@@ -12,6 +13,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.comp30022.helium.strawberry.components.server.rest.components.PeachCookieStore;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.patterns.Event;
+import com.comp30022.helium.strawberry.patterns.Subscriber;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -23,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 public class StrawberryApplication extends Application {
-
     private RequestQueue requestQueue;
     private static StrawberryApplication myApplication;
     public static final String MY_PREFS = "my-prefs";
@@ -36,10 +38,13 @@ public class StrawberryApplication extends Application {
 
     public static final String SELECTED_USER_TAG = "selectedUser";
 
+    private static List<Subscriber<Event>> subs;
+
     @Override
     public void onCreate() {
         super.onCreate();
         myApplication = this;
+        subs = new ArrayList<>();
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
 
@@ -124,6 +129,14 @@ public class StrawberryApplication extends Application {
         SharedPreferences.Editor editor = pref.edit();
         editor.putString(name, val);
         editor.apply();
+
+        notifyAllSubscribers(name, val);
+    }
+
+    private static void notifyAllSubscribers(String name, Object val) {
+        for(Subscriber<Event> sub: subs) {
+            sub.update(new GlobalVariableChangeEvent(myApplication, name, val));
+        }
     }
 
     public static void setStringSet(String name, Set<String> val) {
@@ -177,5 +190,42 @@ public class StrawberryApplication extends Application {
     public static boolean getBoolean(String key) {
         SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
         return pref.getBoolean(key, false);
+    }
+
+
+    public static void registerSubscriber(Subscriber<Event> sub) {
+        subs.add(sub);
+    }
+
+    public static void deregisterSubscriber(Subscriber<Event> sub) {
+        subs.remove(sub);
+    }
+
+    public static class GlobalVariableChangeEvent implements Event<Application, String, Object> {
+
+        private final Application s;
+        private final String k;
+        private final Object v;
+
+        public GlobalVariableChangeEvent(Application s, String k, Object v) {
+            this.s = s;
+            this.k = k;
+            this.v = v;
+        }
+
+        @Override
+        public Application getSource() {
+            return s;
+        }
+
+        @Override
+        public String getKey() {
+            return k;
+        }
+
+        @Override
+        public Object getValue() {
+            return v;
+        }
     }
 }

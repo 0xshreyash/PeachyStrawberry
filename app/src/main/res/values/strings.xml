@@ -12,4 +12,5 @@
     <string name="profile_picture">Profile picture</string>
     <string name="calculating">Calculating..</string>
     <string name="follow_ncamera">Follow\nCamera</string>
+    <string name="loading_message">Collecting Strawberries and Peaches..</string>
 </resources>

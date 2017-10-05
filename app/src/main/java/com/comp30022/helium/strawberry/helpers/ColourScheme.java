@@ -8,6 +8,7 @@ import android.graphics.Color;
 
 public class ColourScheme {
     public static int PRIMARY = Color.parseColor("#F3E2AF");
+    public static int PRIMARY_LIGHT = Color.parseColor("#F7ECCC");
     public static int PRIMARY_DARK = Color.parseColor("#EC9071");
     public static int ACCENT = Color.parseColor("#F16160");
 

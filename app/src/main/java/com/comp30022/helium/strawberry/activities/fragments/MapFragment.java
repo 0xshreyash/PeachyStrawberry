@@ -3,11 +3,11 @@ package com.comp30022.helium.strawberry.activities.fragments;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 
 import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
@@ -15,9 +15,9 @@ import com.comp30022.helium.strawberry.entities.User;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -49,8 +49,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
     private ImageButton drive, walk, bicycle, transit, lastChanged;
 
-    private TextView arrival_time;
-    private TextView arrival_distance;
+    private TextView arrivalTime;
+    private TextView arrivalDistance;
 
     private Switch toggleFollow;
 
@@ -69,8 +69,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         mMapView = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mMapView.onCreate(savedInstanceState);
 
-        arrival_time = (TextView) view.findViewById(R.id.arrival_time);
-        arrival_distance = (TextView) view.findViewById(R.id.arrival_distance);
+        arrivalTime = (TextView) view.findViewById(R.id.arrival_time);
+        arrivalDistance = (TextView) view.findViewById(R.id.arrival_distance);
 
         drive = (ImageButton) view.findViewById(R.id.drive);
         drive.setOnClickListener(this);
@@ -86,6 +86,17 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         toggleFollow = (Switch) view.findViewById(R.id.toggle_follow_switch);
         toggleFollow.setChecked(StrawberryApplication.getBoolean(TOGGLE_FOLLOW_VAL_KEY));
+        toggleFollow.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if(!toggleFollow.isChecked()) {
+                        map.moveCamera(LocationService.getInstance().getDeviceLocation(), 16);
+                    }
+                }
+                return false;
+            }
+        });
 
         //TODO load this instead of hard-coded
         lastChanged = transit;
@@ -191,13 +202,16 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         refreshPath();
     }
 
-    private void refreshPath() {
+    public void refreshPath() {
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
 
         if (selectedId != null) {
             Log.d(TAG, "Tracking " + selectedId);
-            if (!selectedId.equals(prevRefresh))
+            if (!selectedId.equals(prevRefresh)) {
                 map.deleteAllPaths();
+                arrivalDistance.setText("Calculating..");
+                arrivalTime.setText("Calculating..");
+            }
             prevRefresh = selectedId;
 
             if (!map.updatePath(PeachServerInterface.currentUser().getId(), selectedId)) {
@@ -287,11 +301,11 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     public void changeText(String name, String value) {
         switch (name) {
             case "distance":
-                arrival_distance.setText(value);
+                arrivalDistance.setText(value);
                 break;
 
             case "duration":
-                arrival_time.setText(value);
+                arrivalTime.setText(value);
                 break;
 
             default:

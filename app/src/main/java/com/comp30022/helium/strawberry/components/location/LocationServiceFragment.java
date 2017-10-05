@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
-import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.activities.MainActivity;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 

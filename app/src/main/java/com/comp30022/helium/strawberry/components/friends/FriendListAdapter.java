@@ -21,6 +21,8 @@ import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 
+import org.w3c.dom.Text;
+
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -131,9 +133,11 @@ public class FriendListAdapter extends RecyclerView.Adapter {
 
         } else if (viewType == SELECTED_FRIEND) {
             Log.i(TAG, "This is the special selected friend");
-            view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_friend, parent, false);
-            view.setBackgroundColor(ColourScheme.PRIMARY);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_friend, parent, false);
+            view.setBackgroundColor(ColourScheme.SECONDARY);
+
+            TextView username = (TextView) view.findViewById(R.id.username);
+            username.setTextColor(Color.WHITE);
             holder = new FriendHolder(view);
         }
 
