@@ -241,11 +241,11 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     public void changeText(String name, String value) {
         switch (name) {
             case "distance":
-                arrival_distance.setText("The estimated distance is " + value);
+                arrival_distance.setText(value);
                 break;
 
             case "duration":
-                arrival_time.setText("The estimated arrival time is " + value);
+                arrival_time.setText(value);
                 break;
 
             default:

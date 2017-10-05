@@ -8,4 +8,6 @@
     <string name="sample_user">Sample User</string>
     <string name="primary_colour_2">#ff8f00</string>
     <string name="profile_picture">Profile picture</string>
+    <string name="calculating">Calculating..</string>
+    <string name="follow_ncamera">Follow\nCamera</string>
 </resources>
