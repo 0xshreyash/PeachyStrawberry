@@ -91,7 +91,9 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
 
     public Location getDeviceLocation() {
         // this method should return this device's current location
-        return new Location(mLastLocation);
+        if(mLastLocation != null)
+            return new Location(mLastLocation);
+        return null;
     }
 
     public LocationRequest getRequest() {

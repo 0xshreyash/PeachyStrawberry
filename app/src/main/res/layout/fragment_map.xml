@@ -1,6 +1,4 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,12 +14,12 @@
         android:layout_alignParentStart="true" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/linearLayout">
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal">
 
         <!--Create the buttons for changing travel modes-->
         <Button
@@ -30,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/map_mode_default"
-            android:text="Driving"  />
+            android:text="Driving" />
 
         <Button
             android:id="@+id/walk"
@@ -38,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/map_mode_default"
-            android:text="Walking"/>
+            android:text="Walking" />
 
         <Button
             android:id="@+id/bicycle"
@@ -57,44 +55,47 @@
             android:text="Transit" />
     </LinearLayout>
 
-
-    <ImageView
-        android:id="@+id/imageView"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="37sp"
-        map:srcCompat="@color/cardview_shadow_start_color"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
-
-    <!--Add a textview to show the distance-->
-    <TextView
-        android:id="@+id/arrival_time"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:text="Loading the estimated distance"
-        android:textColor="@android:color/white" />
+        android:layout_below="@+id/linearLayout"
+        android:background="#039be5"
+        android:padding="5sp">
 
-    <TextView
-        android:id="@+id/arrival_distance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Loading the estimated arrival time"
-        android:textColor="@android:color/white"
-        android:layout_below="@+id/arrival_time"
-        android:layout_alignParentStart="true" />
+        <TextView
+            android:id="@+id/arrival_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/arrival_time"
+            android:text="Loading the estimated arrival time"
+            android:textColor="@android:color/white" />
 
-    <Switch
-        android:id="@+id/toggle_follow_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:paddingRight="3sp"
-        android:paddingTop="3sp"
-        android:text="Follow\nCamera"
-        android:textColor="@android:color/white"
-        android:textSize="12sp" />
+        <Switch
+            android:id="@+id/toggle_follow_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:paddingRight="3sp"
+            android:paddingTop="3sp"
+            android:text="Follow\nCamera"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/arrival_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:text="Loading the estimated distance"
+            android:textColor="@android:color/white" />
+
+    </RelativeLayout>
+
+
+    <!--Add a textview to show the distance-->
 
 </RelativeLayout>

@@ -51,6 +51,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTitle("Strawberry");
         super.onCreate(savedInstanceState);
 
         // check if we actually have permission

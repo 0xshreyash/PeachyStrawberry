@@ -21,6 +21,7 @@ public class LoginActivity extends AppCompatActivity implements Subscriber<Strin
     @Override
     protected void onResume() {
         super.onResume();
+        setTitle("Login");
         FacebookFragment fragment = (FacebookFragment) getFragmentManager().findFragmentById(R.id.login_container);
         fragment.registerSubscriber(this);
 

@@ -58,6 +58,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private Switch toggleFollow;
 
     private ArrayList<Location> locations;
+    private boolean firstMove = true;
 
     public MapFragment() {
         // Required empty public constructor
@@ -131,14 +132,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             }
         }
 
-        Location currentLocation = locationService.getDeviceLocation();
-        map.updateMarker(PeachServerInterface.currentUser().getId(), "You", currentLocation);
-
-        // save starting point of locations
-        locations.add(currentLocation);
-
         refreshPath();
-        map.moveCamera(currentLocation, 15);
     }
 
     private void refreshPath() {
@@ -175,8 +169,10 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         if(selectedId.equals(user.getId()) || user.getId().equals(PeachServerInterface.currentUser().getId()))
             refreshPath();
 
-        if(toggleFollow.isChecked())
+        if(toggleFollow.isChecked() || firstMove) {
             map.moveCamera(currentLocation, 16);
+            firstMove = false;
+        }
     }
 
     @Override
