@@ -2,6 +2,7 @@ package com.comp30022.helium.strawberry.activities.fragments;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -45,11 +47,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private StrawberryMap map;
     private SupportMapFragment mMapView;
 
-    private Button drive;
-    private Button walk;
-    private Button bicycle;
-    private Button transit;
-    private Button lastChanged;
+    private ImageButton drive, walk, bicycle, transit, lastChanged;
 
     private TextView arrival_time;
     private TextView arrival_distance;
@@ -74,16 +72,16 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         arrival_time = (TextView) view.findViewById(R.id.arrival_time);
         arrival_distance = (TextView) view.findViewById(R.id.arrival_distance);
 
-        drive = (Button) view.findViewById(R.id.drive);
+        drive = (ImageButton) view.findViewById(R.id.drive);
         drive.setOnClickListener(this);
 
-        walk = (Button) view.findViewById(R.id.walk);
+        walk = (ImageButton) view.findViewById(R.id.walk);
         walk.setOnClickListener(this);
 
-        bicycle = (Button) view.findViewById(R.id.bicycle);
+        bicycle = (ImageButton) view.findViewById(R.id.bicycle);
         bicycle.setOnClickListener(this);
 
-        transit = (Button) view.findViewById(R.id.transit);
+        transit = (ImageButton) view.findViewById(R.id.transit);
         transit.setOnClickListener(this);
 
         toggleFollow = (Switch) view.findViewById(R.id.toggle_follow_switch);
@@ -93,7 +91,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         lastChanged = transit;
 
         lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
-        lastChanged.setTextColor(Color.WHITE);
+        makeIconWhite(lastChanged);
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -103,6 +101,54 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         mMapView.getMapAsync(this);
         return view;
+    }
+
+    private void makeIconWhite(ImageButton lastChanged) {
+        switch (lastChanged.getId()) {
+            // Change the background of the clicked button, and change back the previously changed one
+            case R.id.drive:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_car_white_24dp));
+                break;
+
+            case R.id.walk:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_walk_white_24dp));
+                break;
+
+            case R.id.bicycle:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_bike_white_24dp));
+                break;
+
+            case R.id.transit:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_tram_white_24dp));
+                break;
+
+            default:
+                Log.e("onClick", "Cannot find any button");
+        }
+    }
+
+    private void makeIconBlack(ImageButton lastChanged) {
+        switch (lastChanged.getId()) {
+            // Change the background of the clicked button, and change back the previously changed one
+            case R.id.drive:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_car_black_24dp));
+                break;
+
+            case R.id.walk:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_walk_black_24dp));
+                break;
+
+            case R.id.bicycle:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_bike_black_24dp));
+                break;
+
+            case R.id.transit:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_tram_black_24dp));
+                break;
+
+            default:
+                Log.e("onClick", "Cannot find any button");
+        }
     }
 
     @Override
@@ -150,11 +196,11 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         if (selectedId != null) {
             Log.d(TAG, "Tracking " + selectedId);
-            if(!selectedId.equals(prevRefresh))
+            if (!selectedId.equals(prevRefresh))
                 map.deleteAllPaths();
             prevRefresh = selectedId;
 
-            if(!map.updatePath(PeachServerInterface.currentUser().getId(), selectedId)) {
+            if (!map.updatePath(PeachServerInterface.currentUser().getId(), selectedId)) {
                 map.moveCamera(locations, 200);
                 Log.e(TAG, "Failed to refresh path");
             }
@@ -176,10 +222,10 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
 
-        if(selectedId.equals(user.getId()) || user.getId().equals(PeachServerInterface.currentUser().getId()))
+        if (selectedId.equals(user.getId()) || user.getId().equals(PeachServerInterface.currentUser().getId()))
             refreshPath();
 
-        if(toggleFollow.isChecked() || firstMove) {
+        if (toggleFollow.isChecked() || firstMove) {
             map.moveCamera(currentLocation, 16);
             firstMove = false;
         }
@@ -202,7 +248,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     @Override
     public void onClick(View view) {
         lastChanged.setBackgroundResource(R.drawable.map_mode_default);
-        lastChanged.setTextColor(Color.BLACK);
+        makeIconBlack(lastChanged);
 
         switch (view.getId()) {
             // Change the background of the clicked button, and change back the previously changed one
@@ -232,7 +278,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         }
 
         lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
-        lastChanged.setTextColor(Color.WHITE);
+        makeIconWhite(lastChanged);
 
         map.updatePath(PeachServerInterface.currentUser().getId(), StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
     }
