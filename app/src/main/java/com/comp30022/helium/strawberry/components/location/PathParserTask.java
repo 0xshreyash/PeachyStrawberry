@@ -93,19 +93,19 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
         if (lineOptions != null) {
             strawberryMap.updatePolyline(pathName, lineOptions);
         } else {
-            Log.d("onPostExecute", "without Polylines drawn");
+            Log.e("onPostExecute", "without Polylines drawn");
         }
 
         if (distance != null) {
             strawberryMap.changeText("distance", distance);
         } else {
-            Log.d("onPostExecute", "without distance");
+            Log.e("onPostExecute", "without distance");
         }
 
         if (duration != null) {
             strawberryMap.changeText("duration", duration);
         } else {
-            Log.d("onPostExecute", "without duration");
+            Log.e("onPostExecute", "without duration");
         }
     }
 }

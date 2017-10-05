@@ -52,8 +52,9 @@ public class StrawberryMap {
         Marker marker1 = markers.get(markerName1);
         Marker marker2 = markers.get(markerName2);
 
-        if(marker1 == null || marker2 == null)
+        if(marker1 == null || marker2 == null) {
             return false;
+        }
 
         LatLng origin = marker1.getPosition();
         LatLng dest = marker2.getPosition();
@@ -160,8 +161,8 @@ public class StrawberryMap {
         String output = "json";
 
         // Building the url to the web service
-        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
-
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + mapFragment.getString(R.string.google_directions_api);
+        Log.i(TAG, url);
         return url;
     }
 
