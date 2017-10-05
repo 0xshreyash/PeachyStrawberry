@@ -202,32 +202,36 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         });
     }
 
+    private void expandFriendList() {
+        ViewGroup.LayoutParams params = friendListFragment.getView().getLayoutParams();
+        params.height = MAX_HEIGHT;
+        expanded = true;
+        listButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_keyboard_arrow_down_white_24dp));
+    }
+
+    private void collapseFriendList() {
+        ViewGroup.LayoutParams params = friendListFragment.getView().getLayoutParams();
+        params.height = 0;
+        expanded = false;
+        listButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_keyboard_arrow_up_white_24dp));
+        friendListFragment.getView().setLayoutParams(params);
+    }
+
     private void stickyListHeight() {
         ViewGroup.LayoutParams params = friendListFragment.getView().getLayoutParams();
-
         if (!expanded) {
             if (params.height > MAX_HEIGHT / 5) {
-                params.height = MAX_HEIGHT;
-                expanded = true;
-                listButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_keyboard_arrow_down_white_24dp));
+                expandFriendList();
             } else {
-                params.height = 0;
-                expanded = false;
-                listButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_keyboard_arrow_up_white_24dp));
+                collapseFriendList();
             }
         } else {
             if (params.height < 4 * MAX_HEIGHT / 4) {
-                params.height = 0;
-                expanded = false;
-                listButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_keyboard_arrow_up_white_24dp));
+                collapseFriendList();
             } else {
-                params.height = MAX_HEIGHT;
-                expanded = true;
-                listButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_keyboard_arrow_down_white_24dp));
+                expandFriendList();
             }
         }
-
-        friendListFragment.getView().setLayoutParams(params);
     }
 
     private void updateListHeight(float start, float curr) {
@@ -311,6 +315,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             if (event.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {
                 // selected user has changed
                 mapFragment.refreshPath();
+                collapseFriendList();
             }
         }
     }

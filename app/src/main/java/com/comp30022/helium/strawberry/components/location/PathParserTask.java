@@ -41,7 +41,7 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
             routes = parser.parse(jObject);
 
         } catch (Exception e) {
-            Log.d("PathParserTask", e.toString());
+            Log.e("PathParserTask", e.toString());
             e.printStackTrace();
         }
         return routes;
@@ -51,8 +51,8 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
     @Override
     protected void onPostExecute(List<List<HashMap<String, String>>> result) {
         ArrayList<LatLng> points;
-        String distance = "";
-        String duration = "";
+        String distance = null;
+        String duration = null;
 
         PolylineOptions lineOptions = null;
         // Traversing through all the routes
@@ -99,12 +99,14 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
         if (distance != null) {
             strawberryMap.changeText("distance", distance);
         } else {
+            strawberryMap.changeText("distance", "Unknown");
             Log.e("onPostExecute", "without distance");
         }
 
         if (duration != null) {
             strawberryMap.changeText("duration", duration);
         } else {
+            strawberryMap.changeText("duration", "Unknown");
             Log.e("onPostExecute", "without duration");
         }
     }
