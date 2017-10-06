@@ -263,7 +263,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     public void onConnected(@Nullable Bundle bundle) throws SecurityException {
         Log.i(TAG, "Connection created");
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationService.getRequest(), mLocationService);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationService.getLocationRequest(true), mLocationService);
         if (mLastLocation != null) {
             mLocationService.setNewLocation(mLastLocation);
         }

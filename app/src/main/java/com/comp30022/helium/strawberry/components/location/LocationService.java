@@ -1,6 +1,9 @@
 package com.comp30022.helium.strawberry.components.location;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.android.volley.Response;
@@ -36,13 +39,12 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
 
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
-    private LocationRequest mLocationRequest;
     private static LocationService instance;
     private static boolean setupCalled = false;
     public static final int INTERVAL_SECS = 5;
-    public static final int FASTEST_INTERVAL_SECS = 1;
-    public static final long QUERY_TIME_SECS = 3;
-    public static final long BG_QUERY_TIME_SECS = 15;
+    public static final int FASTEST_INTERVAL_SECS = 3;
+    public static final long QUERY_TIME_SECS = 5;
+    public static final long BG_QUERY_TIME_SECS = 45;
     private Set<User> trackingUsers;
 
     private Timer timer;
@@ -55,6 +57,42 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         if (instance == null || !setupCalled)
             return null;
         return instance;
+    }
+
+    public LocationRequest getLocationRequest(boolean foreground) {
+        if (foreground) {
+            Log.d(TAG, "Location request = normal");
+            return LocationRequest.create()
+                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                    .setInterval(INTERVAL_SECS * 1000)
+                    .setFastestInterval(FASTEST_INTERVAL_SECS * 1000);
+        } else {
+            Log.d(TAG, "Location request = bg");
+            return LocationRequest.create()
+                    .setPriority(LocationRequest.PRIORITY_LOW_POWER)
+                    .setInterval(BG_QUERY_TIME_SECS * 1000)
+                    .setFastestInterval(BG_QUERY_TIME_SECS * 1000);
+        }
+    }
+
+    private void setPeachAutoQuery(boolean foreground) {
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        }
+
+        if (foreground) {
+            Log.d(TAG, "Timer request = normal");
+            timer = new Timer();
+            timer.scheduleAtFixedRate(getLocationQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
+
+        } else {
+            Log.d(TAG, "Timer request = bg");
+
+            timer = new Timer();
+            timer.scheduleAtFixedRate(getLocationQueryTimerTask(), 0, BG_QUERY_TIME_SECS * 1000);
+        }
     }
 
     /**
@@ -70,10 +108,6 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         setupCalled = true;
         /* handle initialization here */
         this.mGoogleApiClient = mGoogleApiClient;
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(INTERVAL_SECS * 1000)
-                .setFastestInterval(FASTEST_INTERVAL_SECS * 1000);
         this.mGoogleApiClient.connect();
 
         instance = this;
@@ -84,41 +118,52 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         timer = new Timer();
 
         // track all friends
-        for(User friend: StrawberryApplication.getCachedFriends()) {
+        for (User friend : StrawberryApplication.getCachedFriends()) {
             trackingUsers.add(friend);
         }
-
-        timer.scheduleAtFixedRate(getLocationQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
+        setPeachAutoQuery(true);
     }
 
     public Location getDeviceLocation() {
         // this method should return this device's current location
-        if(mLastLocation != null)
+        if (mLastLocation != null)
             return new Location(mLastLocation);
         return null;
     }
 
-    public LocationRequest getRequest() {
-        return mLocationRequest;
-    }
-
     public void onResume() {
-        mGoogleApiClient.connect();
-        timer = new Timer();
-        timer.scheduleAtFixedRate(getLocationQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+
+            if (ActivityCompat.checkSelfPermission(StrawberryApplication.getInstance(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(StrawberryApplication.getInstance(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "Impossible happened");
+            } else {
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, getLocationRequest(true), this);
+            }
+        } else {
+            mGoogleApiClient.connect();
+        }
+
+        setPeachAutoQuery(true);
     }
 
     public void onPause() {
         if (mGoogleApiClient.isConnected()) {
+
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-            mGoogleApiClient.disconnect();
+
+            if (ActivityCompat.checkSelfPermission(StrawberryApplication.getInstance(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(StrawberryApplication.getInstance(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "Impossible happened");
+            } else {
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, getLocationRequest(false), this);
+            }
         }
-        timer.cancel();
-        timer = null;
+        setPeachAutoQuery(false);
     }
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.i(TAG, "Location received");
         mLastLocation = location;
         LocationEvent locationEvent = new LocationEvent(this, PeachServerInterface.currentUser(), location);
 
@@ -155,19 +200,19 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
                 Log.d(TAG, "Getting users location");
 
                 for (final User friend : trackingUsers) {
-                    Log.d(TAG, "Getting users location, query: " + friend);
+//                    Log.d(TAG, "Getting users location, query: " + friend);
 
                     try {
                         PeachServerInterface.getInstance().getUserLocation(friend, new StrawberryListener(new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
-                                Log.d(TAG, "Getting users location, got:" + response);
+//                                Log.d(TAG, "Getting users location, got:" + response);
 
                                 try {
                                     JSONArray locArr = new JSONArray(response);
                                     if (locArr.length() != 0) {
                                         JSONObject latestLoc = (JSONObject) locArr.get(0);
-                                        Log.d(TAG, "Getting users location, latest:" + latestLoc);
+//                                        Log.d(TAG, "Getting users location, latest:" + latestLoc);
 
                                         Double longitude = (Double) latestLoc.get("longitude");
                                         Double latitude = (Double) latestLoc.get("latitude");
