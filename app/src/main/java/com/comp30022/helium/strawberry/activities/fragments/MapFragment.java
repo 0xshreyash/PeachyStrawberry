@@ -44,7 +44,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private static final String TAG = "StrawberryMapFragment";
     private static final String TOGGLE_FOLLOW_VAL_KEY = "toggleFollowVal";
     private static final float INIT_ZOOM = 16;
-    private static final float MIN_MOVE_DIST = 10; // meters
+    private static final float MIN_MOVE_DIST = 20; // meters
     private String prevRefresh = "";
     private String prevTransport = "";
     private StrawberryMap map;
