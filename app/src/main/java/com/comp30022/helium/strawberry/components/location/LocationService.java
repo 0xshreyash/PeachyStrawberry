@@ -69,7 +69,7 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         } else {
             Log.d(TAG, "Location request = bg");
             return LocationRequest.create()
-                    .setPriority(LocationRequest.PRIORITY_LOW_POWER)
+                    .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
                     .setInterval(BG_QUERY_TIME_SECS * 1000)
                     .setFastestInterval(BG_QUERY_TIME_SECS * 1000);
         }
@@ -89,7 +89,6 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
 
         } else {
             Log.d(TAG, "Timer request = bg");
-
             timer = new Timer();
             timer.scheduleAtFixedRate(getLocationQueryTimerTask(), 0, BG_QUERY_TIME_SECS * 1000);
         }

@@ -316,7 +316,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 // selected user has changed
                 mapFragment.refreshPath();
                 collapseFriendList();
+            } else if (event.getKey().equals(StrawberryApplication.SELECTED_TRANSPORT_TAG)) {
+                mapFragment.refreshPath();
             }
+
         }
     }
 }

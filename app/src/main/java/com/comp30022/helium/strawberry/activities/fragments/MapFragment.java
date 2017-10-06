@@ -36,7 +36,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.MapStyleOptions;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,7 +44,9 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private static final String TAG = "StrawberryMapFragment";
     private static final String TOGGLE_FOLLOW_VAL_KEY = "toggleFollowVal";
     private static final float INIT_ZOOM = 16;
+    private static final float MIN_MOVE_DIST = 10; // meters
     private String prevRefresh = "";
+    private String prevTransport = "";
     private StrawberryMap map;
     private SupportMapFragment mMapView;
 
@@ -57,6 +58,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private Switch toggleFollow;
 
     private boolean firstMove = true;
+    private Location lastPathUpdateLocationUser = null;
+    private Location lastPathUpdateLocationFriend = null;
 
     public MapFragment() {
         // Required empty public constructor
@@ -99,8 +102,17 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             }
         });
 
-        //TODO load this instead of hard-coded
-        lastChanged = transit;
+        String savedTransport = StrawberryApplication.getString(StrawberryApplication.SELECTED_TRANSPORT_TAG);
+
+        if(savedTransport.equals("drive")) {
+            lastChanged = drive;
+        } else if(savedTransport.equals("bicycle")) {
+            lastChanged = bicycle;
+        } else if(savedTransport.equals("walk")) {
+            lastChanged = walk;
+        } else {
+            lastChanged = transit;
+        }
         lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
         makeIconWhite(lastChanged);
 
@@ -208,15 +220,17 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
     public void refreshPath() {
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
+        String currTransport = StrawberryApplication.getString(StrawberryApplication.SELECTED_TRANSPORT_TAG);
 
         if (selectedId != null) {
             Log.d(TAG, "Tracking " + selectedId);
-            if (!selectedId.equals(prevRefresh)) {
+            if (!selectedId.equals(prevRefresh) || !currTransport.equals(prevTransport)) {
                 map.deleteAllPaths();
                 arrivalDistance.setText("Calculating..");
                 arrivalTime.setText("Calculating..");
             }
             prevRefresh = selectedId;
+            prevTransport = currTransport;
 
             if (!map.updatePath(PeachServerInterface.currentUser().getId(), selectedId)) {
                 Log.e(TAG, "Failed to refresh path");
@@ -238,9 +252,26 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         map.updateMarker(user.getId(), user.getUsername(), currentLocation);
 
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
+        
+        if (selectedId.equals(user.getId())) {
+            // friend moved
+            if(lastPathUpdateLocationFriend == null || lastPathUpdateLocationFriend.distanceTo(currentLocation) > MIN_MOVE_DIST) {
+                refreshPath();
+                lastPathUpdateLocationFriend = currentLocation;
+            } else {
+                Log.i(TAG, "Skipping unrequired path update: reason - friend didnt move enough");
+            }
+        }
 
-        if (selectedId.equals(user.getId()) || user.getId().equals(PeachServerInterface.currentUser().getId()))
-            refreshPath();
+        if (user.getId().equals(PeachServerInterface.currentUser().getId())) {
+            // current user moved
+            if(lastPathUpdateLocationUser == null || lastPathUpdateLocationUser.distanceTo(currentLocation) > MIN_MOVE_DIST) {
+                refreshPath();
+                lastPathUpdateLocationUser = currentLocation;
+            } else {
+                Log.i(TAG, "Skipping unrequired path update: reason - user didnt move enough");
+            }
+        }
 
         if(firstMove) {
             map.moveCamera(currentLocation, INIT_ZOOM);
@@ -274,21 +305,25 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             case R.id.drive:
                 lastChanged = drive;
                 map.setMode("driving");
+                StrawberryApplication.setString(StrawberryApplication.SELECTED_TRANSPORT_TAG, "drive");
                 break;
 
             case R.id.walk:
                 lastChanged = walk;
                 map.setMode("walking");
+                StrawberryApplication.setString(StrawberryApplication.SELECTED_TRANSPORT_TAG, "walk");
                 break;
 
             case R.id.bicycle:
                 lastChanged = bicycle;
                 map.setMode("bicycling");
+                StrawberryApplication.setString(StrawberryApplication.SELECTED_TRANSPORT_TAG, "bicycle");
                 break;
 
             case R.id.transit:
                 lastChanged = transit;
                 map.setMode("transit");
+                StrawberryApplication.setString(StrawberryApplication.SELECTED_TRANSPORT_TAG, "transit");
                 break;
 
             default:

@@ -37,6 +37,7 @@ public class StrawberryApplication extends Application {
     public static final String DELETE_TAG = "deleteRequest";
 
     public static final String SELECTED_USER_TAG = "selectedUser";
+    public static final String SELECTED_TRANSPORT_TAG = "selectedTransport";
 
     private static List<Subscriber<Event>> subs;
 
