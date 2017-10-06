@@ -28,6 +28,7 @@ import com.comp30022.helium.strawberry.components.location.LocationServiceFragme
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
 import com.comp30022.helium.strawberry.entities.exceptions.FacebookIdNotSetException;
 import com.comp30022.helium.strawberry.helpers.BitmapHelper;
+import com.comp30022.helium.strawberry.helpers.LocationHelper;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 public class MapFragment extends LocationServiceFragment implements OnMapReadyCallback, View.OnClickListener {
     private static final String TAG = "StrawberryMapFragment";
     private static final String TOGGLE_FOLLOW_VAL_KEY = "toggleFollowVal";
+    private static final float INIT_ZOOM = 16;
     private String prevRefresh = "";
     private StrawberryMap map;
     private SupportMapFragment mMapView;
@@ -54,7 +56,6 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
     private Switch toggleFollow;
 
-    private ArrayList<Location> locations;
     private boolean firstMove = true;
 
     public MapFragment() {
@@ -91,7 +92,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     if(!toggleFollow.isChecked()) {
-                        map.moveCamera(LocationService.getInstance().getDeviceLocation(), 16);
+                        map.moveCamera(LocationService.getInstance().getDeviceLocation(), map.getCurrentZoom());
                     }
                 }
                 return false;
@@ -100,7 +101,6 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         //TODO load this instead of hard-coded
         lastChanged = transit;
-
         lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
         makeIconWhite(lastChanged);
 
@@ -165,7 +165,6 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = new StrawberryMap(googleMap, this);
-        locations = new ArrayList<>();
 
         try {
             // Customise the styling of the base map using a JSON object defined
@@ -178,9 +177,14 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             Log.e(TAG, "Can't find style. Error: ", e);
         }
 
+        // default remember last pos
+        String lastLoc = StrawberryApplication.getString(LocationService.LAST_LOCATION);
+        if(lastLoc != null) {
+            map.setCameraLocation(LocationHelper.stringToLocation(lastLoc), map.getCurrentZoom());
+        }
+
         for (User friend : StrawberryApplication.getCachedFriends()) {
             Location friendLoc = locationService.getUserLocation(friend);
-            locations.add(friendLoc);
 
             map.updateMarker(friend.getId(), friend.getUsername(), friendLoc);
             try {
@@ -215,7 +219,6 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             prevRefresh = selectedId;
 
             if (!map.updatePath(PeachServerInterface.currentUser().getId(), selectedId)) {
-                map.moveCamera(locations, 200);
                 Log.e(TAG, "Failed to refresh path");
             }
 
@@ -239,9 +242,11 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         if (selectedId.equals(user.getId()) || user.getId().equals(PeachServerInterface.currentUser().getId()))
             refreshPath();
 
-        if (toggleFollow.isChecked() || firstMove) {
-            map.moveCamera(currentLocation, 16);
+        if(firstMove) {
+            map.moveCamera(currentLocation, INIT_ZOOM);
             firstMove = false;
+        } else if (toggleFollow.isChecked()) {
+            map.moveCamera(currentLocation, map.getCurrentZoom());
         }
     }
 

@@ -119,6 +119,16 @@ public class StrawberryMap {
         }
     }
 
+    public float getCurrentZoom() {
+        return googleMap.getCameraPosition().zoom;
+    }
+
+    public void setCameraLocation(Location location, float zoom) {
+        CameraPosition cp = CameraPosition.fromLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), zoom);
+        CameraUpdate cu = CameraUpdateFactory.newCameraPosition(cp);
+        googleMap.moveCamera(cu);
+    }
+
     public void moveCamera(Location location, float zoom) {
         CameraPosition cp = CameraPosition.fromLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), zoom);
         CameraUpdate cu = CameraUpdateFactory.newCameraPosition(cp);

@@ -9,6 +9,7 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.helpers.LocationHelper;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
@@ -31,6 +32,7 @@ import java.util.TimerTask;
 
 public class LocationService implements Publisher<LocationEvent>, LocationListener {
     private static final String TAG = "PeachLocationService";
+    public static final String LAST_LOCATION = "LastDeviceLocation";
 
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
@@ -115,19 +117,19 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         timer = null;
     }
 
-    public void setNewLocation(Location location) {
-        mLastLocation = location;
-    }
-
     @Override
     public void onLocationChanged(Location location) {
-        setNewLocation(location);
+        mLastLocation = location;
         LocationEvent locationEvent = new LocationEvent(this, PeachServerInterface.currentUser(), location);
+
         try {
             PeachServerInterface.getInstance().updateCurrentLocation(location);
         } catch (NotInstantiatedException | InstanceExpiredException e) {
             e.printStackTrace();
         }
+
+        StrawberryApplication.setString(LAST_LOCATION, LocationHelper.locationToString(location));
+
         notifyAllSubscribers(locationEvent);
     }
 
@@ -226,5 +228,9 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         for (Subscriber<LocationEvent> sub : subscribers) {
             sub.update(location);
         }
+    }
+
+    public void setNewLocation(Location newLocation) {
+        this.mLastLocation = newLocation;
     }
 }
