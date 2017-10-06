@@ -1,47 +1,62 @@
 package com.comp30022.helium.strawberry.activities.fragments;
 
-import android.graphics.Color;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 
 import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
+import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
 
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationServiceFragment;
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
+import com.comp30022.helium.strawberry.entities.exceptions.FacebookIdNotSetException;
+import com.comp30022.helium.strawberry.helpers.BitmapHelper;
+import com.comp30022.helium.strawberry.helpers.LocationHelper;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.MapStyleOptions;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class MapFragment extends LocationServiceFragment implements OnMapReadyCallback, View.OnClickListener {
-    private static final String TAG = MapFragment.class.getSimpleName();
+    private static final String TAG = "StrawberryMapFragment";
+    private static final String TOGGLE_FOLLOW_VAL_KEY = "toggleFollowVal";
+    private static final float INIT_ZOOM = 16;
+    private String prevRefresh = "";
     private StrawberryMap map;
     private SupportMapFragment mMapView;
-    private Button drive;
-    private Button walk;
-    private Button bicycle;
-    private Button transit;
-    private Button lastChanged;
-    private TextView arrival_time;
-    private TextView arrival_distance;
+
+    private ImageButton drive, walk, bicycle, transit, lastChanged;
+
+    private TextView arrivalTime;
+    private TextView arrivalDistance;
+
+    private Switch toggleFollow;
+
+    private boolean firstMove = true;
 
     public MapFragment() {
         // Required empty public constructor
@@ -51,29 +66,43 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
+        // find views
         mMapView = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mMapView.onCreate(savedInstanceState);
 
-        arrival_time = (TextView) view.findViewById(R.id.arrival_time);
-        arrival_distance = (TextView) view.findViewById(R.id.arrival_distance);
+        arrivalTime = (TextView) view.findViewById(R.id.arrival_time);
+        arrivalDistance = (TextView) view.findViewById(R.id.arrival_distance);
 
-        drive = (Button) view.findViewById(R.id.drive);
+        drive = (ImageButton) view.findViewById(R.id.drive);
         drive.setOnClickListener(this);
 
-        walk = (Button) view.findViewById(R.id.walk);
+        walk = (ImageButton) view.findViewById(R.id.walk);
         walk.setOnClickListener(this);
 
-        bicycle = (Button) view.findViewById(R.id.bicycle);
+        bicycle = (ImageButton) view.findViewById(R.id.bicycle);
         bicycle.setOnClickListener(this);
 
-        transit = (Button) view.findViewById(R.id.transit);
+        transit = (ImageButton) view.findViewById(R.id.transit);
         transit.setOnClickListener(this);
+
+        toggleFollow = (Switch) view.findViewById(R.id.toggle_follow_switch);
+        toggleFollow.setChecked(StrawberryApplication.getBoolean(TOGGLE_FOLLOW_VAL_KEY));
+        toggleFollow.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if(!toggleFollow.isChecked()) {
+                        map.moveCamera(LocationService.getInstance().getDeviceLocation(), map.getCurrentZoom());
+                    }
+                }
+                return false;
+            }
+        });
 
         //TODO load this instead of hard-coded
         lastChanged = transit;
-
         lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
-        lastChanged.setTextColor(Color.WHITE);
+        makeIconWhite(lastChanged);
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -85,25 +114,116 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         return view;
     }
 
+    private void makeIconWhite(ImageButton lastChanged) {
+        switch (lastChanged.getId()) {
+            // Change the background of the clicked button, and change back the previously changed one
+            case R.id.drive:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_car_white_24dp));
+                break;
+
+            case R.id.walk:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_walk_white_24dp));
+                break;
+
+            case R.id.bicycle:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_bike_white_24dp));
+                break;
+
+            case R.id.transit:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_tram_white_24dp));
+                break;
+
+            default:
+                Log.e("onClick", "Cannot find any button");
+        }
+    }
+
+    private void makeIconBlack(ImageButton lastChanged) {
+        switch (lastChanged.getId()) {
+            // Change the background of the clicked button, and change back the previously changed one
+            case R.id.drive:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_car_black_24dp));
+                break;
+
+            case R.id.walk:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_walk_black_24dp));
+                break;
+
+            case R.id.bicycle:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_directions_bike_black_24dp));
+                break;
+
+            case R.id.transit:
+                lastChanged.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_tram_black_24dp));
+                break;
+
+            default:
+                Log.e("onClick", "Cannot find any button");
+        }
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = new StrawberryMap(googleMap, this);
 
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_peach));
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
+
+        // default remember last pos
+        String lastLoc = StrawberryApplication.getString(LocationService.LAST_LOCATION);
+        if(lastLoc != null) {
+            map.setCameraLocation(LocationHelper.stringToLocation(lastLoc), map.getCurrentZoom());
+        }
+
+        for (User friend : StrawberryApplication.getCachedFriends()) {
+            Location friendLoc = locationService.getUserLocation(friend);
+
+            map.updateMarker(friend.getId(), friend.getUsername(), friendLoc);
+            try {
+                StrawberryCallback<Bitmap> callback = new StrawberryCallback<Bitmap>() {
+                    @Override
+                    public void run(Bitmap bitmap) {
+                        map.updateMarkerImage((String) attribute, BitmapHelper.makeCircular(bitmap));
+                        Log.d(TAG, "Finished downloading icon for " + attribute);
+                    }
+                };
+                callback.attribute = friend.getId();
+
+                friend.getFbPicture(User.ProfilePictureType.SQUARE, callback);
+            } catch (FacebookIdNotSetException | MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        refreshPath();
+    }
+
+    public void refreshPath() {
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
-        User friend = new User(selectedId);
 
-        // init locations
-        Location friendLoc = locationService.getUserLocation(friend);
-        map.updateMarker("friendLocation", "Friend Location", friendLoc);
+        if (selectedId != null) {
+            Log.d(TAG, "Tracking " + selectedId);
+            if (!selectedId.equals(prevRefresh)) {
+                map.deleteAllPaths();
+                arrivalDistance.setText("Calculating..");
+                arrivalTime.setText("Calculating..");
+            }
+            prevRefresh = selectedId;
 
-        Location currentLocation = locationService.getDeviceLocation();
-        map.updateMarker("currentLocation", "You are here", currentLocation);
+            if (!map.updatePath(PeachServerInterface.currentUser().getId(), selectedId)) {
+                Log.e(TAG, "Failed to refresh path");
+            }
 
-        // move camera
-        List<Location> locations = new ArrayList<>();
-        locations.add(friendLoc);
-        locations.add(currentLocation);
-        map.moveCamera(locations, 200);
+            Log.i(TAG, "Successfully to refresh path");
+        }
     }
 
     @Override
@@ -115,14 +235,19 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         User user = updatedLocation.getKey();
         Location currentLocation = updatedLocation.getValue();
+        map.updateMarker(user.getId(), user.getUsername(), currentLocation);
 
-        if (user.equals(PeachServerInterface.currentUser())) {
-            map.updateMarker("currentLocation", "You are here", currentLocation);
-        } else {
-            map.updateMarker("friendLocation", "Friend location", currentLocation);
+        String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
+
+        if (selectedId.equals(user.getId()) || user.getId().equals(PeachServerInterface.currentUser().getId()))
+            refreshPath();
+
+        if(firstMove) {
+            map.moveCamera(currentLocation, INIT_ZOOM);
+            firstMove = false;
+        } else if (toggleFollow.isChecked()) {
+            map.moveCamera(currentLocation, map.getCurrentZoom());
         }
-
-        map.updatePath("currentLocation", "friendLocation");
     }
 
     @Override
@@ -133,13 +258,16 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     @Override
     protected void onPauseAction() {
         mMapView.onPause();
+
+        Log.d(TAG, "Saving toggle value");
+        StrawberryApplication.setBoolean(TOGGLE_FOLLOW_VAL_KEY, toggleFollow.isChecked());
     }
 
     // Change the travel mode.
     @Override
     public void onClick(View view) {
         lastChanged.setBackgroundResource(R.drawable.map_mode_default);
-        lastChanged.setTextColor(Color.BLACK);
+        makeIconBlack(lastChanged);
 
         switch (view.getId()) {
             // Change the background of the clicked button, and change back the previously changed one
@@ -169,21 +297,20 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         }
 
         lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
-        lastChanged.setTextColor(Color.WHITE);
+        makeIconWhite(lastChanged);
 
-        //TODO: update later if required
-        map.updatePath("currentLocation", "friendLocation");
+        map.updatePath(PeachServerInterface.currentUser().getId(), StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
     }
 
     // Update the arrival time and distance which will be shown in the textview.
     public void changeText(String name, String value) {
         switch (name) {
             case "distance":
-                arrival_distance.setText("The estimated distance is " + value);
+                arrivalDistance.setText(value);
                 break;
 
             case "duration":
-                arrival_time.setText("The estimated arrival time is " + value);
+                arrivalTime.setText(value);
                 break;
 
             default:

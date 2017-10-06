@@ -10,6 +10,7 @@ import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpi
 import com.comp30022.helium.strawberry.components.server.rest.PeachRestInterface;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.patterns.Event;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
@@ -26,13 +27,13 @@ import java.util.Map;
  * Created by noxm on 17/09/17.
  */
 
-public class PeachServerInterface implements Publisher<Boolean> {
+public class PeachServerInterface implements Publisher<Event> {
     private static final String TAG = "PeachServerInterface";
     private static final long EXPIRE_TIME = 1800000L; // 30mins
     private static PeachServerInterface instance = null;
     private static String userId = "";
 
-    private List<Subscriber<Boolean>> subs = new ArrayList<>();
+    private List<Subscriber<Event>> subs = new ArrayList<>();
     private Long initTime = 0L;
 
     public static PeachServerInterface getInstance() throws NotInstantiatedException, InstanceExpiredException {
@@ -44,19 +45,19 @@ public class PeachServerInterface implements Publisher<Boolean> {
         return instance;
     }
 
-    public static void init(String facebookToken, Subscriber<Boolean> toNotify) {
+    public static void init(String facebookToken, Subscriber<Event> toNotify) {
         if (instance == null || instance.expired() || userId.length() == 0) {
             instance = new PeachServerInterface(facebookToken, toNotify);
             instance.initTime = System.currentTimeMillis();
         }
-        else toNotify.update(true);
+        else toNotify.update(new InterfaceReadyEvent(instance, "", true));
     }
 
     private boolean expired() {
         return System.currentTimeMillis() - initTime > EXPIRE_TIME;
     }
 
-    private PeachServerInterface(String token, Subscriber<Boolean> toNotify) {
+    private PeachServerInterface(String token, Subscriber<Event> toNotify) {
         StrawberryApplication.getInstance().getRequestQueue().getCache().clear();
 
         Log.i(TAG, "Initializing with token " + token);
@@ -101,8 +102,8 @@ public class PeachServerInterface implements Publisher<Boolean> {
     }
 
     private void notifyAllSubscribers(boolean b) {
-        for (Subscriber<Boolean> sub : subs) {
-            sub.update(b);
+        for (Subscriber<Event> sub : subs) {
+            sub.update(new InterfaceReadyEvent(this, "", b));
         }
     }
 
@@ -129,12 +130,12 @@ public class PeachServerInterface implements Publisher<Boolean> {
     }
 
     @Override
-    public void registerSubscriber(Subscriber<Boolean> sub) {
+    public void registerSubscriber(Subscriber<Event> sub) {
         subs.add(sub);
     }
 
     @Override
-    public void deregisterSubscriber(Subscriber<Boolean> sub) {
+    public void deregisterSubscriber(Subscriber<Event> sub) {
         subs.remove(sub);
     }
 
@@ -142,7 +143,7 @@ public class PeachServerInterface implements Publisher<Boolean> {
         return new User(userId);
     }
 
-    public static void getUserLocation(User friend, StrawberryListener strawberryListener) {
+    public void getUserLocation(User friend, StrawberryListener strawberryListener) {
         if (userId != null && userId.length() > 0) {
             PeachRestInterface.get("/user/" + friend.getId() + "/location", strawberryListener);
         }
@@ -169,5 +170,33 @@ public class PeachServerInterface implements Publisher<Boolean> {
         form.put("to", to);
         form.put("message", message);
         PeachRestInterface.post("/chat", form, strawberryListener);
+    }
+
+    public static class InterfaceReadyEvent implements Event<PeachServerInterface, String, Boolean> {
+
+        private final PeachServerInterface s;
+        private final String k;
+        private final Boolean v;
+
+        public InterfaceReadyEvent(PeachServerInterface s, String k, Boolean v) {
+            this.s = s;
+            this.k = k;
+            this.v = v;
+        }
+
+        @Override
+        public PeachServerInterface getSource() {
+            return s;
+        }
+
+        @Override
+        public String getKey() {
+            return k;
+        }
+
+        @Override
+        public Boolean getValue() {
+            return v;
+        }
     }
 }

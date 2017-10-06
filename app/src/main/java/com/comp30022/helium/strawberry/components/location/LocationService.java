@@ -9,6 +9,7 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.helpers.LocationHelper;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
@@ -31,15 +32,17 @@ import java.util.TimerTask;
 
 public class LocationService implements Publisher<LocationEvent>, LocationListener {
     private static final String TAG = "PeachLocationService";
+    public static final String LAST_LOCATION = "LastDeviceLocation";
 
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private static LocationService instance;
     private static boolean setupCalled = false;
-    private static final int INTERVAL_SECS = 5;
-    private static final int FASTEST_INTERVAL_SECS = 1;
-    private static final long QUERY_TIME_SECS = 3;
+    public static final int INTERVAL_SECS = 5;
+    public static final int FASTEST_INTERVAL_SECS = 1;
+    public static final long QUERY_TIME_SECS = 3;
+    public static final long BG_QUERY_TIME_SECS = 15;
     private Set<User> trackingUsers;
 
     private Timer timer;
@@ -80,9 +83,9 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         trackingUsers = new LinkedHashSet<>();
         timer = new Timer();
 
-        String selectedUser = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
-        if(selectedUser != null) {
-            trackingUsers.add(new User(selectedUser));
+        // track all friends
+        for(User friend: StrawberryApplication.getCachedFriends()) {
+            trackingUsers.add(friend);
         }
 
         timer.scheduleAtFixedRate(getLocationQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
@@ -90,7 +93,9 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
 
     public Location getDeviceLocation() {
         // this method should return this device's current location
-        return new Location(mLastLocation);
+        if(mLastLocation != null)
+            return new Location(mLastLocation);
+        return null;
     }
 
     public LocationRequest getRequest() {
@@ -112,19 +117,19 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         timer = null;
     }
 
-    public void setNewLocation(Location location) {
-        mLastLocation = location;
-    }
-
     @Override
     public void onLocationChanged(Location location) {
-        setNewLocation(location);
+        mLastLocation = location;
         LocationEvent locationEvent = new LocationEvent(this, PeachServerInterface.currentUser(), location);
+
         try {
             PeachServerInterface.getInstance().updateCurrentLocation(location);
         } catch (NotInstantiatedException | InstanceExpiredException e) {
             e.printStackTrace();
         }
+
+        StrawberryApplication.setString(LAST_LOCATION, LocationHelper.locationToString(location));
+
         notifyAllSubscribers(locationEvent);
     }
 
@@ -152,32 +157,36 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
                 for (final User friend : trackingUsers) {
                     Log.d(TAG, "Getting users location, query: " + friend);
 
-                    PeachServerInterface.getUserLocation(friend, new StrawberryListener(new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            Log.d(TAG, "Getting users location, got:" + response);
+                    try {
+                        PeachServerInterface.getInstance().getUserLocation(friend, new StrawberryListener(new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.d(TAG, "Getting users location, got:" + response);
 
-                            try {
-                                JSONArray locArr = new JSONArray(response);
-                                if (locArr.length() != 0) {
-                                    JSONObject latestLoc = (JSONObject) locArr.get(0);
-                                    Log.d(TAG, "Getting users location, latest:" + latestLoc);
+                                try {
+                                    JSONArray locArr = new JSONArray(response);
+                                    if (locArr.length() != 0) {
+                                        JSONObject latestLoc = (JSONObject) locArr.get(0);
+                                        Log.d(TAG, "Getting users location, latest:" + latestLoc);
 
-                                    Double longitude = (Double) latestLoc.get("longitude");
-                                    Double latitude = (Double) latestLoc.get("latitude");
-                                    Location newLocation = new Location(this.getClass().getSimpleName());
+                                        Double longitude = (Double) latestLoc.get("longitude");
+                                        Double latitude = (Double) latestLoc.get("latitude");
+                                        Location newLocation = new Location(this.getClass().getSimpleName());
 
-                                    newLocation.setLatitude(latitude);
-                                    newLocation.setLongitude(longitude);
+                                        newLocation.setLatitude(latitude);
+                                        newLocation.setLongitude(longitude);
 
-                                    updateLocationCache(friend, newLocation);
+                                        updateLocationCache(friend, newLocation);
+                                    }
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-                        }
-                    }, null));
+                        }, null));
+                    } catch (NotInstantiatedException | InstanceExpiredException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };
@@ -186,7 +195,8 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
     private void updateLocationCache(User user, Location location) {
         if (locationCache.containsKey(user)) {
             Location lastLoc = locationCache.get(user);
-            if (lastLoc.equals(location))
+            // TODO: update if altitude added
+            if (lastLoc.getLatitude() == location.getLatitude() && lastLoc.getLongitude() == location.getLongitude())
                 return;
         }
 
@@ -218,5 +228,9 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         for (Subscriber<LocationEvent> sub : subscribers) {
             sub.update(location);
         }
+    }
+
+    public void setNewLocation(Location newLocation) {
+        this.mLastLocation = newLocation;
     }
 }
