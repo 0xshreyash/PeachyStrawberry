@@ -7,6 +7,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
+import com.comp30022.helium.strawberry.components.server.exceptions.ServerInterfaceInitFailedException;
 import com.comp30022.helium.strawberry.components.server.rest.PeachRestInterface;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
@@ -78,6 +79,7 @@ public class PeachServerInterface implements Publisher<Event> {
                     Log.i(TAG, "user id is " + resJson.get("message"));
                     userId = (String) resJson.get("message");
                     notifyAllSubscribers(true);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                     notifyAllSubscribers(false);
@@ -92,11 +94,12 @@ public class PeachServerInterface implements Publisher<Event> {
                         String data = new String(error.networkResponse.data);
                         Log.e(TAG, msg);
                         Log.e(TAG, data);
-                        notifyAllSubscribers(false);
                     } catch (Exception e) {
                         Log.e(TAG, "Error in volley");
                     }
                 }
+
+                notifyAllSubscribers(false);
             }
         }));
     }

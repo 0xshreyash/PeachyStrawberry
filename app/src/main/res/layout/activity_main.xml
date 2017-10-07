@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/main_layout"
     tools:context="com.comp30022.helium.strawberry.activities.MainActivity">
 
     <fragment
@@ -11,12 +12,78 @@
         android:name="com.comp30022.helium.strawberry.activities.fragments.MapFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="1.0"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintBottom_toBottomOf="@+id/linearLayout2" />
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="93dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/map_fragment_test"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintVertical_bias="0.0">
+
+        <fragment
+            android:id="@+id/chat_fragment"
+            android:name="com.comp30022.helium.strawberry.activities.fragments.ChatFragment"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:layout_marginTop="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <ImageButton
+            android:id="@+id/chat_expand_button"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_marginBottom="0dp"
+            android:background="@color/colorSecondaryDark"
+            android:src="@drawable/ic_keyboard_arrow_left_white_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginRight="0dp"
+            app:layout_constraintRight_toLeftOf="@+id/chat_fragment" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="bottom|right"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/map_fragment_test"
+        app:layout_constraintVertical_bias="1.0"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintTop_creator="1">
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -25,16 +92,19 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintBaseline_toBaselineOf="parent">
+        app:layout_constraintBaseline_toBaselineOf="parent"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        android:id="@+id/linearLayout2">
 
         <ImageButton
             android:id="@+id/friend_list_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:src="@drawable/ic_keyboard_arrow_up_white_24dp"
             android:background="@color/colorSecondaryDark"
-            android:contentDescription="" />
+            android:contentDescription=""
+            android:padding="12dp"
+            android:src="@drawable/ic_keyboard_arrow_up_white_24dp" />
 
         <fragment
             android:id="@+id/friend_list_fragment"

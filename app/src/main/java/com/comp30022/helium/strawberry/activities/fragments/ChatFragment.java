@@ -2,6 +2,7 @@ package com.comp30022.helium.strawberry.activities.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,6 +28,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -171,6 +174,17 @@ public class ChatFragment extends Fragment {
     private void updateMessage(Message message) {
         if (!messages.contains(message)) {
             messages.add(message);
+
+            Collections.sort(messages, new Comparator<Message>() {
+                @Override
+                public int compare(Message m1, Message m2) {
+                    if(m1.getCreatedAt() < m2.getCreatedAt())
+                        return -1;
+                    if(m1.getCreatedAt() > m2.getCreatedAt())
+                        return 1;
+                    return 0;
+                }
+            });
 
             // update view
             setRecyclerProperties();

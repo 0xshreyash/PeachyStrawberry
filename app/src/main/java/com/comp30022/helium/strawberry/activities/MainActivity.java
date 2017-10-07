@@ -9,18 +9,23 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.activities.fragments.ChatFragment;
 import com.comp30022.helium.strawberry.activities.fragments.FriendListFragment;
 import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
 import com.comp30022.helium.strawberry.components.location.LocationService;
@@ -29,6 +34,7 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.helpers.DisplayHelper;
 import com.comp30022.helium.strawberry.patterns.Event;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
@@ -52,7 +58,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private static final String TAG = "MainActivity";
 
     private ImageButton listButton;
+    private ImageButton chatButton;
     private MapFragment mapFragment;
+    private ChatFragment chatFragment;
     private FriendListFragment friendListFragment;
 
     private GoogleApiClient mGoogleApiClient;
@@ -63,6 +71,15 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private boolean expanded = false;
     private int MAX_HEIGHT = 800;
     private float start = 0;
+
+    // for chat
+    private boolean chatDown = false;
+    private boolean chatExpanded = false;
+    private int MAX_WIDTH;
+    private float chatStart = 0;
+    private int MIN_WIDTH = 1;
+
+    private DisplayMetrics metrics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,12 +129,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                                 PeachServerInterface.getInstance().addFriendFbId(id);
                             }
 
-                            refreshFriendsListCache();
                             // refresh friends list
                         } catch (Exception e) {
+                            Log.e(TAG, e.getMessage());
                             e.printStackTrace();
-                            autoAddFriends();
                         }
+                        refreshFriendsListCache();
                     }
                 }
         ).executeAsync();
@@ -149,12 +166,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         Log.i(TAG, "Friend set is " + friendSet);
                         StrawberryApplication.setStringSet("friends", friendSet);
 
-                        setupComplete();
-
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        refreshFriendsListCache();
                     }
+
+                    setupComplete();
                 }
             }, null));
         } catch (NotInstantiatedException | InstanceExpiredException e) {
@@ -171,9 +187,22 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         // finished loading content view
         setContentView(R.layout.activity_main);
         listButton = (ImageButton) findViewById(R.id.friend_list_button);
+        chatButton = (ImageButton) findViewById(R.id.chat_expand_button);
         mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment_test);
+        chatFragment = (ChatFragment) getSupportFragmentManager().findFragmentById(R.id.chat_fragment);
+
+        metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        MAX_WIDTH = metrics.widthPixels;
+        Log.d("MAX_WIDTH", MAX_WIDTH + "asdfasd");
+//        View tStats = findViewById(R.id.transport_stats);
+//        View tOpt = findViewById(R.id.transport_option);
+//        ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) chatFragment.getView().getLayoutParams();
+//        marginLayoutParams.setMargins(0, (int) ((tStats.getHeight() + tOpt.getHeight()) * metrics.density), 0, 0);
 
         friendListFragment = (FriendListFragment) getFragmentManager().findFragmentById(R.id.friend_list_fragment);
+
         listButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -202,6 +231,88 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 return false;
             }
         });
+
+        chatButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Start
+                        if (!chatDown) {
+                            chatStart = motionEvent.getRawX();
+                            chatDown = true;
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        // End
+                        if (chatDown) {
+                            chatDown = false;
+                            stickyChatExpand();
+                        }
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (chatDown) {
+                            float curr = motionEvent.getRawX();
+                            updateChatWidth(chatStart, curr);
+                        }
+                        break;
+                }
+                return false;
+            }
+        });
+    }
+
+    private void updateChatWidth(float chatStart, float curr) {
+        ViewGroup.LayoutParams params = chatFragment.getView().getLayoutParams();
+        if (!chatExpanded) {
+            params.width = (int) Math.abs(chatStart - curr);
+        } else {
+            params.width = MAX_WIDTH - (int) Math.abs(chatStart - curr);
+        }
+        chatFragment.getView().setLayoutParams(params);
+    }
+
+    private void stickyChatExpand() {
+        ViewGroup.LayoutParams params = chatFragment.getView().getLayoutParams();
+        if (!chatExpanded) {
+            if (params.width > MAX_WIDTH / 5) {
+                expandChat();
+            } else {
+                collapseChat();
+            }
+        } else {
+            if (params.width < 4 * MAX_WIDTH / 5) {
+                collapseChat();
+            } else {
+                expandChat();
+            }
+        }
+    }
+
+    private void collapseChat() {
+        ViewGroup.LayoutParams params = chatFragment.getView().getLayoutParams();
+        params.width = MIN_WIDTH;
+        chatExpanded = false;
+        chatButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_keyboard_arrow_left_white_24dp));
+        chatFragment.getView().setLayoutParams(params);
+
+        ConstraintLayout.LayoutParams clayout = (ConstraintLayout.LayoutParams) chatButton.getLayoutParams();
+        clayout.rightToLeft = R.id.chat_fragment;
+        clayout.leftToLeft = ConstraintLayout.LayoutParams.UNSET;
+        chatButton.setLayoutParams(clayout);
+    }
+
+    private void expandChat() {
+        ViewGroup.LayoutParams params = chatFragment.getView().getLayoutParams();
+        params.width = MAX_WIDTH;
+        chatExpanded = true;
+        chatButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_keyboard_arrow_right_white_24dp));
+        chatFragment.getView().setLayoutParams(params);
+
+        ConstraintLayout.LayoutParams clayout = (ConstraintLayout.LayoutParams) chatButton.getLayoutParams();
+        clayout.rightToLeft = ConstraintLayout.LayoutParams.UNSET;
+        clayout.leftToLeft = R.id.chat_fragment;
+        chatButton.setLayoutParams(clayout);
     }
 
     private void expandFriendList() {
@@ -209,6 +320,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         params.height = MAX_HEIGHT;
         expanded = true;
         listButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_keyboard_arrow_down_white_24dp));
+        friendListFragment.getView().setLayoutParams(params);
     }
 
     private void collapseFriendList() {
@@ -228,7 +340,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 collapseFriendList();
             }
         } else {
-            if (params.height < 4 * MAX_HEIGHT / 4) {
+            if (params.height < 4 * MAX_HEIGHT / 5) {
                 collapseFriendList();
             } else {
                 expandFriendList();
