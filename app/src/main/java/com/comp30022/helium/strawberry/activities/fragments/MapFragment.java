@@ -224,7 +224,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         if (selectedId != null) {
             Log.d(TAG, "Tracking " + selectedId);
-            if (!selectedId.equals(prevRefresh) || !currTransport.equals(prevTransport)) {
+            if (prevRefresh != null && prevTransport != null && (!selectedId.equals(prevRefresh) || !currTransport.equals(prevTransport))) {
                 map.deleteAllPaths();
                 arrivalDistance.setText("Calculating..");
                 arrivalTime.setText("Calculating..");
@@ -253,7 +253,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
         
-        if (selectedId.equals(user.getId())) {
+        if (selectedId != null && selectedId.equals(user.getId())) {
             // friend moved
             if(lastPathUpdateLocationFriend == null || lastPathUpdateLocationFriend.distanceTo(currentLocation) > MIN_MOVE_DIST) {
                 refreshPath();
