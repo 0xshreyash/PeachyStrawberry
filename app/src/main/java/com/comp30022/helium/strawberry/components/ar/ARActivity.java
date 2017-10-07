@@ -7,6 +7,7 @@ import android.hardware.SensorManager;
 import android.opengl.Matrix;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -49,10 +50,9 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         // init a new ARRenderer for AR display overlay
         this.arRenderer = new ARRenderer(this);
         // add currently selected user to track
-        this.arRenderer.addTrackers(new ArrayList<ARTrackerBeacon>() {{
-            add(new ARTrackerBeacon(new User(StrawberryApplication
-                .getString(StrawberryApplication.SELECTED_USER_TAG))));
-        }});
+        ARTrackerBeacon target = new ARTrackerBeacon(new User(StrawberryApplication
+                .getString(StrawberryApplication.SELECTED_USER_TAG)));
+        this.arRenderer.addTracker(target);
 
         // bind camera to container
         this.container.addView(this.cameraSurface);
@@ -61,6 +61,10 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
 
         // registers to location service so that we will receive updates
         locationService.registerSubscriber(this);
+
+        // keep the screen from dimming!
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
     }
 
     /**
@@ -116,11 +120,17 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         this.sensorManager.unregisterListener(this);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+//        this.locationService.deregisterSubscriber(this);
+//        this.sensorManager.unregisterListener(this);
+    }
+
     private void listenToSensors() {
         this.sensorManager.registerListener(this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
                 SensorManager.SENSOR_DELAY_NORMAL
         );
     }
-
 }

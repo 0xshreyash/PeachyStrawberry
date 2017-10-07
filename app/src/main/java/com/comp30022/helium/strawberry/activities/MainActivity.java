@@ -23,6 +23,7 @@ import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.activities.fragments.FriendListFragment;
 import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
+import com.comp30022.helium.strawberry.components.ar.ARActivity;
 import com.comp30022.helium.strawberry.components.location.LocationService;
 
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
@@ -321,5 +322,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             }
 
         }
+    }
+
+    // TODO: HARRY: DON"T NEED THIS! (DEBUG OLY)
+    public void gotoAR(View bundle) {
+        Intent intent = new Intent(getApplicationContext(), ARActivity.class);
+        startActivity(intent);
     }
 }

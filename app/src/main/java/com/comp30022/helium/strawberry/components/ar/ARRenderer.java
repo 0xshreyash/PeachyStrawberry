@@ -1,17 +1,19 @@
 package com.comp30022.helium.strawberry.components.ar;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.opengl.Matrix;
+import android.util.Log;
 import android.view.View;
 
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.helpers.ColourScheme;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,16 +21,39 @@ import java.util.List;
 
 public class ARRenderer extends View {
     private float[] projectionMatrix;
+    private static final String TAG = ARRenderer.class.getSimpleName();
     private List<ARTrackerBeacon> trackers;
     private Location currentLocation;
     private static final int X = 0;
     private static final int Y = 1;
     private static final int Z = 2;
     private static final int W = 3;
+    private static final int NAME_HEIGHT_OFFSET = 80;
+    private static final int NAME_WIDTH_OFFSET = 30;
+    private static final int DEFAULT_CIRCLE_RADIUS = 30;
+    private static final float OFFSET = .5f;
+    private static final int GUIDE_OFFSET = 100;      // offset for the guide artefact
+    private ARActivity arActivity;
+    private Paint defaultPaintCircle;
+
+    private enum Direction {
+        UP, DOWN, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BTM_LEFT, BTM_RIGHT
+    }
+
 
     public ARRenderer(Context context) {
         super(context);
+        // this is dangerous, but we're sure that only ARActivity is using this ARRenderer for now
+        this.arActivity = (ARActivity) context;
+
+        // default dot if user's profile picture isn't available
+        this.defaultPaintCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.defaultPaintCircle.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.defaultPaintCircle.setColor(ColourScheme.PRIMARY_DARK);
+        this.defaultPaintCircle.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+        this.defaultPaintCircle.setTextSize(50);
     }
+
 
     public void addTrackers(List<ARTrackerBeacon> trackers) {
         // the list of tracking points we want to track and render on screen
@@ -55,7 +80,8 @@ public class ARRenderer extends View {
     public void updateLocation(LocationEvent locationEvent) {
         if (locationEvent.getKey().equals(PeachServerInterface.currentUser())) {
             // it's this device's location's update
-            this.currentLocation = locationEvent.getValue();
+            Log.e(TAG, "You updated location to" + locationEvent.getValue());
+            this.currentLocation = new Location(locationEvent.getValue());
         } else {
             // find the tracking point and update that point's location
             User updatedUserLocation = locationEvent.getKey();
@@ -64,6 +90,7 @@ public class ARRenderer extends View {
             for (ARTrackerBeacon trackerBeacon : trackers) {
                 if (trackerBeacon.getUser().equals(updatedUserLocation)) {
                     trackerBeacon.updateLocation(locationEvent.getValue());
+                    Log.e(TAG, "Friend updated location to" + locationEvent.getValue());
                     break;
                 }
             }
@@ -73,30 +100,88 @@ public class ARRenderer extends View {
         this.invalidate();
     }
 
+    public ARActivity getArActivity() {
+        return this.arActivity;
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
-        // TODO: remove
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.WHITE);
-        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        paint.setTextSize(60);
+        if (currentLocation == null || this.projectionMatrix == null) {
+            return;
+        }
+
 
         for (int i = 0; i != trackers.size(); ++i) {
-            float[] ENUCoordinates = getENU(trackers.get(i).getLocation());
+            ARTrackerBeacon target = trackers.get(i);
+            float[] ENUCoordinates = getENU(target.getLocation());
             // convert from : ENU -> Camera
             float[] cameraCoordinates = convertToCameraSpace(ENUCoordinates);
 
+            float[] screenCoordinates = convertToScreenSpace(
+                    cameraCoordinates,
+                    canvas.getWidth(),
+                    canvas.getHeight());
+            float x = screenCoordinates[X];
+            float y = screenCoordinates[Y];
+
+            if (Float.isNaN(x) || Float.isNaN(y)) {
+                this.arActivity.displayInfoHUD("You have arrived at " + target.getUserName()
+                        + "'s location");
+            } else {
+                this.arActivity.displayInfoHUD("You're " +
+                        target.getLocation().distanceTo(currentLocation)
+                        + "m away from " + target.getUserName());
+            }
+
             // if the point is infront of us ==> i.e. we should render it!
             if (cameraCoordinates[Z] > 0) {
-                float[] screenCoordinates = convertToScreenSpace(
-                        cameraCoordinates,
-                        canvas.getWidth(),
-                        canvas.getHeight());
-                canvas.drawCircle(screenCoordinates[X], screenCoordinates[Y], 30, paint);
+                Bitmap profilePicture = target.getProfilePicture(this);
+                if (profilePicture != null) {
+                    canvas.drawBitmap(profilePicture, x, y, this.defaultPaintCircle);
+                } else {
+                    // no profile picture available for this user (yet)
+                    canvas.drawCircle(x, y, DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                }
+
+                ////////////////////////////////////////
+                // Draw name above profile / circle
+                ////////////////////////////////////////
+                canvas.drawText(target.getUserName(),
+                        x - (NAME_WIDTH_OFFSET * target.getUserName().length() / 2),
+                        y - NAME_HEIGHT_OFFSET, this.defaultPaintCircle);
+
+                ////////////////////////////////////////////////
+                // Draw Guide artefact in general direction
+                ////////////////////////////////////////////////
+                if (x < 0 && y < 0) {
+                    drawGuide(Direction.TOP_LEFT, canvas, x, y);
+                } else if (x > canvas.getWidth() && y < 0) {
+                    drawGuide(Direction.TOP_RIGHT, canvas, x, y);
+                } else if (x < 0 && y > canvas.getHeight()) {
+                    drawGuide(Direction.BTM_LEFT, canvas, x, y);
+                } else if (x > canvas.getWidth() && y > canvas.getHeight()) {
+                    drawGuide(Direction.BTM_RIGHT, canvas, x, y);
+                } else if (x < 0) {
+                    drawGuide(Direction.LEFT, canvas, x, y);
+                } else if (x > canvas.getWidth()) {
+                    drawGuide(Direction.RIGHT, canvas, x, y);
+                } else if (y < 0) {
+                    drawGuide(Direction.UP, canvas, x, y);
+                } else if (y > canvas.getHeight()) {
+                    drawGuide(Direction.DOWN, canvas, x, y);
+                }
+
             } else {
-                // point is at somewhere we can't see it
+
+                ////////////////////////////////////////////////
+                // Draw Guide artefact in general direction
+                ////////////////////////////////////////////////
+                if (x > 0) {
+                    drawGuide(Direction.LEFT, canvas, x, y);
+                } else {
+                    drawGuide(Direction.RIGHT, canvas, x, y);
+                }
             }
         }
     }
@@ -117,9 +202,52 @@ public class ARRenderer extends View {
     }
 
     private float[] convertToScreenSpace(float[] cameraSpace, int width, int height) {
-        float x = (cameraSpace[X] / cameraSpace[W]) * width;
-        float y = (cameraSpace[Y] / cameraSpace[W]) * height;
+        float x = (OFFSET + cameraSpace[X] / cameraSpace[W]) * width;
+        float y = (OFFSET - cameraSpace[Y] / cameraSpace[W]) * height;
         return new float[]{x, y};
+    }
+
+    private void drawGuide(Direction direction, Canvas canvas, float x, float y) {
+        if (x < 0 || x > canvas.getWidth()) {
+            x = x < 0 ? GUIDE_OFFSET : canvas.getWidth() - GUIDE_OFFSET;
+        }
+        if (y < 0 || y > canvas.getHeight()) {
+            y  = y < 0 ? GUIDE_OFFSET : canvas.getHeight() - GUIDE_OFFSET;
+        }
+        switch (direction) {
+            case UP:
+                canvas.drawCircle(x, GUIDE_OFFSET, DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                break;
+            case DOWN:
+                canvas.drawCircle(x, canvas.getHeight() - GUIDE_OFFSET, DEFAULT_CIRCLE_RADIUS,
+                        this.defaultPaintCircle);
+                break;
+            case LEFT:
+                canvas.drawCircle(GUIDE_OFFSET, y, DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                break;
+            case RIGHT:
+                canvas.drawCircle(canvas.getWidth() - GUIDE_OFFSET, y,
+                        DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                break;
+            case TOP_LEFT:
+                canvas.drawCircle(GUIDE_OFFSET, GUIDE_OFFSET, DEFAULT_CIRCLE_RADIUS,
+                        this.defaultPaintCircle);
+                break;
+            case TOP_RIGHT:
+                canvas.drawCircle(canvas.getWidth() - GUIDE_OFFSET,
+                        GUIDE_OFFSET, DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                break;
+            case BTM_LEFT:
+            canvas.drawCircle(GUIDE_OFFSET,
+                    canvas.getHeight() - GUIDE_OFFSET,
+                    DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                break;
+            case BTM_RIGHT:
+                canvas.drawCircle(canvas.getWidth() - GUIDE_OFFSET,
+                        canvas.getHeight() - GUIDE_OFFSET,
+                        DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                break;
+        }
     }
 
 
