@@ -4,10 +4,10 @@ import android.graphics.Bitmap;
 import android.location.Location;
 import android.util.Log;
 
-import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.entities.exceptions.FacebookIdNotSetException;
+import com.comp30022.helium.strawberry.helpers.BitmapHelper;
 
 import java.net.MalformedURLException;
 
@@ -55,7 +55,7 @@ public class ARTrackerBeacon {
             StrawberryCallback<Bitmap> callback = new StrawberryCallback<Bitmap>() {
                 @Override
                 public void run(Bitmap bitmap) {
-                    profilePicture = bitmap;
+                    profilePicture = BitmapHelper.makeCircular(bitmap);
                     context.getArActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

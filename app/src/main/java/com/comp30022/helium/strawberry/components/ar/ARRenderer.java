@@ -1,5 +1,6 @@
 package com.comp30022.helium.strawberry.components.ar;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -29,12 +30,14 @@ public class ARRenderer extends View {
     private static final int Z = 2;
     private static final int W = 3;
     private static final int NAME_HEIGHT_OFFSET = 80;
-    private static final int NAME_WIDTH_OFFSET = 30;
+    private static final int NAME_WIDTH_OFFSET = 15;
     private static final int DEFAULT_CIRCLE_RADIUS = 30;
     private static final float OFFSET = .5f;
-    private static final int GUIDE_OFFSET = 100;      // offset for the guide artefact
+    private static final int GUIDE_OFFSET = 31;      // offset for the guide artefact
+    private static final int IMAGE_OFFSET = 100;
     private ARActivity arActivity;
     private Paint defaultPaintCircle;
+    private Paint arrowPaint;
 
     private enum Direction {
         UP, DOWN, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BTM_LEFT, BTM_RIGHT
@@ -51,7 +54,14 @@ public class ARRenderer extends View {
         this.defaultPaintCircle.setStyle(Paint.Style.FILL_AND_STROKE);
         this.defaultPaintCircle.setColor(ColourScheme.PRIMARY_DARK);
         this.defaultPaintCircle.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        this.defaultPaintCircle.setTextSize(50);
+        this.defaultPaintCircle.setTextSize(60);
+
+        // set default arrow paint
+        this.arrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.arrowPaint.setStyle(Paint.Style.FILL);
+        this.arrowPaint.setColor(ColourScheme.PRIMARY_DARK);
+        this.arrowPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        this.arrowPaint.setTextSize(160);
     }
 
 
@@ -129,9 +139,10 @@ public class ARRenderer extends View {
                 this.arActivity.displayInfoHUD("You have arrived at " + target.getUserName()
                         + "'s location");
             } else {
-                this.arActivity.displayInfoHUD("You're " +
-                        target.getLocation().distanceTo(currentLocation)
-                        + "m away from " + target.getUserName());
+                @SuppressLint("DefaultLocale")
+                String formatted = String.format("%.2fm away from %s",
+                        target.getLocation().distanceTo(currentLocation), target.getUserName());
+                this.arActivity.displayInfoHUD(formatted);
             }
 
             // if the point is infront of us ==> i.e. we should render it!
@@ -151,25 +162,29 @@ public class ARRenderer extends View {
                         x - (NAME_WIDTH_OFFSET * target.getUserName().length() / 2),
                         y - NAME_HEIGHT_OFFSET, this.defaultPaintCircle);
 
+                /* ************************************************************************
+                 * if the x and y will not be seen in screen, render guide!
+                 * ************************************************************************/
+
                 ////////////////////////////////////////////////
                 // Draw Guide artefact in general direction
                 ////////////////////////////////////////////////
                 if (x < 0 && y < 0) {
-                    drawGuide(Direction.TOP_LEFT, canvas, x, y);
+                    drawGuide(Direction.TOP_LEFT, canvas, target, x, y);
                 } else if (x > canvas.getWidth() && y < 0) {
-                    drawGuide(Direction.TOP_RIGHT, canvas, x, y);
+                    drawGuide(Direction.TOP_RIGHT, canvas, target, x, y);
                 } else if (x < 0 && y > canvas.getHeight()) {
-                    drawGuide(Direction.BTM_LEFT, canvas, x, y);
+                    drawGuide(Direction.BTM_LEFT, canvas, target, x, y);
                 } else if (x > canvas.getWidth() && y > canvas.getHeight()) {
-                    drawGuide(Direction.BTM_RIGHT, canvas, x, y);
+                    drawGuide(Direction.BTM_RIGHT, canvas, target, x, y);
                 } else if (x < 0) {
-                    drawGuide(Direction.LEFT, canvas, x, y);
+                    drawGuide(Direction.LEFT, canvas, target, x, y);
                 } else if (x > canvas.getWidth()) {
-                    drawGuide(Direction.RIGHT, canvas, x, y);
+                    drawGuide(Direction.RIGHT, canvas, target, x, y);
                 } else if (y < 0) {
-                    drawGuide(Direction.UP, canvas, x, y);
+                    drawGuide(Direction.UP, canvas, target, x, y);
                 } else if (y > canvas.getHeight()) {
-                    drawGuide(Direction.DOWN, canvas, x, y);
+                    drawGuide(Direction.DOWN, canvas, target, x, y);
                 }
 
             } else {
@@ -178,9 +193,9 @@ public class ARRenderer extends View {
                 // Draw Guide artefact in general direction
                 ////////////////////////////////////////////////
                 if (x > 0) {
-                    drawGuide(Direction.LEFT, canvas, x, y);
+                    drawGuide(Direction.LEFT, canvas, target, x, y);
                 } else {
-                    drawGuide(Direction.RIGHT, canvas, x, y);
+                    drawGuide(Direction.RIGHT, canvas, target, x, y);
                 }
             }
         }
@@ -207,46 +222,91 @@ public class ARRenderer extends View {
         return new float[]{x, y};
     }
 
-    private void drawGuide(Direction direction, Canvas canvas, float x, float y) {
+    private void drawGuide(Direction direction, Canvas canvas, ARTrackerBeacon target, float x, float y) {
         if (x < 0 || x > canvas.getWidth()) {
             x = x < 0 ? GUIDE_OFFSET : canvas.getWidth() - GUIDE_OFFSET;
         }
         if (y < 0 || y > canvas.getHeight()) {
             y  = y < 0 ? GUIDE_OFFSET : canvas.getHeight() - GUIDE_OFFSET;
         }
+        float dx = 0;
+        float dy = 0;
+        float xOffset = 0;
+        float yOffset = 0;
+        String arrow = "<";
+        float rotation = 0;
         switch (direction) {
             case UP:
-                canvas.drawCircle(x, GUIDE_OFFSET, DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                dx = x;
+                dy = GUIDE_OFFSET;
+                rotation = -90;
+                yOffset = IMAGE_OFFSET;
                 break;
             case DOWN:
-                canvas.drawCircle(x, canvas.getHeight() - GUIDE_OFFSET, DEFAULT_CIRCLE_RADIUS,
-                        this.defaultPaintCircle);
+                dx = x;
+                dy = canvas.getHeight() - GUIDE_OFFSET;
+                rotation = 90;
+                yOffset = -IMAGE_OFFSET;
                 break;
             case LEFT:
-                canvas.drawCircle(GUIDE_OFFSET, y, DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                dx = GUIDE_OFFSET;
+                dy = y;
+                rotation = 0;
+                xOffset = IMAGE_OFFSET;
                 break;
             case RIGHT:
-                canvas.drawCircle(canvas.getWidth() - GUIDE_OFFSET, y,
-                        DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                dx = canvas.getWidth() - GUIDE_OFFSET;
+                dy = y;
+                rotation = 180;
+                xOffset = -IMAGE_OFFSET;
                 break;
             case TOP_LEFT:
-                canvas.drawCircle(GUIDE_OFFSET, GUIDE_OFFSET, DEFAULT_CIRCLE_RADIUS,
-                        this.defaultPaintCircle);
+                dx = GUIDE_OFFSET;
+                dy = GUIDE_OFFSET;
+                rotation = -45;
+                xOffset = yOffset = IMAGE_OFFSET;
                 break;
             case TOP_RIGHT:
-                canvas.drawCircle(canvas.getWidth() - GUIDE_OFFSET,
-                        GUIDE_OFFSET, DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                dx = canvas.getWidth() - GUIDE_OFFSET;
+                dy = GUIDE_OFFSET ;
+                rotation = -135;
+                xOffset = -IMAGE_OFFSET;
+                yOffset = IMAGE_OFFSET;
                 break;
             case BTM_LEFT:
-            canvas.drawCircle(GUIDE_OFFSET,
-                    canvas.getHeight() - GUIDE_OFFSET,
-                    DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                dx = GUIDE_OFFSET;
+                dy = canvas.getHeight() - GUIDE_OFFSET;
+                rotation = 45;
+                xOffset = IMAGE_OFFSET;
+                yOffset = -IMAGE_OFFSET;
                 break;
             case BTM_RIGHT:
-                canvas.drawCircle(canvas.getWidth() - GUIDE_OFFSET,
-                        canvas.getHeight() - GUIDE_OFFSET,
-                        DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                dx = canvas.getWidth() - GUIDE_OFFSET;
+                dy = canvas.getHeight() - GUIDE_OFFSET;
+                rotation = 135;
+                xOffset = -IMAGE_OFFSET;
+                yOffset = -IMAGE_OFFSET;
                 break;
+        }
+
+//        String userName = target.getUserName();
+//        canvas.drawText(userName,
+//                dx - (NAME_WIDTH_OFFSET * userName.length()/2),
+//                dy - NAME_HEIGHT_OFFSET,
+//                this.defaultPaintCircle);
+
+        canvas.save();
+        // - rotation because android uses positive clockwise system
+        canvas.rotate(-rotation, dx, dy);
+        canvas.drawText(arrow, dx, dy, this.defaultPaintCircle);
+        canvas.restore();
+
+        Bitmap profilePicture = target.getProfilePicture(this);
+        if (profilePicture != null) {
+            canvas.drawBitmap(profilePicture, dx + xOffset, dy + yOffset, this.defaultPaintCircle);
+        } else {
+            // no profile picture available for this user (yet)
+            canvas.drawCircle(dx + xOffset, dy + yOffset, DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
         }
     }
 
@@ -258,7 +318,7 @@ public class ARRenderer extends View {
      * Adapted from
      * https://github.com/dat-ng/ar-location-based-android/blob/master/app/src/main/java/ng/dat/ar/helper/LocationHelper.java
      * <p>
-     * and convertion formula obtained from:
+     * and conversion formula obtained from:
      * http://digext6.defence.gov.au/dspace/bitstream/1947/3538/1/DSTO-TN-0432.pdf
      * <p>
      * <p>

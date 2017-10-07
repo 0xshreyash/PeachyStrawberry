@@ -17,6 +17,7 @@ import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 
 import java.util.ArrayList;
@@ -65,6 +66,9 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         // keep the screen from dimming!
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        // make pretty text colours
+        setupInfoHUD();
+
     }
 
     /**
@@ -73,7 +77,6 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
      * @param text
      */
     public void displayInfoHUD(String text) {
-        // TODO: better formatting and more options for text/text colour etc
         this.infoHUD.setText(text);
     }
 
@@ -132,5 +135,9 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
                 sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
                 SensorManager.SENSOR_DELAY_NORMAL
         );
+    }
+
+    private void setupInfoHUD() {
+        this.infoHUD.setTextColor(ColourScheme.SECONDARY_DARK);
     }
 }
