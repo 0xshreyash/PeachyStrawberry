@@ -224,7 +224,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         if (selectedId != null) {
             Log.d(TAG, "Tracking " + selectedId);
-            if (prevRefresh != null && prevTransport != null && (!selectedId.equals(prevRefresh) || !currTransport.equals(prevTransport))) {
+            if ((prevRefresh != null && !selectedId.equals(prevRefresh) || (prevTransport != null && !currTransport.equals(prevTransport)))) {
                 map.deleteAllPaths();
                 arrivalDistance.setText("Calculating..");
                 arrivalTime.setText("Calculating..");

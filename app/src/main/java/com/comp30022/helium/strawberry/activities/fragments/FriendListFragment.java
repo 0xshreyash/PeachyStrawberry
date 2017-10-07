@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class FriendListFragment extends Fragment implements Subscriber<Integer> {
     private static final String TAG = "FriendListFragment";
-    private static int DEFAULT_SELECTION = 0;
+    public static int DEFAULT_SELECTION = -1;
 
     private RecyclerView mFriendRecycler;
     private FriendListAdapter mFriendAdapter;
@@ -82,10 +82,11 @@ public class FriendListFragment extends Fragment implements Subscriber<Integer> 
         setRecyclerProperties(info);
     }
 
-
     public void setRecyclerProperties(Integer info) {
         DEFAULT_SELECTION = info;
-        this.mFriendAdapter = new FriendListAdapter(getActivity(), friends, this);
+        if(mFriendAdapter != null)
+            StrawberryApplication.deregisterSubscriber(mFriendAdapter);
+        mFriendAdapter = new FriendListAdapter(getActivity(), friends, this);
         mFriendAdapter.setSelectedPosition(info);
         mFriendRecycler.setAdapter(mFriendAdapter);
 
