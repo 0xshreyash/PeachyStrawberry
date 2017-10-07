@@ -1,9 +1,9 @@
 package com.comp30022.helium.strawberry.components.location;
 
-import android.graphics.Color;
 import android.util.Log;
 
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
+import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.helpers.JSONParser;
 import com.comp30022.helium.strawberry.helpers.ParserTask;
 import com.google.android.gms.maps.model.LatLng;
@@ -41,7 +41,7 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
             routes = parser.parse(jObject);
 
         } catch (Exception e) {
-            Log.d("PathParserTask", e.toString());
+            Log.e("PathParserTask", e.toString());
             e.printStackTrace();
         }
         return routes;
@@ -51,8 +51,8 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
     @Override
     protected void onPostExecute(List<List<HashMap<String, String>>> result) {
         ArrayList<LatLng> points;
-        String distance = "";
-        String duration = "";
+        String distance = null;
+        String duration = null;
 
         PolylineOptions lineOptions = null;
         // Traversing through all the routes
@@ -86,26 +86,28 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
             // Adding all the points in the route to LineOptions
             lineOptions.addAll(points);
             lineOptions.width(10);
-            lineOptions.color(Color.RED);
+            lineOptions.color(ColourScheme.ACCENT);
         }
 
         // Drawing polyline in the Google Map for the i-th route
         if (lineOptions != null) {
             strawberryMap.updatePolyline(pathName, lineOptions);
         } else {
-            Log.d("onPostExecute", "without Polylines drawn");
+            Log.e("onPostExecute", "without Polylines drawn");
         }
 
         if (distance != null) {
             strawberryMap.changeText("distance", distance);
         } else {
-            Log.d("onPostExecute", "without distance");
+            strawberryMap.changeText("distance", "Unknown");
+            Log.e("onPostExecute", "without distance");
         }
 
         if (duration != null) {
             strawberryMap.changeText("duration", duration);
         } else {
-            Log.d("onPostExecute", "without duration");
+            strawberryMap.changeText("duration", "Unknown");
+            Log.e("onPostExecute", "without duration");
         }
     }
 }
