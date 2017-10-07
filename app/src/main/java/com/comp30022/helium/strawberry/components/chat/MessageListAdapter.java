@@ -17,10 +17,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Custom adapter for list of messages, stores the number. This
+ * adapter "adapts" what messages are to be displayed to on the screen
+ * and the format they are to be displayed in.
+ */
 public class MessageListAdapter extends RecyclerView.Adapter {
 
-    private static final int VIEW_TYPE_MESSAGE_SENT = 1;
-    private static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
+    public static final int VIEW_TYPE_MESSAGE_SENT = 1;
+    public static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
 
     private Context mContext;
     private List<Message> mMessageList;
@@ -38,7 +43,9 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         return mMessageList.size();
     }
 
-    // Determines the appropriate ViewType according to the sender of the message.
+    /**
+     * Determines the appropriate ViewType according to the sender of the message.
+     */
     @Override
     public int getItemViewType(int position) {
         Message message = mMessageList.get(position);
@@ -54,7 +61,9 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         }
     }
 
-    // Inflates the appropriate layout according to the ViewType.
+    /**
+     * Inflates the appropriate layout according to the ViewType.
+     */
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
@@ -72,7 +81,11 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         return null;
     }
 
-    // Passes the message object to a ViewHolder so that the contents can be bound to UI.
+
+
+    /**
+     * Passes the message object to a ViewHolder so that the contents can be bound to UI.
+     */
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Message message = (Message) mMessageList.get(position);
@@ -91,12 +104,17 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    private class SentMessageHolder extends RecyclerView.ViewHolder {
+    /**
+     * View holder for messages sent by the current user.
+     */
+    public class SentMessageHolder extends RecyclerView.ViewHolder {
         TextView messageText, timeText;
+        View view;
 
         SentMessageHolder(View itemView) {
             super(itemView);
 
+            view = itemView;
             messageText = (TextView) itemView.findViewById(R.id.text_message_body);
             timeText = (TextView) itemView.findViewById(R.id.text_message_time);
         }
@@ -108,15 +126,28 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             String dateString = DateFormat.format("MM/dd/yyyy", new Date(message.getCreatedAt())).toString();
             timeText.setText(dateString);
         }
+
+        public View getItemView() {
+            return view;
+        }
+
+        public void setItemView(View view) {
+            this.view = view;
+        }
     }
 
-    private class ReceivedMessageHolder extends RecyclerView.ViewHolder {
+    /**
+     * View holder for messages received by the current user.
+     */
+    public class ReceivedMessageHolder extends RecyclerView.ViewHolder {
         TextView messageText, timeText, nameText;
         ImageView profileImage;
+        View view;
 
         ReceivedMessageHolder(View itemView) {
             super(itemView);
 
+            view = itemView;
             messageText = (TextView) itemView.findViewById(R.id.text_message_body);
             timeText = (TextView) itemView.findViewById(R.id.text_message_time);
             nameText = (TextView) itemView.findViewById(R.id.text_message_name);
@@ -134,6 +165,14 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
             // TODO: Profile Picture
 
+        }
+
+        public View getItemView() {
+            return view;
+        }
+
+        public void setItemView(View view) {
+            this.view = view;
         }
     }
 }

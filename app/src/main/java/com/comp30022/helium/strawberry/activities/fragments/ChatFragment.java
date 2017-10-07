@@ -1,11 +1,14 @@
-package com.comp30022.helium.strawberry.activities;
+package com.comp30022.helium.strawberry.activities.fragments;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -29,9 +32,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * Created by shreyashpatodia on 15/09/17.
+ * Chat uses a Recycler View (which is the region where the messages are
+ * displayed. The activity chat has space for a recycler view and also allows
+ * for you to write messages.
+ * RecyclerView is used because it is standard in chat applications.
  */
-public class ChatActivity extends AppCompatActivity {
+public class ChatFragment extends Fragment {
+
+    /* Recycler view contains all the messages */
     private static final int QUERY_TIME_SECS = 3;
     private static final String TAG = "StrawberryChat";
     private static final long RECENT_TIME = 86400000; // 1 day
@@ -42,9 +50,11 @@ public class ChatActivity extends AppCompatActivity {
     private User friend;
     private User me;
     List<Message> messages;
+    private MessageListAdapter mMessageAdapter;
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         messages = new ArrayList<>();
         blockNotify = true;
 
@@ -57,32 +67,64 @@ public class ChatActivity extends AppCompatActivity {
         timer.scheduleAtFixedRate(getChatQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        //setContentView(R.layout.activity_chat);
+    }
 
-        mMessageRecycler = (RecyclerView) findViewById(R.id.reyclerview_message_list);
 
-        MessageListAdapter mMessageAdapter = new MessageListAdapter(this, messages);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.activity_chat, null);
+        Button button = (Button) view.findViewById(R.id.button_chatbox_send);
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                clickSend();
+            }
+        });
+        return view;
+    }
+
+    public void onViewCreated(View view, Bundle savedInstance) {
+
+        mMessageRecycler = (RecyclerView)view.findViewById(R.id.reyclerview_message_list);
+        setRecyclerProperties();
+    }
+
+    /**
+     * Used to set the recycler properties on creation and on sending/receiving of new
+     * messages.
+     */
+    public void setRecyclerProperties() {
+
+        mMessageAdapter = new MessageListAdapter(getContext(), messages);
         mMessageRecycler.setAdapter(mMessageAdapter);
-        mMessageRecycler.setLayoutManager(new LinearLayoutManager(this));
+        mMessageRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         timer = new Timer();
         timer.scheduleAtFixedRate(getChatQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         timer.cancel();
         timer = null;
     }
 
+    /**
+     * Gets the chat from the server
+     */
     private void queryChat() {
         try {
-            PeachServerInterface.getInstance().getChatLog(friend, recentTime(), new StrawberryListener(new Response.Listener<String>() {
+            PeachServerInterface.getInstance().getChatLog(friend, recentTime(),
+                    new StrawberryListener(new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
@@ -96,7 +138,8 @@ public class ChatActivity extends AppCompatActivity {
                                 sender = me;
                             else
                                 sender = friend;
-                            updateMessage(new Message(chat.getString("message"), sender, chat.getLong("timestamp")));
+                            updateMessage(new Message(chat.getString("message"), sender,
+                                    chat.getLong("timestamp")));
                         }
                         blockNotify = false;
 
@@ -121,38 +164,52 @@ public class ChatActivity extends AppCompatActivity {
         };
     }
 
+    /**
+     * Updates a message
+     * @param message messsage to be updated
+     */
     private void updateMessage(Message message) {
         if (!messages.contains(message)) {
             messages.add(message);
 
             // update view
-            MessageListAdapter mMessageAdapter = new MessageListAdapter(this, messages);
-            mMessageRecycler.setAdapter(mMessageAdapter);
-            mMessageRecycler.setLayoutManager(new LinearLayoutManager(this));
+            setRecyclerProperties();
             mMessageRecycler.scrollToPosition(messages.size() - 1);
 
             // notify
             if (!blockNotify) {
                 if (!message.getSender().getId().equals(me.getId())) {
-                    Toast toast = Toast.makeText(this, friend.getUsername() + ": " + message.getMessage(), Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(this.getContext(), friend.getUsername() + ": " +
+                            message.getMessage(), Toast.LENGTH_SHORT);
                     toast.show();
                 }
             }
         }
     }
 
+    /**
+     * Gets the most recennt time
+     * @return time as long
+     */
     private Long recentTime() {
         return System.currentTimeMillis() - RECENT_TIME;
     }
 
-    public void clickSend(View view) {
-        EditText editText = (EditText) findViewById(R.id.edittext_chatbox);
+    /**
+     * Called when the Send button is pressed.
+     */
+    public void clickSend() {
+
+        //Log.e(TAG, view.toString());
+        EditText editText = (EditText)this.getView().findViewById(R.id.edittext_chatbox);
+
         String message = editText.getText().toString();
         Log.d(TAG, "sending " + message);
 
         if (message.length() > 0) {
             try {
-                PeachServerInterface.getInstance().postChat(message, friend.getId(), new StrawberryListener(new Response.Listener<String>() {
+                PeachServerInterface.getInstance().postChat(message, friend.getId(),
+                        new StrawberryListener(new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         queryChat();
