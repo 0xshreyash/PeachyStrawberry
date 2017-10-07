@@ -18,6 +18,7 @@ import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.entities.exceptions.FacebookIdNotSetException;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
+import com.comp30022.helium.strawberry.patterns.Event;
 import com.comp30022.helium.strawberry.patterns.Publisher;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 
@@ -31,7 +32,7 @@ import java.util.List;
  * A Recycler view is just like a list view but has additional features that
  * makes it faster and is why I used the RecyclerVieww
  */
-public class FriendListAdapter extends RecyclerView.Adapter {
+public class FriendListAdapter extends RecyclerView.Adapter implements Subscriber<Event> {
 
     private Integer selectedPosition;
 
@@ -45,7 +46,6 @@ public class FriendListAdapter extends RecyclerView.Adapter {
     private static final int ADDABLE_FRIEND = 1;
     private static final int ADDED_FRIEND = 2;
 
-    // Makeshift friend for the demoonstration
     public static final int FRIEND = 3;
     public static final int SELECTED_FRIEND = 4;
 
@@ -63,8 +63,9 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             Log.e(TAG, friendList.get(i).toString());
         }
         */
-        this.selectedPosition = 0;
+        this.selectedPosition = FriendListFragment.DEFAULT_SELECTION;
         this.parentFragment = parentFragment;
+        StrawberryApplication.registerSubscriber(this);
     }
 
     /**
@@ -182,6 +183,19 @@ public class FriendListAdapter extends RecyclerView.Adapter {
         super.onAttachedToRecyclerView(recyclerView);
     }
 
+    @Override
+    public void update(Event info) {
+        if(info.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {
+            String userId = (String) info.getValue();
+            for(int i = 0; i < friendList.size(); i++) {
+                if(friendList.get(i).getId().equals(userId)) {
+                    parentFragment.setRecyclerProperties(i);
+                    break;
+                }
+            }
+        }
+    }
+
     public class FriendHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Publisher<Integer> {
         TextView userNameText;
         ImageView profileImage;
@@ -257,9 +271,6 @@ public class FriendListAdapter extends RecyclerView.Adapter {
             selectedPosition = this.position;
             StrawberryApplication.setString(StrawberryApplication.SELECTED_USER_TAG, id);
             Log.i(TAG, StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
-            //FriendListAdapter.this.notify()
-            //notifyDataSetChanged();
-            //notifyItemChanged(position);
             Log.i(TAG, position + " " + this.getAdapterPosition());
             this.notifyAllSubscribers();
 

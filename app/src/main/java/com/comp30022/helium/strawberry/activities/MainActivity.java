@@ -112,12 +112,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                                 PeachServerInterface.getInstance().addFriendFbId(id);
                             }
 
+                            refreshFriendsListCache();
                             // refresh friends list
                         } catch (Exception e) {
                             e.printStackTrace();
+                            autoAddFriends();
                         }
-
-                        refreshFriendsListCache();
                     }
                 }
         ).executeAsync();
@@ -128,6 +128,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             PeachServerInterface.getInstance().getFriends(new StrawberryListener(new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
+                    Log.d(TAG, "Server friend list is " + response);
                     JSONArray friendsJSON = null;
                     try {
                         friendsJSON = new JSONArray(response.toString());
@@ -148,11 +149,12 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                         Log.i(TAG, "Friend set is " + friendSet);
                         StrawberryApplication.setStringSet("friends", friendSet);
 
+                        setupComplete();
+
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        refreshFriendsListCache();
                     }
-
-                    setupComplete();
                 }
             }, null));
         } catch (NotInstantiatedException | InstanceExpiredException e) {
@@ -310,6 +312,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                 // TODO: 3/10/17  replace with simple callback for the chain of events
                 autoAddFriends();
             }
+
         } else if (info instanceof StrawberryApplication.GlobalVariableChangeEvent) {
             StrawberryApplication.GlobalVariableChangeEvent event = (StrawberryApplication.GlobalVariableChangeEvent) info;
             if (event.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {

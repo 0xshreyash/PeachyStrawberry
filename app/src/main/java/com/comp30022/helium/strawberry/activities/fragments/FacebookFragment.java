@@ -51,6 +51,7 @@ public class FacebookFragment extends Fragment implements Publisher<String> {
 
                 } else {
                     StrawberryApplication.setString("token", currentAccessToken.getToken());
+                    Log.d(TAG, "Token is: " + currentAccessToken.getToken());
                     notifyAllSubscribers(currentAccessToken.getToken());
                 }
             }

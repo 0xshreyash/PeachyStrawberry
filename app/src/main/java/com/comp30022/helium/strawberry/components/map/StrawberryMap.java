@@ -5,6 +5,7 @@ import android.location.Location;
 import android.util.Log;
 
 import com.comp30022.helium.strawberry.R;
+import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
 import com.comp30022.helium.strawberry.components.map.exceptions.NoSuchMarkerException;
 import com.comp30022.helium.strawberry.helpers.FetchUrl;
@@ -21,7 +22,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,10 +44,32 @@ public class StrawberryMap {
         this.mapFragment = mapFragment;
         this.markers = new HashMap<>();
         this.paths = new HashMap<>();
-        setMode("transit");
+
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                for(String key: markers.keySet()) {
+                    if(markers.get(key).getId().equals(marker.getId())) {
+                        StrawberryApplication.setString(StrawberryApplication.SELECTED_USER_TAG, key);
+                        break;
+                    }
+                }
+                return false;
+            }
+        });
+
+        String savedTransport = StrawberryApplication.getString(StrawberryApplication.SELECTED_TRANSPORT_TAG);
+        if(savedTransport == null)
+            setMode("transit");
+        else
+            setMode(savedTransport);
     }
 
     public boolean updatePath(String markerName1, String markerName2) {
+        if(!mapFragment.isAdded()) {
+            Log.e(TAG, "Map fragment is not attached to Activity!");
+            return false;
+        }
         // Checks, whether start and end locations are captured
         Marker marker1 = markers.get(markerName1);
         Marker marker2 = markers.get(markerName2);
