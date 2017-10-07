@@ -104,14 +104,14 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         String savedTransport = StrawberryApplication.getString(StrawberryApplication.SELECTED_TRANSPORT_TAG);
 
-        if(savedTransport.equals("drive")) {
-            lastChanged = drive;
+        if(savedTransport == null || savedTransport.equals("transit")) {
+            lastChanged = transit;
         } else if(savedTransport.equals("bicycle")) {
             lastChanged = bicycle;
         } else if(savedTransport.equals("walk")) {
             lastChanged = walk;
         } else {
-            lastChanged = transit;
+            lastChanged = drive;
         }
         lastChanged.setBackgroundResource(R.drawable.map_mode_selected);
         makeIconWhite(lastChanged);
