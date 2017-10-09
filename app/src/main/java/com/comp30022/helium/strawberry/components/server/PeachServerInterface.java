@@ -7,7 +7,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
-import com.comp30022.helium.strawberry.components.server.exceptions.ServerInterfaceInitFailedException;
 import com.comp30022.helium.strawberry.components.server.rest.PeachRestInterface;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
@@ -30,12 +29,14 @@ import java.util.Map;
 
 public class PeachServerInterface implements Publisher<Event> {
     private static final String TAG = "PeachServerInterface";
-    private static final long EXPIRE_TIME = 1800000L; // 30mins
+    private static final long EXPIRE_TIME = 18000000L; // 300mins
+
     private static PeachServerInterface instance = null;
     private static String userId = "";
 
     private List<Subscriber<Event>> subs = new ArrayList<>();
-    private Long initTime = 0L;
+    private static Long initTime = 0L;
+    private static Long initResponseTime = null;
 
     public static PeachServerInterface getInstance() throws NotInstantiatedException, InstanceExpiredException {
         if (instance == null)
@@ -48,8 +49,8 @@ public class PeachServerInterface implements Publisher<Event> {
 
     public static void init(String facebookToken, Subscriber<Event> toNotify) {
         if (instance == null || instance.expired() || userId.length() == 0) {
+            initTime = System.currentTimeMillis();
             instance = new PeachServerInterface(facebookToken, toNotify);
-            instance.initTime = System.currentTimeMillis();
         }
         else toNotify.update(new InterfaceReadyEvent(instance, "", true));
     }
@@ -76,8 +77,14 @@ public class PeachServerInterface implements Publisher<Event> {
             public void onResponse(String response) {
                 try {
                     JSONObject resJson = new JSONObject(response);
-                    Log.i(TAG, "user id is " + resJson.get("message"));
-                    userId = (String) resJson.get("message");
+
+                    userId = resJson.getString("message");
+                    initResponseTime = resJson.getLong("timestamp");
+
+                    Log.i(TAG, "user id is " + userId +
+                            ", inittime=" + initTime +
+                            ", initres=" + initResponseTime);
+
                     notifyAllSubscribers(true);
 
                 } catch (JSONException e) {
@@ -185,6 +192,8 @@ public class PeachServerInterface implements Publisher<Event> {
         Map<String, String> form = new HashMap<>();
         form.put("to", to);
         form.put("message", message);
+        form.put("timestamp", String.valueOf(System.currentTimeMillis()));
+        Log.d(TAG, "postChat: " + form);
         PeachRestInterface.post("/chat", form, strawberryListener);
     }
 
@@ -220,5 +229,17 @@ public class PeachServerInterface implements Publisher<Event> {
         public Boolean getValue() {
             return v;
         }
+    }
+
+    public static Long getInitTime() {
+        return initTime;
+    }
+
+    public static Long getInitResponseTime() {
+        return initResponseTime;
+    }
+
+    public static Long getTimeDiff() {
+        return initResponseTime - initTime;
     }
 }

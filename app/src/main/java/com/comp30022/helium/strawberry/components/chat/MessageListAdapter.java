@@ -1,10 +1,9 @@
 package com.comp30022.helium.strawberry.components.chat;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.annotation.UiThread;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
-import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.activities.fragments.ChatFragment;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
@@ -129,8 +127,13 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         void bind(Message message) {
             messageText.setText(message.getMessage());
 
-            // Format the stored timestamp into a readable String using method.
-            String dateString = DateFormat.format("MM/dd/yyyy", new Date(message.getCreatedAt())).toString();
+            Date msgDate = new Date(message.getCreatedAt());
+            String dateString;
+            if(DateUtils.isToday(msgDate.getTime())){
+                dateString = DateFormat.format("hh:mm a", msgDate).toString();
+            } else {
+                dateString = DateFormat.format("MM/dd/yyyy\nhh:mm a", msgDate).toString();
+            }
             timeText.setText(dateString);
         }
 
@@ -147,6 +150,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
      * View holder for messages received by the current user.
      */
     public class ReceivedMessageHolder extends RecyclerView.ViewHolder {
+        private static final long DAY_MILLISECS = 86400000; // 1DAY
         TextView messageText, timeText, nameText;
         ImageView profileImage;
         View view;
@@ -165,7 +169,13 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             messageText.setText(message.getMessage());
 
             // Format the stored timestamp into a readable String using method.
-            String dateString = DateFormat.format("MM/dd/yyyy", new Date(message.getCreatedAt())).toString();
+            Date msgDate = new Date(message.getCreatedAt());
+            String dateString;
+            if(DateUtils.isToday(msgDate.getTime())){
+                dateString = DateFormat.format("hh:mm a", msgDate).toString();
+            } else {
+                dateString = DateFormat.format("MM/dd/yyyy\nhh:mm a", msgDate).toString();
+            }
             timeText.setText(dateString);
 
             nameText.setText(message.getSender().getUsername());
@@ -180,7 +190,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                                 mContext.getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        profileImage.setImageBitmap(bitmap);
+                                        profileImage.setImageBitmap(BitmapHelper.makeCircular(bitmap));
                                     }
                                 });
                             }

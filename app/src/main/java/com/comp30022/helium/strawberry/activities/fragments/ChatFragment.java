@@ -2,7 +2,6 @@ package com.comp30022.helium.strawberry.activities.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.LinearLayout;
 
 import com.android.volley.Response;
 import com.comp30022.helium.strawberry.R;
@@ -44,11 +43,10 @@ import java.util.TimerTask;
  */
 public class ChatFragment extends Fragment implements Subscriber<Event> {
     private static final int QUERY_TIME_SECS = 3;
-    private static final int BG_QUERY_TIME_SECS = 45;
+    private static final int BG_QUERY_TIME_SECS = 30;
     private static final String TAG = "StrawberryChat";
-    //TODO: optimize by syncing app time and get difference between system
-    private static final long TIME_PADDING = 12005000; // 2 hours + 5 sec
     private RecyclerView mMessageRecycler;
+    private View loadingLayout, emptyLayout;
 
     boolean blockNotify;
     private Timer timer;
@@ -81,6 +79,10 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_chat, null);
         Button button = (Button) view.findViewById(R.id.button_chatbox_send);
+
+        loadingLayout = view.findViewById(R.id.load_message_layout);
+        emptyLayout = view.findViewById(R.id.no_message_layout);
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,6 +151,14 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
         }
     }
 
+    private void hideLoading(boolean b) {
+        loadingLayout.setVisibility(b ? View.GONE : View.VISIBLE);
+    }
+
+    private void showEmpty(boolean b) {
+        emptyLayout.setVisibility(b ? View.VISIBLE : View.GONE);
+    }
+
     /**
      * Gets the chat from the server
      */
@@ -156,7 +166,6 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
     private void queryChat() {
         if (friend == null || friend.getId() == null)
             return;
-
         try {
             if (messages.isEmpty()) {
                 PeachServerInterface.getInstance().getRecentChatLog(friend, new StrawberryListener(new Response.Listener<String>() {
@@ -164,6 +173,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                     public void onResponse(String response) {
                         try {
                             JSONArray chats = new JSONArray(response);
+                            hideLoading(true);
                             parseAndSaveChatLog(chats);
 //                                    blockNotify = false;
                         } catch (Exception e) {
@@ -171,12 +181,14 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                         }
                     }
                 }, null));
+
             } else {
-                Long time = System.currentTimeMillis() - TIME_PADDING;
+                Long time = messages.get(messages.size() - 1).getCreatedAt();
                 PeachServerInterface.getInstance().getChatLog(friend, time, new StrawberryListener(new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
+                            hideLoading(true);
                             JSONArray chats = new JSONArray(response);
                             parseAndSaveChatLog(chats);
 //                                    blockNotify = false;
@@ -187,10 +199,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                 }, null));
             }
 
-        } catch (NotInstantiatedException |
-                InstanceExpiredException e)
-
-        {
+        } catch (NotInstantiatedException | InstanceExpiredException e) {
             e.printStackTrace();
         }
 
@@ -243,15 +252,14 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
 //                }
 //            }
         }
-    }
 
-    int counter = 0;
+        showEmpty(messages.size() == 0);
+    }
 
     /**
      * Called when the Send button is pressed.
      */
     public void clickSend() {
-
         //Log.e(TAG, view.toString());
         EditText editText = (EditText) this.getView().findViewById(R.id.edittext_chatbox);
 
@@ -281,6 +289,8 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
             if (event.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {
                 friend = User.getUser((String) event.getValue());
                 messages = new ArrayList<>();
+                showEmpty(false);
+                hideLoading(false);
                 setRecyclerProperties();
             }
         }
