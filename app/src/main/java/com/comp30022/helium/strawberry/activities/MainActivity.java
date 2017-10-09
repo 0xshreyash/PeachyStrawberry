@@ -79,6 +79,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private float chatStart = 0;
     private int MIN_WIDTH = 1;
 
+    private boolean paused = false;
+
     private DisplayMetrics metrics;
 
     @Override
@@ -158,7 +160,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
                             String username = friend.get("username").toString();
                             String facebookId = friend.get("facebookId").toString();
 
-                            User user = new User(id, username, facebookId);
+                            User user = User.getUser(id, username, facebookId);
                             friendSet.add(user.toString());
                         }
 
@@ -412,13 +414,26 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        this.paused = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.paused = false;
+    }
+
+    @Override
     public void update(Event info) {
         if (info instanceof PeachServerInterface.InterfaceReadyEvent) {
             PeachServerInterface.InterfaceReadyEvent event = (PeachServerInterface.InterfaceReadyEvent) info;
             if (!event.getValue()) {
                 Toast toast = Toast.makeText(this, "Failed to authorize with existing token.", Toast.LENGTH_SHORT);
                 toast.show();
-                backToStart();
+                if(!paused)
+                    backToStart();
             } else {
                 // successful, guarantee that we have permissions
                 // TODO: 3/10/17  replace with simple callback for the chain of events

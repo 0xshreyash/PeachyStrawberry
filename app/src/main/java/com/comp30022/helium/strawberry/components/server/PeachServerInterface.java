@@ -71,7 +71,7 @@ public class PeachServerInterface implements Publisher<Event> {
         if (toNotify != null)
             registerSubscriber(toNotify);
 
-        PeachRestInterface.post("/authorize", tokenMap, new StrawberryListener(new Response.Listener<String>() {
+        PeachRestInterface.post("/authorize", tokenMap, new StrawberryListener("authorize", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try {
@@ -118,9 +118,12 @@ public class PeachServerInterface implements Publisher<Event> {
     public void updateCurrentLocation(Location location) {
         if (userId != null && userId.length() > 0) {
             Map<String, String> form = new HashMap<>();
+
             form.put("longitude", String.valueOf(location.getLongitude()));
             form.put("latitude", String.valueOf(location.getLatitude()));
-            PeachRestInterface.post("/user/" + userId + "/location", form, new StrawberryListener());
+
+            Log.d(TAG, "updateCurrentLocation Long: " + String.valueOf(location.getLongitude()) + ", Lat:" + String.valueOf(location.getLatitude()));
+            PeachRestInterface.post("/user/" + userId + "/location", form, new StrawberryListener("updateCurrentLocation"));
         }
     }
 
@@ -128,7 +131,7 @@ public class PeachServerInterface implements Publisher<Event> {
         if (userId != null && userId.length() > 0) {
             Map<String, String> form = new HashMap<>();
             form.put("fbId", id);
-            PeachRestInterface.post("/user/" + userId + "/friend", form, new StrawberryListener());
+            PeachRestInterface.post("/user/" + userId + "/friend", form, new StrawberryListener("addFriendFbId"));
         }
     }
 
@@ -143,36 +146,52 @@ public class PeachServerInterface implements Publisher<Event> {
     }
 
     public static User currentUser() {
-        return new User(userId);
+        return User.getUser(userId);
     }
 
     public void getUserLocation(User friend, StrawberryListener strawberryListener) {
         if (userId != null && userId.length() > 0) {
+            strawberryListener.setOrigin("getUserLocation");
+
             PeachRestInterface.get("/user/" + friend.getId() + "/location", strawberryListener);
         }
     }
 
     public void getFriends(StrawberryListener strawberryListener) {
         if (userId != null && userId.length() > 0) {
+            strawberryListener.setOrigin("getFriends");
+
             PeachRestInterface.get("/user/" + userId + "/friend", strawberryListener);
         }
     }
 
     public void getUser(String id, StrawberryListener strawberryListener) {
         if (userId != null && userId.length() > 0) {
+            strawberryListener.setOrigin("getUser");
+
             PeachRestInterface.get("/user/" + id, strawberryListener);
         }
     }
 
     public void getChatLog(User friend, Long start, StrawberryListener strawberryListener) {
+        strawberryListener.setOrigin("getChatLog");
+
         PeachRestInterface.get("/chat?start=" + start.toString() + "&from=" + friend.getId(), strawberryListener);
     }
 
     public void postChat(String message, String to, StrawberryListener strawberryListener) {
+        strawberryListener.setOrigin("postChat");
+
         Map<String, String> form = new HashMap<>();
         form.put("to", to);
         form.put("message", message);
         PeachRestInterface.post("/chat", form, strawberryListener);
+    }
+
+    public void getRecentChatLog(User from, StrawberryListener listener) {
+        listener.setOrigin("getRecentChatLog");
+
+        PeachRestInterface.get("/chat/recent?from=" + from.getId(), listener);
     }
 
     public static class InterfaceReadyEvent implements Event<PeachServerInterface, String, Boolean> {

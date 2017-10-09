@@ -1,6 +1,8 @@
 package com.comp30022.helium.strawberry.components.chat;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.annotation.UiThread;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -11,8 +13,14 @@ import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.activities.fragments.ChatFragment;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
+import com.comp30022.helium.strawberry.entities.StrawberryCallback;
+import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.entities.exceptions.FacebookIdNotSetException;
+import com.comp30022.helium.strawberry.helpers.BitmapHelper;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,10 +35,10 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     public static final int VIEW_TYPE_MESSAGE_SENT = 1;
     public static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
 
-    private Context mContext;
+    private ChatFragment mContext;
     private List<Message> mMessageList;
 
-    public MessageListAdapter(Context context, List<Message> messageList) {
+    public MessageListAdapter(ChatFragment context, List<Message> messageList) {
         mContext = context;
         //Log.e("Check", "Checking if Bind View Holder works or not");
         //Log.d("New list received", messageList.getString(0).getMessage());
@@ -80,7 +88,6 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         //Log.e("Check", "Returning null");
         return null;
     }
-
 
 
     /**
@@ -154,7 +161,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             profileImage = (ImageView) itemView.findViewById(R.id.image_message_profile);
         }
 
-        void bind(Message message) {
+        void bind(final Message message) {
             messageText.setText(message.getMessage());
 
             // Format the stored timestamp into a readable String using method.
@@ -163,7 +170,26 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
             nameText.setText(message.getSender().getUsername());
 
-            // TODO: Profile Picture
+            message.getSender().getFacebookId(new StrawberryCallback<String>() {
+                @Override
+                public void run(String s) {
+                    try {
+                        message.getSender().getFbPicture(User.ProfilePictureType.SQUARE, new StrawberryCallback<Bitmap>() {
+                            @Override
+                            public void run(final Bitmap bitmap) {
+                                mContext.getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        profileImage.setImageBitmap(bitmap);
+                                    }
+                                });
+                            }
+                        });
+                    } catch (FacebookIdNotSetException | MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
 
         }
 
