@@ -25,7 +25,9 @@ public class ImageCache {
 
     public void put(String key, Bitmap bitmap) {
         synchronized (cache) {
-            if (cache.get(key) == null) {
+            if(key == null) {
+                Log.w(TAG, "Key for bitmap cannot be null");
+            } else if (cache.get(key) == null) {
                 Log.i(TAG, "User " + key + " created and cached");
                 cache.put(key, bitmap);
             } else {
@@ -36,6 +38,8 @@ public class ImageCache {
 
     public Bitmap get(String key) {
         synchronized (cache) {
+            if(key == null)
+                return null;
             Bitmap bitmap = cache.get(key);
             Log.i(TAG, "Get bitmap " + key);
             // null if not found
