@@ -5,24 +5,22 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.Matrix;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationService;
-import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 
-import java.util.ArrayList;
 
 public class ARActivity extends AppCompatActivity implements SensorEventListener,
         Subscriber<LocationEvent> {
@@ -52,7 +50,7 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         this.sensorManager = (SensorManager) this.getSystemService(SENSOR_SERVICE);
 
         // init a new ARRenderer for AR display overlay
-        this.arRenderer = new ARRenderer(this, (ProgressBar) this.container.findViewById(R.id.arwait));
+        this.arRenderer = new ARRenderer(this, (ConstraintLayout) findViewById(R.id.ar_home));
         // add currently selected user to track
         trackSelectedUser();
 

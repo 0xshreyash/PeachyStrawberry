@@ -9,9 +9,12 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.opengl.Matrix;
+import android.support.constraint.ConstraintLayout;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.ar.helper.CoordinateConverter;
@@ -21,9 +24,13 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.comp30022.helium.strawberry.components.ar.helper.CoordinateConverter.convertToScreenSpace;
 
 public class ARRenderer extends View {
     private float[] projectionMatrix;
@@ -43,8 +50,6 @@ public class ARRenderer extends View {
     // When the user has no profile picture/callback hasn't returned, we render a temporary
     // circle with this radius as replacement for the profile picture
     private static final int DEFAULT_CIRCLE_RADIUS = 30;
-    // offset for conversion in camera to screen space
-    private static final float OFFSET = .5f;
     // offset for the guide artefact
     private static final int GUIDE_OFFSET = 31;
     // when drawing the guide, offset the image away from the arrow
@@ -65,6 +70,7 @@ public class ARRenderer extends View {
     private Paint profilePicturePaint;
 
     private ProgressBar progressBar;
+    private TextView loadingText;
     private boolean loading;
 
     private enum Direction {
@@ -72,13 +78,14 @@ public class ARRenderer extends View {
     }
 
 
-    public ARRenderer(Context context, ProgressBar progressBar) {
+    public ARRenderer(Context context, ConstraintLayout container) {
         super(context);
         // this is dangerous, but we're sure that only ARActivity is using this ARRenderer for now
         this.arActivity = (ARActivity) context;
         this.trackers = new ArrayList<>();
         this.currentLocation = LocationService.getInstance().getDeviceLocation();
-        this.progressBar = progressBar;
+        this.progressBar = (ProgressBar) container.findViewById(R.id.arwait);
+        this.loadingText = (TextView) container.findViewById(R.id.ar_load_msg);
         setupArrowPaint();
         setupNamePaint();
         setupProfilePicturePaint();
@@ -125,18 +132,7 @@ public class ARRenderer extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-//        if (currentLocation == null || this.projectionMatrix == null) {
-        if (true) {
-            this.loading = true;
-            this.progressBar.setVisibility(View.VISIBLE);
-            this.progressBar.bringToFront();
-            return;
-        }
-        if (this.loading) {
-            this.loading = false;
-            this.progressBar.setVisibility(View.INVISIBLE);
-        }
-
+        if (loadIfInsufficientData()) return;
 
         // for each tracker beacon, we draw them on screen if they're in positive Z axis (i.e.
         // in front of us), else we render a guide pointing towards the target on the edges of the
@@ -144,11 +140,13 @@ public class ARRenderer extends View {
         for (int i = 0; i != trackers.size(); ++i) {
             ARTrackerBeacon target = trackers.get(i);
             // convert from : GPS -> ENU
-            float[] ENUCoordinates = getENU(target.getLocation());
+            float[] ENUCoordinates = CoordinateConverter.getENU(target.getLocation(),
+                    this.currentLocation);
             // convert from : ENU -> Camera
-            float[] cameraCoordinates = convertToCameraSpace(ENUCoordinates);
+            float[] cameraCoordinates = CoordinateConverter.convertToCameraSpace(ENUCoordinates,
+                    this.projectionMatrix);
 
-            float[] screenCoordinates = convertToScreenSpace(
+            float[] screenCoordinates = CoordinateConverter.convertToScreenSpace(
                     cameraCoordinates,
                     canvas.getWidth(),
                     canvas.getHeight());
@@ -220,6 +218,33 @@ public class ARRenderer extends View {
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    private boolean loadIfInsufficientData() {
+        // if we have insufficient data, show the loading screen
+        if (currentLocation == null || this.projectionMatrix == null) {
+            // if we aren't already showing the loading screen, show it
+            if (!this.loading) {
+                this.arActivity.displayInfoHUD("Loading...");
+                this.progressBar.setVisibility(View.VISIBLE);
+                this.loadingText.setText("Gathering the sweetest strawberries...");
+                this.loadingText.setTextColor(ColourScheme.PRIMARY_DARK);
+                this.loadingText.bringToFront();
+                this.progressBar.bringToFront();
+                this.loading = true;
+            }
+            // otherwise, the spinner and text should already be there
+            return true;
+        }
+        // if was loading but now we have enough data, just make the loading screen disappear
+        if (this.loading) {
+            this.loading = false;
+            this.progressBar.setVisibility(View.INVISIBLE);
+            this.loadingText.setText("");
+        }
+        // it's NOT true that we don't have enough data.
+        return false;
+    }
+
     private void writeDistanceTo(ARTrackerBeacon target) {
         double distanceTo = target.getLocation().distanceTo(currentLocation);
         String unit = "m";
@@ -234,26 +259,6 @@ public class ARRenderer extends View {
         this.arActivity.displayInfoHUD(formatted);
     }
 
-    private float[] getENU(Location targetLocation) {
-        float[] deviceLocationECEF = CoordinateConverter.GPS2ECEF(this.currentLocation);
-        float[] targetECEF = CoordinateConverter.GPS2ECEF(targetLocation);
-        return CoordinateConverter.ECEF2ENU(this.currentLocation,
-                deviceLocationECEF,
-                targetECEF);
-    }
-
-    private float[] convertToCameraSpace(float[] ENU) {
-        float[] cameraSpace = new float[4];
-        // multiply ENU (as a vector) with the projection matrix to get CameraSpace
-        Matrix.multiplyMV(cameraSpace, 0, this.projectionMatrix, 0, ENU, 0);
-        return cameraSpace;
-    }
-
-    private float[] convertToScreenSpace(float[] cameraSpace, int width, int height) {
-        float x = (OFFSET + cameraSpace[X] / cameraSpace[W]) * width;
-        float y = (OFFSET - cameraSpace[Y] / cameraSpace[W]) * height;
-        return new float[]{x, y};
-    }
 
     private void drawGuide(Direction direction, Canvas canvas, ARTrackerBeacon target, float x, float y) {
         if (x < 0 || x > canvas.getWidth()) {
@@ -299,7 +304,7 @@ public class ARRenderer extends View {
                 dx = GUIDE_OFFSET;
                 dy = GUIDE_OFFSET;
                 rotation = -45;
-                xOffset = IMAGE_OFFSET - TOP_LEFT_IMAGE_OFFSET/2;
+                xOffset = IMAGE_OFFSET - TOP_LEFT_IMAGE_OFFSET / 2;
                 yOffset = IMAGE_OFFSET - TOP_LEFT_IMAGE_OFFSET;
                 break;
             case TOP_RIGHT:
@@ -313,7 +318,7 @@ public class ARRenderer extends View {
                 dx = GUIDE_OFFSET;
                 dy = canvas.getHeight() - GUIDE_OFFSET;
                 rotation = 45;
-                xOffset = IMAGE_OFFSET - BTM_LEFT_IMAGE_OFFSET*2;
+                xOffset = IMAGE_OFFSET - BTM_LEFT_IMAGE_OFFSET * 2;
                 yOffset = -IMAGE_OFFSET - BTM_LEFT_IMAGE_OFFSET;
                 break;
             case BTM_RIGHT:
@@ -324,13 +329,6 @@ public class ARRenderer extends View {
                 yOffset = -IMAGE_OFFSET + BTM_RIGHT_IMAGE_OFFSET;
                 break;
         }
-
-//        String userName = target.getUserName();
-//        canvas.drawText(userName,
-//                dx - (NAME_WIDTH_OFFSET * userName.length()/2),
-//                dy - NAME_HEIGHT_OFFSET,
-//                this.namePaint);
-
         canvas.save();
         // negative rotation because android uses positive clockwise system
         canvas.rotate(-rotation, dx, dy);
