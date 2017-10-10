@@ -1,9 +1,12 @@
 package com.comp30022.helium.strawberry.components.map.helpers;
 
+import android.graphics.Color;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.comp30022.helium.strawberry.helpers.ColourScheme;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.maps.model.Marker;
 
 /**
@@ -32,12 +35,11 @@ public abstract class MenuItemTouchListener implements View.OnTouchListener {
     }
 
     public boolean onTouch(MotionEvent event) {
-
         if (0 <= event.getX() && event.getX() <= view.getWidth() &&
                 0 <= event.getY() && event.getY() <= view.getHeight())
         {
             switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN: startPress();
+                case MotionEvent.ACTION_DOWN: startPress(view);
                     break;
 
                 case MotionEvent.ACTION_UP: handler.postDelayed(confirmClickRunnable, 150);
@@ -55,9 +57,10 @@ public abstract class MenuItemTouchListener implements View.OnTouchListener {
         return false;
     }
 
-    private void startPress() {
+    public void startPress(View view) {
         if (!pressed) {
             pressed = true;
+            view.setBackgroundColor(ColourScheme.PRIMARY_LIGHT);
             handler.removeCallbacks(confirmClickRunnable);
             if (marker != null)
                 marker.showInfoWindow();
@@ -67,6 +70,7 @@ public abstract class MenuItemTouchListener implements View.OnTouchListener {
     private boolean endPress() {
         if (pressed) {
             this.pressed = false;
+            view.setBackgroundColor(ColourScheme.PRIMARY_DARK);
             handler.removeCallbacks(confirmClickRunnable);
             if (marker != null)
                 marker.showInfoWindow();
