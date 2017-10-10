@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary">
+    android:background="#8CF3E2AF">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -55,13 +55,13 @@
         android:layout_width="0dp"
         android:layout_height="55dp"
         android:layout_marginLeft="55dp"
+        android:layout_marginStart="55dp"
         android:background="#ffffff"
         android:minHeight="55dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginStart="55dp">
+        app:layout_constraintRight_toRightOf="parent">
 
         <EditText
             android:id="@+id/edittext_chatbox"
