@@ -34,6 +34,7 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
     private float[] rotatedMatrix = new float[16];
     private LocationService locationService = LocationService.getInstance();
     private static final String TAG = ARActivity.class.getSimpleName();
+    private boolean displayOverride;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +77,10 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
      * @param text
      */
     public void displayInfoHUD(String text) {
-        this.infoHUD.setText(text);
+        // if ARActivity didn't request for a display override, let others write what they want.
+        if (!this.displayOverride) {
+            this.infoHUD.setText(text);
+        }
     }
 
     @Override
@@ -86,6 +90,23 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        switch (sensorEvent.accuracy) {
+            case SensorManager.SENSOR_STATUS_UNRELIABLE:
+            case SensorManager.SENSOR_STATUS_ACCURACY_LOW:
+            case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM:
+                this.infoHUD.setText(" Sensor low accuracy, follow these steps:\n" +
+                        "  1. Tilt your phone forward and back\n" +
+                        "  2. Move it side to side\n"+
+                        "  3. Tilt left and right\n");
+                this.infoHUD.setTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_START);
+                this.displayOverride = true;
+                break;
+            default:
+                // good accuracy.
+                this.displayOverride = false;
+                break;
+        }
+
         // only care if this sensor event is from our rotation vector
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
             SensorManager.getRotationMatrixFromVector(this.sensorVectorRotationMatrix,
