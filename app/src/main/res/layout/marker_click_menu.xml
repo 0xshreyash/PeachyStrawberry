@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:weightSum="1"
+    android:divider="@drawable/divider"
+    android:showDividers="middle">
+
+    <TextView
+        android:id="@+id/friend_name"
+        android:layout_width="fill_parent"
+        android:layout_height="25dp"
+        android:layout_weight="1"
+        android:background="@color/colorPrimaryLight"
+        android:gravity="center"
+        android:paddingLeft="7.5dp"
+        android:paddingRight="7.5dp"
+        android:text="shreyash.patodia"
+        android:textColor="black"
+        android:textSize="15dp"/>
+
+    <Button
+        android:id="@+id/button_map"
+        android:layout_width="fill_parent"
+        android:layout_height="25dp"
+        android:layout_weight="1"
+        android:background="@color/colorPrimaryDark"
+        android:text="AR"
+        android:textSize="10dp" />
+
+    <Button
+        android:id="@+id/button_chat"
+        android:layout_width="fill_parent"
+        android:layout_height="25dp"
+        android:background="@color/colorPrimaryDark"
+        android:text="Chat"
+        android:textSize="10dp" />
+
+</LinearLayout>

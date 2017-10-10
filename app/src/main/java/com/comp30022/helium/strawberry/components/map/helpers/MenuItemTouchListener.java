@@ -6,6 +6,10 @@ import android.view.View;
 
 import com.google.android.gms.maps.model.Marker;
 
+/**
+ * This class's onTouch even is called whenever the menu for a marker is pressed.
+ *
+ */
 public abstract class MenuItemTouchListener implements View.OnTouchListener {
 
     private final View view;
@@ -72,6 +76,9 @@ public abstract class MenuItemTouchListener implements View.OnTouchListener {
             return false;
     }
 
+    /**
+     * Confirm click if the press has ended.
+     */
     private final Runnable confirmClickRunnable = new Runnable() {
         public void run() {
             if (endPress()) {
