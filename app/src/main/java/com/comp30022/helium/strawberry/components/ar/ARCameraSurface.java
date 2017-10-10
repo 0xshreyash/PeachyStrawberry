@@ -84,7 +84,7 @@ public class ARCameraSurface extends SurfaceView implements SurfaceHolder.Callba
     }
 
     /**
-     * ADDAPTED FROM: https://developer.android.com/reference/android/hardware/Camera.html#setDisplayOrientation(int)
+     * ADAPTED FROM: https://developer.android.com/reference/android/hardware/Camera.html#setDisplayOrientation(int)
      *
      * This code sets the orientation of the camera to the original orientation of the activity
      */

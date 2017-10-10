@@ -129,8 +129,8 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        this.locationService.deregisterSubscriber(this);
-//        this.sensorManager.unregisterListener(this);
+        this.locationService.deregisterSubscriber(this);
+        this.sensorManager.unregisterListener(this);
     }
 
     private void listenToSensors() {

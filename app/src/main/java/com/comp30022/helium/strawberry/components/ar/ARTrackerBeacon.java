@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.location.Location;
 import android.util.Log;
 
+import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.entities.exceptions.FacebookIdNotSetException;
@@ -19,22 +20,12 @@ public class ARTrackerBeacon {
 
     public ARTrackerBeacon(User user) {
         this.user = user;
-//        this.location = LocationService.getInstance().getUserLocation(user);
-        // TODO: FINISH DEBUG
-        Location uh = new Location("ALSKJD");
-        uh.setLongitude(144.960961);
-        uh.setLatitude(-37.796927);
-        this.location = uh;
+        this.location = LocationService.getInstance().getUserLocation(user);
     }
 
     public ARTrackerBeacon(ARTrackerBeacon trackerBeacon) {
         this.user = trackerBeacon.user;
-//        this.location = trackerBeacon.location;
-        // TODO: FINISH DEBUG
-        Location uh = new Location("ALSKJD");
-        uh.setLongitude(144.960961);
-        uh.setLatitude(-37.796927);
-        this.location = uh;
+        this.location = trackerBeacon.location;
     }
 
     public Location getLocation() {
@@ -42,8 +33,7 @@ public class ARTrackerBeacon {
     }
 
     public void updateLocation(Location newLocation) {
-        // TODO: FINISH DEBUG
-//        this.location = new Location(newLocation);
+        this.location = new Location(newLocation);
     }
 
     public String getUserName() {
@@ -59,6 +49,7 @@ public class ARTrackerBeacon {
                     context.getArActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            // redraw the image since we've just received the profile picture
                             context.invalidate();
                         }
                     });

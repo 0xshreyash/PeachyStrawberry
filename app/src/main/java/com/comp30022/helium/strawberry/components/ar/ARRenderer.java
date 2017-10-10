@@ -30,15 +30,23 @@ public class ARRenderer extends View {
     private static final int Y = 1;
     private static final int Z = 2;
     private static final int W = 3;
+    // offset for the username height
     private static final int NAME_HEIGHT_OFFSET = 80;
+    // offset for the username width
     private static final int NAME_WIDTH_OFFSET = 15;
+    // When the user has no profile picture/callback hasn't returned, we render a temporary
+    // circle with this radius as replacement for the profile picture
     private static final int DEFAULT_CIRCLE_RADIUS = 30;
+    // offset for conversion in camera to screen space
     private static final float OFFSET = .5f;
-    private static final int GUIDE_OFFSET = 31;      // offset for the guide artefact
+    // offset for the guide artefact
+    private static final int GUIDE_OFFSET = 31;
+    // when drawing the guide, offset the image away from the arrow
     private static final int IMAGE_OFFSET = 100;
     private ARActivity arActivity;
-    private Paint defaultPaintCircle;
+    private Paint namePaint;
     private Paint arrowPaint;
+    private Paint profilePicturePaint;
 
     private enum Direction {
         UP, DOWN, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BTM_LEFT, BTM_RIGHT
@@ -49,20 +57,9 @@ public class ARRenderer extends View {
         super(context);
         // this is dangerous, but we're sure that only ARActivity is using this ARRenderer for now
         this.arActivity = (ARActivity) context;
-
-        // default dot if user's profile picture isn't available
-        this.defaultPaintCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.defaultPaintCircle.setStyle(Paint.Style.FILL_AND_STROKE);
-        this.defaultPaintCircle.setColor(ColourScheme.PRIMARY_DARK);
-        this.defaultPaintCircle.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        this.defaultPaintCircle.setTextSize(60);
-
-        // set default arrow paint
-        this.arrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.arrowPaint.setStyle(Paint.Style.FILL);
-        this.arrowPaint.setColor(ColourScheme.PRIMARY_DARK);
-        this.arrowPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-        this.arrowPaint.setTextSize(160);
+        setupArrowPaint();
+        setupNamePaint();
+        setupProfilePicturePaint();
     }
 
 
@@ -91,7 +88,7 @@ public class ARRenderer extends View {
     public void updateLocation(LocationEvent locationEvent) {
         if (locationEvent.getKey().equals(PeachServerInterface.currentUser())) {
             // it's this device's location's update
-            Log.e(TAG, "You updated location to" + locationEvent.getValue());
+            Log.i(TAG, "You updated location to" + locationEvent.getValue());
             this.currentLocation = new Location(locationEvent.getValue());
         } else {
             // find the tracking point and update that point's location
@@ -101,7 +98,7 @@ public class ARRenderer extends View {
             for (ARTrackerBeacon trackerBeacon : trackers) {
                 if (trackerBeacon.getUser().equals(updatedUserLocation)) {
                     trackerBeacon.updateLocation(locationEvent.getValue());
-                    Log.e(TAG, "Friend updated location to" + locationEvent.getValue());
+                    Log.i(TAG, "Friend updated location to" + locationEvent.getValue());
                     break;
                 }
             }
@@ -140,6 +137,8 @@ public class ARRenderer extends View {
             float x = screenCoordinates[X];
             float y = screenCoordinates[Y];
 
+            // this happens if you're exactly at the target's location because the difference
+            // between you and target's ENU coordinate is 0
             if (Float.isNaN(x) || Float.isNaN(y)) {
                 this.arActivity.displayInfoHUD("You have arrived at " + target.getUserName()
                         + "'s location");
@@ -154,10 +153,10 @@ public class ARRenderer extends View {
             if (cameraCoordinates[Z] > 0) {
                 Bitmap profilePicture = target.getProfilePicture(this);
                 if (profilePicture != null) {
-                    canvas.drawBitmap(profilePicture, x, y, this.defaultPaintCircle);
+                    canvas.drawBitmap(profilePicture, x, y, this.profilePicturePaint);
                 } else {
                     // no profile picture available for this user (yet)
-                    canvas.drawCircle(x, y, DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+                    canvas.drawCircle(x, y, DEFAULT_CIRCLE_RADIUS, this.namePaint);
                 }
 
                 ////////////////////////////////////////
@@ -165,7 +164,7 @@ public class ARRenderer extends View {
                 ////////////////////////////////////////
                 canvas.drawText(target.getUserName(),
                         x - (NAME_WIDTH_OFFSET * target.getUserName().length() / 2),
-                        y - NAME_HEIGHT_OFFSET, this.defaultPaintCircle);
+                        y - NAME_HEIGHT_OFFSET, this.namePaint);
 
                 /* ************************************************************************
                  * if the x and y will not be seen in screen, render the guide instead!
@@ -238,7 +237,7 @@ public class ARRenderer extends View {
         float dy = 0;
         float xOffset = 0;
         float yOffset = 0;
-        String arrow = "<";
+        final String arrow = "<";
         float rotation = 0;
         switch (direction) {
             case UP:
@@ -298,21 +297,48 @@ public class ARRenderer extends View {
 //        canvas.drawText(userName,
 //                dx - (NAME_WIDTH_OFFSET * userName.length()/2),
 //                dy - NAME_HEIGHT_OFFSET,
-//                this.defaultPaintCircle);
+//                this.namePaint);
 
         canvas.save();
-        // - rotation because android uses positive clockwise system
+        // negative rotation because android uses positive clockwise system
         canvas.rotate(-rotation, dx, dy);
-        canvas.drawText(arrow, dx, dy, this.defaultPaintCircle);
+        canvas.drawText(arrow, dx, dy, this.arrowPaint);
         canvas.restore();
 
         Bitmap profilePicture = target.getProfilePicture(this);
         if (profilePicture != null) {
-            canvas.drawBitmap(profilePicture, dx + xOffset, dy + yOffset, this.defaultPaintCircle);
+            canvas.drawBitmap(profilePicture, dx + xOffset, dy + yOffset, this.profilePicturePaint);
         } else {
-            // no profile picture available for this user (yet)
-            canvas.drawCircle(dx + xOffset, dy + yOffset, DEFAULT_CIRCLE_RADIUS, this.defaultPaintCircle);
+            // no profile picture available for this user (yet) - draw a dot
+            canvas.drawCircle(dx + xOffset, dy + yOffset, DEFAULT_CIRCLE_RADIUS, this.namePaint);
         }
+    }
+
+    /**
+     * Username's paint style
+     */
+    private void setupNamePaint() {
+        this.namePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.namePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.namePaint.setColor(ColourScheme.PRIMARY_DARK);
+        this.namePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
+        this.namePaint.setTextSize(60);
+    }
+
+    /**
+     * Guide arrow's paint style
+     */
+    private void setupArrowPaint() {
+        // set default arrow paint
+        this.arrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.arrowPaint.setStyle(Paint.Style.FILL);
+        this.arrowPaint.setColor(ColourScheme.PRIMARY_DARK);
+        this.arrowPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        this.arrowPaint.setTextSize(160);
+    }
+
+    private void setupProfilePicturePaint() {
+        this.profilePicturePaint = new Paint();
     }
 
 }
