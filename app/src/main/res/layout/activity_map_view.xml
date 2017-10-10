@@ -5,14 +5,6 @@
     android:layout_height="match_parent"
     android:weightSum="1">
 
-    <com.comp30022.helium.strawberry.components.map.StrawberryMapWrapperLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map_relative_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".activities.MainActivity">
-
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:map="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
@@ -21,7 +13,5 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context="com.example.noxm.googlemapsexample.MapsActivity" />
-
-    </com.comp30022.helium.strawberry.components.map.StrawberryMapWrapperLayout>
 
 </LinearLayout>

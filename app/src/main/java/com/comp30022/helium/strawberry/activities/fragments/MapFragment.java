@@ -55,6 +55,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private String prevTransport = "";
     private StrawberryMap map;
     private SupportMapFragment mMapView;
+    private View view;
     private ViewGroup clickMenu;
     private TextView userName;
     private Button chatButtom;
@@ -82,7 +83,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_map, container, false);
+        this.view = inflater.inflate(R.layout.fragment_map, container, false);
+        Log.e(TAG, this.view.findViewById(R.id.map_wrapper_layout).getId() + " the id of the map_wrapper is");
 
         // find views
         mMapView = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -251,8 +253,10 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         refreshPath();
 
-        mapLayout = (StrawberryMapWrapperLayout)getView().findViewById(R.id.map_relative_layout);
-        mapLayout.init(map.getGoogleMap(),
+        mapLayout = (StrawberryMapWrapperLayout)view.findViewById(R.id.map_wrapper_layout);
+        Log.e(TAG, view.toString());
+        Log.e(TAG, view.findViewById(R.id.map_wrapper_layout).getId() + " is also here") ;
+        mapLayout.init(googleMap,
                 DisplayHelper.dpToPixel(MARKER_HEIGHT + OFFSET_FROM_MARKER, getContext()));
         map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override

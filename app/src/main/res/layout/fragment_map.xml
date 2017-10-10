@@ -1,18 +1,31 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.comp30022.helium.strawberry.activities.fragments.MapFragment">
 
-    <fragment
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <com.comp30022.helium.strawberry.components.map.StrawberryMapWrapperLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map_wrapper_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.example.noxm.googlemapsexample.MapsActivity"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/transport_stats" />
+        tools:context="com.comp30022.helium.strawberry.activities.fragments.MapFragment">
+
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="com.example.noxm.googlemapsexample.MapsActivity"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/transport_stats" />
+
+    </com.comp30022.helium.strawberry.components.map.StrawberryMapWrapperLayout>
+
 
     <LinearLayout
         android:id="@+id/transport_option"
