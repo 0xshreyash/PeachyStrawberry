@@ -7,6 +7,7 @@ import android.hardware.SensorManager;
 import android.opengl.Matrix;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -33,6 +34,7 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
     private float[] projectionMatrix = new float[16];
     private float[] rotatedMatrix = new float[16];
     private LocationService locationService = LocationService.getInstance();
+    private static final String TAG = ARActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +53,7 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         // init a new ARRenderer for AR display overlay
         this.arRenderer = new ARRenderer(this);
         // add currently selected user to track
-        User targetUser = User.getUser(StrawberryApplication.
-                getString(StrawberryApplication.SELECTED_USER_TAG));
-        ARTrackerBeacon target = new ARTrackerBeacon(targetUser);
-        this.arRenderer.addTracker(target);
-        // track this user!
-        locationService.addTracker(targetUser);
+        trackSelectedUser();
 
         // bind camera to container
         this.container.addView(this.cameraSurface);
@@ -143,4 +140,21 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
     private void setupInfoHUD() {
         this.infoHUD.setTextColor(ColourScheme.SECONDARY_DARK);
     }
+
+    private void trackSelectedUser() {
+        String selectedUser = StrawberryApplication.
+                getString(StrawberryApplication.SELECTED_USER_TAG);
+        if (selectedUser == null) {
+            Log.i(TAG, "No targeted user selected globally");
+            displayInfoHUD("Not tracking anyone. Select a user from the main menu!");
+        } else {
+            User targetUser = User.getUser(selectedUser);
+            ARTrackerBeacon target = new ARTrackerBeacon(targetUser);
+            this.arRenderer.addTracker(target);
+            // track this user!
+            locationService.addTracker(targetUser);
+            Log.i(TAG, "Tracking: " + selectedUser);
+        }
+    }
+
 }

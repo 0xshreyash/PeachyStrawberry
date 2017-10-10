@@ -69,6 +69,7 @@ public class ARRenderer extends View {
         super(context);
         // this is dangerous, but we're sure that only ARActivity is using this ARRenderer for now
         this.arActivity = (ARActivity) context;
+        this.trackers = new ArrayList<>();
         setupArrowPaint();
         setupNamePaint();
         setupProfilePicturePaint();
@@ -82,13 +83,7 @@ public class ARRenderer extends View {
 
     public void addTracker(final ARTrackerBeacon tracker) {
         // add to the list of tracking points we want to track and render on screen
-        if (this.trackers != null) {
-            this.trackers.add(tracker);
-        } else {
-            this.trackers = new ArrayList<ARTrackerBeacon>() {{
-                add(new ARTrackerBeacon(tracker));
-            }};
-        }
+        this.trackers.add(tracker);
     }
 
     public void updateProjectionMatrix(float[] newProjectionMatrix) {
