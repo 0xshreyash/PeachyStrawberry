@@ -44,6 +44,8 @@ public class StrawberryMap {
         this.mapFragment = mapFragment;
         this.markers = new HashMap<>();
         this.paths = new HashMap<>();
+        googleMap.getUiSettings().setMapToolbarEnabled(false);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override

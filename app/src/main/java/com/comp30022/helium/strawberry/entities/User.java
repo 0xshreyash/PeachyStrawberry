@@ -11,7 +11,8 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.exceptions.FacebookIdNotSetException;
-import com.comp30022.helium.strawberry.helpers.ImageCache;
+import com.comp30022.helium.strawberry.helpers.Cache.ImageCache;
+import com.comp30022.helium.strawberry.helpers.Cache.UserCache;
 import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
 
 import org.json.JSONException;
@@ -20,54 +21,99 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 
 public class User {
     private String id, username, facebookId;
 //    private HashMap<ProfilePictureType, Bitmap> fbPictures = new HashMap<>();
 
-    public User(String id) {
+    public static User getUser(String id) {
+        UserCache userCache = UserCache.getInstance();
+        if(userCache.get(id) != null)
+            userCache.get(id);
+
+        User user = new User(id);
+        userCache.put(id, user);
+        return user;
+    }
+
+    public static User getUser(String id, String username) {
+        UserCache userCache = UserCache.getInstance();
+        if(userCache.get(id) != null)
+            userCache.get(id);
+
+        User user = new User(id, username);
+        userCache.put(id, user);
+        return user;
+    }
+
+    public static User getUser(String id, String username, String facebookId) {
+        UserCache userCache = UserCache.getInstance();
+        if(userCache.get(id) != null)
+            userCache.get(id);
+
+        User user = new User(id, username, facebookId);
+        userCache.put(id, user);
+        return user;
+    }
+
+    private User(String id) {
         this.id = id;
         this.username = "";
         this.facebookId = "";
         updateUserInfo();
     }
 
-    public User(String id, String username) {
+    private User(String id, String username) {
         this.id = id;
         this.username = username;
         this.facebookId = "";
         updateUserInfo();
     }
 
-    public User(String id, String username, String facebookId) {
+    private User(String id, String username, String facebookId) {
         this.id = id;
         this.username = username;
         this.facebookId = facebookId;
     }
 
     private void updateUserInfo() {
-        try {
-            PeachServerInterface.getInstance().getUser(id, new StrawberryListener(new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    try {
-                        JSONObject self = new JSONObject(response.toString());
-                        username = self.get("username").toString();
-                        facebookId = self.get("facebookId").toString();
-                        Log.d("PeachUser", "Username updated to " + username);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, null));
+        Log.d("PeachUser", "update user info from init");
+        UserCache userCache = UserCache.getInstance();
 
-        } catch (NotInstantiatedException | InstanceExpiredException e) {
-            e.printStackTrace();
+        User self = userCache.get(id);
+        if(self != null) {
+            if(self.getFacebookId().length() > 0) {
+                this.facebookId = self.getFacebookId();
+            }
+
+            if(self.getUsername().length() > 0) {
+                this.username = self.getUsername();
+            }
         }
+
+        if(facebookId.length() == 0 || username.length() == 0)
+            try {
+                PeachServerInterface.getInstance().getUser(id, new StrawberryListener(new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject self = new JSONObject(response.toString());
+                            username = self.get("username").toString();
+                            facebookId = self.get("facebookId").toString();
+                            Log.d("PeachUser", "Username updated to " + username);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, null));
+
+            } catch (NotInstantiatedException | InstanceExpiredException e) {
+                e.printStackTrace();
+            }
     }
 
     public void updateUserInfo(final StrawberryCallback<String> callback) {
+        Log.d("PeachUser", "update user info from getfbid");
         try {
             PeachServerInterface.getInstance().getUser(id, new StrawberryListener(new Response.Listener<String>() {
                 @Override
@@ -139,13 +185,13 @@ public class User {
         String parts[] = str.split(" ");
 
         if (parts.length == 1) {
-            return new User(parts[0]);
+            return getUser(parts[0]);
 
         } else if (parts.length == 2) {
-            return new User(parts[0], parts[1]);
+            return getUser(parts[0], parts[1]);
 
         } else if (parts.length == 3) {
-            return new User(parts[0], parts[1], parts[2]);
+            return getUser(parts[0], parts[1], parts[2]);
         }
 
         return null;

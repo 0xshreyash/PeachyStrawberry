@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.LinearLayout;
 
 import com.android.volley.Response;
 import com.comp30022.helium.strawberry.R;
@@ -21,12 +21,16 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.patterns.Event;
+import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,13 +41,12 @@ import java.util.TimerTask;
  * for you to write messages.
  * RecyclerView is used because it is standard in chat applications.
  */
-public class ChatFragment extends Fragment {
-
-    /* Recycler view contains all the messages */
+public class ChatFragment extends Fragment implements Subscriber<Event> {
     private static final int QUERY_TIME_SECS = 3;
+    private static final int BG_QUERY_TIME_SECS = 30;
     private static final String TAG = "StrawberryChat";
-    private static final long RECENT_TIME = 86400000; // 1 day
     private RecyclerView mMessageRecycler;
+    private View loadingLayout, emptyLayout;
 
     boolean blockNotify;
     private Timer timer;
@@ -52,15 +55,16 @@ public class ChatFragment extends Fragment {
     List<Message> messages;
     private MessageListAdapter mMessageAdapter;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        StrawberryApplication.registerSubscriber(this);
         messages = new ArrayList<>();
         blockNotify = true;
 
         me = PeachServerInterface.currentUser();
+
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
-        friend = new User(selectedId);
+        friend = User.getUser(selectedId);
 
         //TODO: update later to STOMP
         timer = new Timer();
@@ -70,17 +74,18 @@ public class ChatFragment extends Fragment {
         //setContentView(R.layout.activity_chat);
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_chat, null);
         Button button = (Button) view.findViewById(R.id.button_chatbox_send);
-        button.setOnClickListener(new View.OnClickListener()
-        {
+
+        loadingLayout = view.findViewById(R.id.load_message_layout);
+        emptyLayout = view.findViewById(R.id.no_message_layout);
+
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 clickSend();
             }
         });
@@ -88,8 +93,7 @@ public class ChatFragment extends Fragment {
     }
 
     public void onViewCreated(View view, Bundle savedInstance) {
-
-        mMessageRecycler = (RecyclerView)view.findViewById(R.id.reyclerview_message_list);
+        mMessageRecycler = (RecyclerView) view.findViewById(R.id.reyclerview_message_list);
         setRecyclerProperties();
     }
 
@@ -98,8 +102,7 @@ public class ChatFragment extends Fragment {
      * messages.
      */
     public void setRecyclerProperties() {
-
-        mMessageAdapter = new MessageListAdapter(getContext(), messages);
+        mMessageAdapter = new MessageListAdapter(this, messages);
         mMessageRecycler.setAdapter(mMessageAdapter);
         mMessageRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
     }
@@ -107,6 +110,9 @@ public class ChatFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        timer.cancel();
+        timer.purge();
+
         timer = new Timer();
         timer.scheduleAtFixedRate(getChatQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
     }
@@ -115,43 +121,88 @@ public class ChatFragment extends Fragment {
     public void onPause() {
         super.onPause();
         timer.cancel();
-        timer = null;
+        timer.purge();
+
+        timer = new Timer();
+        timer.scheduleAtFixedRate(getChatQueryTimerTask(), 0, BG_QUERY_TIME_SECS * 1000);
+    }
+
+    private void parseAndSaveChatLog(JSONArray chats) {
+        Log.d(TAG, chats.toString());
+        try {
+            for (int i = 0; i < chats.length(); i++) {
+                JSONObject chat = new JSONObject(chats.get(i).toString());
+
+                User sender, receiver;
+                if (chat.get("from").equals(me.getId()))
+                    sender = me;
+                else
+                    sender = User.getUser(chat.getString("from"));
+
+                if (chat.get("to").equals(me.getId()))
+                    receiver = me;
+                else
+                    receiver = User.getUser(chat.getString("to"));
+
+                updateMessage(new Message(chat.getString("message"), sender, receiver, chat.getLong("timestamp")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void hideLoading(boolean b) {
+        loadingLayout.setVisibility(b ? View.GONE : View.VISIBLE);
+    }
+
+    private void showEmpty(boolean b) {
+        emptyLayout.setVisibility(b ? View.VISIBLE : View.GONE);
     }
 
     /**
      * Gets the chat from the server
      */
+
     private void queryChat() {
+        if (friend == null || friend.getId() == null)
+            return;
         try {
-            PeachServerInterface.getInstance().getChatLog(friend, recentTime(),
-                    new StrawberryListener(new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    try {
-                        JSONArray chats = new JSONArray(response);
-                        Log.d(TAG, chats.toString());
-                        for (int i = 0; i < chats.length(); i++) {
-                            JSONObject chat = new JSONObject(chats.get(i).toString());
-                            User sender;
-
-                            if (chat.get("from").equals(me.getId()))
-                                sender = me;
-                            else
-                                sender = friend;
-                            updateMessage(new Message(chat.getString("message"), sender,
-                                    chat.getLong("timestamp")));
+            if (messages.isEmpty()) {
+                PeachServerInterface.getInstance().getRecentChatLog(friend, new StrawberryListener(new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray chats = new JSONArray(response);
+                            hideLoading(true);
+                            parseAndSaveChatLog(chats);
+//                                    blockNotify = false;
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                        blockNotify = false;
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
-                }
-            }, null));
+                }, null));
+
+            } else {
+                Long time = messages.get(messages.size() - 1).getCreatedAt();
+                PeachServerInterface.getInstance().getChatLog(friend, time, new StrawberryListener(new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            hideLoading(true);
+                            JSONArray chats = new JSONArray(response);
+                            parseAndSaveChatLog(chats);
+//                                    blockNotify = false;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, null));
+            }
 
         } catch (NotInstantiatedException | InstanceExpiredException e) {
             e.printStackTrace();
         }
+
     }
 
     public TimerTask getChatQueryTimerTask() {
@@ -166,42 +217,51 @@ public class ChatFragment extends Fragment {
 
     /**
      * Updates a message
+     *
      * @param message messsage to be updated
      */
     private void updateMessage(Message message) {
-        if (!messages.contains(message)) {
+        if ((
+                message.getSender().getId().equals(friend.getId()) ||
+                        (message.getSender().getId().equals(me.getId()) && message.getReceiver().getId().equals(friend.getId()))
+        ) && !messages.contains(message)) {
             messages.add(message);
+            Log.d(TAG, message + " updated");
+
+            Collections.sort(messages, new Comparator<Message>() {
+                @Override
+                public int compare(Message m1, Message m2) {
+                    if (m1.getCreatedAt() < m2.getCreatedAt())
+                        return -1;
+                    if (m1.getCreatedAt() > m2.getCreatedAt())
+                        return 1;
+                    return 0;
+                }
+            });
 
             // update view
             setRecyclerProperties();
             mMessageRecycler.scrollToPosition(messages.size() - 1);
 
             // notify
-            if (!blockNotify) {
-                if (!message.getSender().getId().equals(me.getId())) {
-                    Toast toast = Toast.makeText(this.getContext(), friend.getUsername() + ": " +
-                            message.getMessage(), Toast.LENGTH_SHORT);
-                    toast.show();
-                }
-            }
+//            if (!blockNotify) {
+//                if (!message.getSender().getId().equals(me.getId())) {
+//                    Toast toast = Toast.makeText(this.getContext(), friend.getUsername() + ": " +
+//                            message.getMessage(), Toast.LENGTH_SHORT);
+//                    toast.show();
+//                }
+//            }
         }
-    }
 
-    /**
-     * Gets the most recennt time
-     * @return time as long
-     */
-    private Long recentTime() {
-        return System.currentTimeMillis() - RECENT_TIME;
+        showEmpty(messages.size() == 0);
     }
 
     /**
      * Called when the Send button is pressed.
      */
     public void clickSend() {
-
         //Log.e(TAG, view.toString());
-        EditText editText = (EditText)this.getView().findViewById(R.id.edittext_chatbox);
+        EditText editText = (EditText) this.getView().findViewById(R.id.edittext_chatbox);
 
         String message = editText.getText().toString();
         Log.d(TAG, "sending " + message);
@@ -210,15 +270,29 @@ public class ChatFragment extends Fragment {
             try {
                 PeachServerInterface.getInstance().postChat(message, friend.getId(),
                         new StrawberryListener(new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        queryChat();
-                    }
-                }, null));
+                            @Override
+                            public void onResponse(String response) {
+                                queryChat();
+                            }
+                        }, null));
             } catch (NotInstantiatedException | InstanceExpiredException e) {
                 e.printStackTrace();
             }
             editText.getText().clear();
+        }
+    }
+
+    @Override
+    public void update(Event info) {
+        if (info instanceof StrawberryApplication.GlobalVariableChangeEvent) {
+            StrawberryApplication.GlobalVariableChangeEvent event = (StrawberryApplication.GlobalVariableChangeEvent) info;
+            if (event.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {
+                friend = User.getUser((String) event.getValue());
+                messages = new ArrayList<>();
+                showEmpty(false);
+                hideLoading(false);
+                setRecyclerProperties();
+            }
         }
     }
 }

@@ -11,15 +11,28 @@ import com.android.volley.VolleyError;
 
 public class StrawberryListener {
     private static final String TAG = StrawberryListener.class.getSimpleName();
+    private static final String UNKNOWN_ORIGIN = "UNKNOWN_ORIGIN";
 
     private Response.Listener<String> success = null;
     private Response.ErrorListener error = null;
+    private String origin;
 
     public StrawberryListener() {
+        this.origin = UNKNOWN_ORIGIN;
+    }
 
+    public StrawberryListener(String origin) {
+        this.origin = origin;
     }
 
     public StrawberryListener(Response.Listener<String> success, Response.ErrorListener error) {
+        this.origin = UNKNOWN_ORIGIN;
+        this.success = success;
+        this.error = error;
+    }
+
+    public StrawberryListener(String origin, Response.Listener<String> success, Response.ErrorListener error) {
+        this.origin = origin;
         this.success = success;
         this.error = error;
     }
@@ -29,7 +42,7 @@ public class StrawberryListener {
             return new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    Log.d(TAG, response);
+                    Log.d(TAG, origin + " " + response);
                 }
             };
 
@@ -47,16 +60,21 @@ public class StrawberryListener {
                             String data = new String(error.networkResponse.data);
 
                             Log.e(TAG, msg);
-                            Log.d(TAG, 1 + " ERROR: " + msg + "\n" + data);
+                            Log.d(TAG, origin + " ERROR: " + msg + "\n" + data);
+
                         } catch (Exception e) {
-                            Log.e(TAG, "Volley error");
+                            Log.e(TAG, "Volley error: " + origin + " " + e.getMessage());
                         }
                     } else {
-                        Log.e(TAG, "Unknown error");
+                        Log.e(TAG, "Unknown error: " + origin);
                     }
                 }
             };
 
         return error;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
     }
 }

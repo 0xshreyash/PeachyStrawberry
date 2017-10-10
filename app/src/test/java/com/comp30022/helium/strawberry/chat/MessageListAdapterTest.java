@@ -68,13 +68,14 @@ public class MessageListAdapterTest {
         mockStatic(Log.class);
         mockStatic(FriendListAdapter.class);
         List<Message> messages = new ArrayList<>();
-        User one = new User("123", "Shreyash");
-        User two= new User("345", "Michael");
-        messages.add(new Message("Hey how are you", one, 12345677));
-        messages.add(new Message("I am good as good can be ", one, 12345699));
+        User one = User.getUser("123", "Shreyash");
+        User two= User.getUser("345", "Michael");
+        messages.add(new Message("Hey how are you", one, null, 12345677));
+        messages.add(new Message("I am good as good can be ", one, null, 12345699));
         //mockStatic(FacebookFragment.class);
         mockContext = new MockContext();
-        mockAdapter = new MessageListAdapter(mockContext, messages);
+        //TODO: changed to null here
+        mockAdapter = new MessageListAdapter(null, messages);
     }
 
     /**
@@ -88,8 +89,8 @@ public class MessageListAdapterTest {
 
     @Test
     public void testItemCountTwo() {
-        MessageListAdapter emptyAdapter = new MessageListAdapter(mockContext,
-                new ArrayList<Message>());
+        //TODO: changed to null here
+        MessageListAdapter emptyAdapter = new MessageListAdapter(null, new ArrayList<Message>());
         assertEquals(0, emptyAdapter.getItemCount());
     }
 
