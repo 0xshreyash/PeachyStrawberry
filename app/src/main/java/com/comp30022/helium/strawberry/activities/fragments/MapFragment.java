@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.location.LocationService;
+import com.comp30022.helium.strawberry.components.map.helpers.MenuItemTouchListener;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
@@ -18,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -49,6 +51,12 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private String prevTransport = "";
     private StrawberryMap map;
     private SupportMapFragment mMapView;
+    private ViewGroup clickMenu;
+    private TextView userName;
+    private Button chat;
+    private Button ar;
+    private MenuItemTouchListener chatListener;
+    private MenuItemTouchListener arListener;
 
     private ImageButton drive, walk, bicycle, transit, lastChanged;
 
@@ -121,7 +129,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        this.clickMenu = (ViewGroup)inflater.inflate(R.layout.marker_click_menu, null));
         mMapView.getMapAsync(this);
         return view;
     }
