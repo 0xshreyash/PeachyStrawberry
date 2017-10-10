@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.location.LocationService;
+import com.comp30022.helium.strawberry.components.map.StrawberryMapWrapperLayout;
 import com.comp30022.helium.strawberry.components.map.helpers.MenuItemTouchListener;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
@@ -23,6 +24,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
@@ -30,12 +32,14 @@ import com.comp30022.helium.strawberry.components.location.LocationServiceFragme
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
 import com.comp30022.helium.strawberry.entities.exceptions.FacebookIdNotSetException;
 import com.comp30022.helium.strawberry.helpers.BitmapHelper;
+import com.comp30022.helium.strawberry.helpers.DisplayHelper;
 import com.comp30022.helium.strawberry.helpers.LocationHelper;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 
 import java.net.MalformedURLException;
 
@@ -53,10 +57,11 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private SupportMapFragment mMapView;
     private ViewGroup clickMenu;
     private TextView userName;
-    private Button chat;
-    private Button ar;
+    private Button chatButtom;
+    private Button arButton;
     private MenuItemTouchListener chatListener;
     private MenuItemTouchListener arListener;
+    private StrawberryMapWrapperLayout mapLayout;
 
     private ImageButton drive, walk, bicycle, transit, lastChanged;
 
@@ -68,6 +73,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private boolean firstMove = true;
     private Location lastPathUpdateLocationUser = null;
     private Location lastPathUpdateLocationFriend = null;
+    private int MARKER_HEIGHT = 40;
+    private int OFFSET_FROM_MARKER = 20;
 
     public MapFragment() {
         // Required empty public constructor
@@ -129,7 +136,26 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.clickMenu = (ViewGroup)inflater.inflate(R.layout.marker_click_menu, null));
+        this.clickMenu = (ViewGroup)inflater.inflate(R.layout.marker_click_menu, null);
+        this.userName = (TextView)clickMenu.findViewById(R.id.friend_name);
+        this.arButton = (Button) clickMenu.findViewById(R.id.button_ar);
+        this.chatButtom = (Button) clickMenu.findViewById(R.id.button_chat);
+
+        this.chatListener = new MenuItemTouchListener(clickMenu) {
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                Toast.makeText(getContext(), marker.getTitle() + " chat was clicked", Toast.LENGTH_LONG).show();
+            }
+        };
+        this.chatButtom.setOnTouchListener(chatListener);
+        this.arListener = new MenuItemTouchListener(clickMenu) {
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                Toast.makeText(getContext(), marker.getTitle() + " ar was clicked", Toast.LENGTH_LONG).show();
+            }
+        };
+        this.arButton.setOnTouchListener(arListener);
+
         mMapView.getMapAsync(this);
         return view;
     }
@@ -224,6 +250,30 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         }
 
         refreshPath();
+
+        mapLayout = (StrawberryMapWrapperLayout)getView().findViewById(R.id.map_relative_layout);
+        mapLayout.init(map.getGoogleMap(),
+                DisplayHelper.dpToPixel(MARKER_HEIGHT + OFFSET_FROM_MARKER, getContext()));
+        map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                // Setting up the infoWindow with current's marker info
+                userName.setText(marker.getTitle());
+                chatListener.setMarker(marker);
+                arListener.setMarker(marker);
+
+                // We must call this to set the current marker and infoWindow references
+                // to the MapWrapperLayout
+                mapLayout.setMarkerWithInfoWindow(marker, clickMenu);
+                return clickMenu;
+            }
+        });
+
     }
 
     public void refreshPath() {

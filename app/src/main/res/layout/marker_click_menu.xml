@@ -22,7 +22,7 @@
         android:textSize="15dp"/>
 
     <Button
-        android:id="@+id/button_map"
+        android:id="@+id/button_ar"
         android:layout_width="fill_parent"
         android:layout_height="25dp"
         android:layout_weight="1"

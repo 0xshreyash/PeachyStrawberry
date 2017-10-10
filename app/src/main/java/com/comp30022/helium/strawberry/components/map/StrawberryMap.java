@@ -245,4 +245,12 @@ public class StrawberryMap {
             }
         });
     }
+
+    public GoogleMap getGoogleMap() {
+        return googleMap;
+    }
+
+    public void setInfoWindowAdapter(GoogleMap.InfoWindowAdapter infoWindowAdapter) {
+        googleMap.setInfoWindowAdapter(infoWindowAdapter);
+    }
 }
