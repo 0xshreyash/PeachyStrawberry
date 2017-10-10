@@ -26,14 +26,16 @@ public class ARRenderer extends View {
     private static final String TAG = ARRenderer.class.getSimpleName();
     private List<ARTrackerBeacon> trackers;
     private Location currentLocation;
+    // index values for camera coordinates float[]{x,y,z,w}
     private static final int X = 0;
     private static final int Y = 1;
     private static final int Z = 2;
     private static final int W = 3;
+
     // offset for the username height
-    private static final int NAME_HEIGHT_OFFSET = 80;
+    private static final int NAME_HEIGHT_OFFSET = 70;
     // offset for the username width
-    private static final int NAME_WIDTH_OFFSET = 15;
+    private static final int NAME_WIDTH_OFFSET = 7;
     // When the user has no profile picture/callback hasn't returned, we render a temporary
     // circle with this radius as replacement for the profile picture
     private static final int DEFAULT_CIRCLE_RADIUS = 30;
@@ -43,6 +45,16 @@ public class ARRenderer extends View {
     private static final int GUIDE_OFFSET = 31;
     // when drawing the guide, offset the image away from the arrow
     private static final int IMAGE_OFFSET = 100;
+
+    /* The following offsets are for visual treats, they make the cropped profile picture align well
+            with the guide arrow. The values are determined by eye. */
+    private static final int LEFT_IMAGE_OFFSET = 60;
+    private static final int RIGHT_IMAGE_OFFSET = 30;
+    private static final int BTM_LEFT_IMAGE_OFFSET = RIGHT_IMAGE_OFFSET;
+    private static final int BTM_IMAGE_OFFSET = 50;
+    private static final int TOP_LEFT_IMAGE_OFFSET = 60;
+    private static final int BTM_RIGHT_IMAGE_OFFSET = 30;
+
     private ARActivity arActivity;
     private Paint namePaint;
     private Paint arrowPaint;
@@ -149,9 +161,9 @@ public class ARRenderer extends View {
                 this.arActivity.displayInfoHUD(formatted);
             }
 
-            // if the point is infront of us ==> i.e. we should render it!
+            // if the point is in front of us ==> i.e. we should render it!
             if (cameraCoordinates[Z] > 0) {
-                Bitmap profilePicture = target.getProfilePicture(this);
+                Bitmap profilePicture = target.getProfilePicture(this, false);
                 if (profilePicture != null) {
                     canvas.drawBitmap(profilePicture, x, y, this.profilePicturePaint);
                 } else {
@@ -250,25 +262,28 @@ public class ARRenderer extends View {
                 dx = x;
                 dy = canvas.getHeight() - GUIDE_OFFSET;
                 rotation = 90;
-                yOffset = -IMAGE_OFFSET;
+                yOffset = -(IMAGE_OFFSET + BTM_IMAGE_OFFSET);
+                xOffset = -BTM_IMAGE_OFFSET;
                 break;
             case LEFT:
                 dx = GUIDE_OFFSET;
                 dy = y;
                 rotation = 0;
                 xOffset = IMAGE_OFFSET;
+                yOffset = -LEFT_IMAGE_OFFSET;
                 break;
             case RIGHT:
                 dx = canvas.getWidth() - GUIDE_OFFSET;
                 dy = y;
                 rotation = 180;
-                xOffset = -IMAGE_OFFSET;
+                xOffset = -(IMAGE_OFFSET + RIGHT_IMAGE_OFFSET);
                 break;
             case TOP_LEFT:
                 dx = GUIDE_OFFSET;
                 dy = GUIDE_OFFSET;
                 rotation = -45;
-                xOffset = yOffset = IMAGE_OFFSET;
+                xOffset = IMAGE_OFFSET - TOP_LEFT_IMAGE_OFFSET/2;
+                yOffset = IMAGE_OFFSET - TOP_LEFT_IMAGE_OFFSET;
                 break;
             case TOP_RIGHT:
                 dx = canvas.getWidth() - GUIDE_OFFSET;
@@ -281,15 +296,15 @@ public class ARRenderer extends View {
                 dx = GUIDE_OFFSET;
                 dy = canvas.getHeight() - GUIDE_OFFSET;
                 rotation = 45;
-                xOffset = IMAGE_OFFSET;
-                yOffset = -IMAGE_OFFSET;
+                xOffset = IMAGE_OFFSET - BTM_LEFT_IMAGE_OFFSET*2;
+                yOffset = -IMAGE_OFFSET - BTM_LEFT_IMAGE_OFFSET;
                 break;
             case BTM_RIGHT:
                 dx = canvas.getWidth() - GUIDE_OFFSET;
                 dy = canvas.getHeight() - GUIDE_OFFSET;
                 rotation = 135;
-                xOffset = -IMAGE_OFFSET;
-                yOffset = -IMAGE_OFFSET;
+                xOffset = -(IMAGE_OFFSET + BTM_RIGHT_IMAGE_OFFSET);
+                yOffset = -IMAGE_OFFSET + BTM_RIGHT_IMAGE_OFFSET;
                 break;
         }
 
@@ -305,7 +320,7 @@ public class ARRenderer extends View {
         canvas.drawText(arrow, dx, dy, this.arrowPaint);
         canvas.restore();
 
-        Bitmap profilePicture = target.getProfilePicture(this);
+        Bitmap profilePicture = target.getProfilePicture(this, true);
         if (profilePicture != null) {
             canvas.drawBitmap(profilePicture, dx + xOffset, dy + yOffset, this.profilePicturePaint);
         } else {
@@ -334,7 +349,7 @@ public class ARRenderer extends View {
         this.arrowPaint.setStyle(Paint.Style.FILL);
         this.arrowPaint.setColor(ColourScheme.PRIMARY_DARK);
         this.arrowPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-        this.arrowPaint.setTextSize(160);
+        this.arrowPaint.setTextSize(120);
     }
 
     private void setupProfilePicturePaint() {

@@ -15,7 +15,8 @@ import java.net.MalformedURLException;
 public class ARTrackerBeacon {
     private User user;
     private Location location;
-    private Bitmap profilePicture;
+    private Bitmap bigProfilePicture;
+    private Bitmap smallprofilePicture;
     private static final String TAG = ARTrackerBeacon.class.getSimpleName();
 
     public ARTrackerBeacon(User user) {
@@ -40,31 +41,40 @@ public class ARTrackerBeacon {
         return user.getUsername();
     }
 
-    public Bitmap getProfilePicture(final ARRenderer context) {
-        if (profilePicture == null) {
-            StrawberryCallback<Bitmap> callback = new StrawberryCallback<Bitmap>() {
-                @Override
-                public void run(Bitmap bitmap) {
-                    profilePicture = BitmapHelper.makeCircular(bitmap);
-                    context.getArActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // redraw the image since we've just received the profile picture
-                            context.invalidate();
-                        }
-                    });
-                }
-            };
-            try {
-                user.getFbPicture(User.ProfilePictureType.LARGE, callback);
-            } catch (FacebookIdNotSetException | MalformedURLException e) {
-                Log.e(TAG, e.toString());
-            }
-            return null;
-        } else {
-            return profilePicture;
+    public Bitmap getProfilePicture(final ARRenderer context, final boolean small) {
+        if (small && smallprofilePicture != null) {
+            return smallprofilePicture;
         }
+        if (!small && bigProfilePicture != null) {
+            return bigProfilePicture;
+        }
+        StrawberryCallback<Bitmap> callback = new StrawberryCallback<Bitmap>() {
+            @Override
+            public void run(Bitmap bitmap) {
+                if (small) {
+                    smallprofilePicture = BitmapHelper.makeCircular(bitmap);
+                } else {
+                    bigProfilePicture = BitmapHelper.makeCircular(bitmap);
+                }
+                context.getArActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // redraw the image since we've just received the profile picture
+                        context.invalidate();
+                    }
+                });
+            }
+        };
+        try {
+            User.ProfilePictureType profilePictureSize = small ? User.ProfilePictureType.SMALL :
+                    User.ProfilePictureType.LARGE;
+            user.getFbPicture(profilePictureSize, callback);
+        } catch (FacebookIdNotSetException | MalformedURLException e) {
+            Log.e(TAG, e.toString());
+        }
+        return null;
     }
+
 
     public User getUser() {
         return user;
