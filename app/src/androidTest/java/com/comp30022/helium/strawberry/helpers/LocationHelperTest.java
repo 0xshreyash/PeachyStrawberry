@@ -1,18 +1,21 @@
-package com.comp30022.helium.strawberry;
+package com.comp30022.helium.strawberry.helpers;
 
 
 import android.location.Location;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.comp30022.helium.strawberry.helpers.LocationHelper;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
 /**
  * Created by jjjjessie on 7/10/17.
  */
+@RunWith(AndroidJUnit4.class)
 public class LocationHelperTest {
     private Double EPSILON = 0.000001;
 
@@ -31,7 +34,7 @@ public class LocationHelperTest {
     }
 
     @Test
-    public void locationToString() throws Exception {
+    public void locationToString_isValid() throws Exception {
         String result;
         result = mockLocationHelper.locationToString(mockLocation);
         String ans = "20.0 200.0";
@@ -39,7 +42,7 @@ public class LocationHelperTest {
     }
 
     @Test
-    public void stringToLocation() throws Exception {
+    public void stringToLocation_isValid() throws Exception {
         String test = "20.0 200.0";
         Location result;
         result = mockLocationHelper.stringToLocation(test);

@@ -11,8 +11,8 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.exceptions.FacebookIdNotSetException;
-import com.comp30022.helium.strawberry.helpers.Cache.ImageCache;
-import com.comp30022.helium.strawberry.helpers.Cache.UserCache;
+import com.comp30022.helium.strawberry.entities.cache.ImageCache;
+import com.comp30022.helium.strawberry.entities.cache.UserCache;
 import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
 
 import org.json.JSONException;
@@ -28,7 +28,7 @@ public class User {
 
     public static User getUser(String id) {
         UserCache userCache = UserCache.getInstance();
-        if(userCache.get(id) != null)
+        if (userCache.get(id) != null)
             userCache.get(id);
 
         User user = new User(id);
@@ -38,7 +38,7 @@ public class User {
 
     public static User getUser(String id, String username) {
         UserCache userCache = UserCache.getInstance();
-        if(userCache.get(id) != null)
+        if (userCache.get(id) != null)
             userCache.get(id);
 
         User user = new User(id, username);
@@ -48,7 +48,7 @@ public class User {
 
     public static User getUser(String id, String username, String facebookId) {
         UserCache userCache = UserCache.getInstance();
-        if(userCache.get(id) != null)
+        if (userCache.get(id) != null)
             userCache.get(id);
 
         User user = new User(id, username, facebookId);
@@ -56,42 +56,42 @@ public class User {
         return user;
     }
 
-    private User(String id) {
+    protected User(String id) {
         this.id = id;
         this.username = "";
         this.facebookId = "";
         updateUserInfo();
     }
 
-    private User(String id, String username) {
+    protected User(String id, String username) {
         this.id = id;
         this.username = username;
         this.facebookId = "";
         updateUserInfo();
     }
 
-    private User(String id, String username, String facebookId) {
+    protected User(String id, String username, String facebookId) {
         this.id = id;
         this.username = username;
         this.facebookId = facebookId;
     }
 
-    private void updateUserInfo() {
+    protected void updateUserInfo() {
         Log.d("PeachUser", "update user info from init");
         UserCache userCache = UserCache.getInstance();
 
         User self = userCache.get(id);
-        if(self != null) {
-            if(self.getFacebookId().length() > 0) {
+        if (self != null) {
+            if (self.getFacebookId().length() > 0) {
                 this.facebookId = self.getFacebookId();
             }
 
-            if(self.getUsername().length() > 0) {
+            if (self.getUsername().length() > 0) {
                 this.username = self.getUsername();
             }
         }
 
-        if(facebookId.length() == 0 || username.length() == 0)
+        if (facebookId.length() == 0 || username.length() == 0)
             try {
                 PeachServerInterface.getInstance().getUser(id, new StrawberryListener(new Response.Listener<String>() {
                     @Override
@@ -204,7 +204,7 @@ public class User {
 //        }
 
         Bitmap cache = ImageCache.getInstance().get(id + type.toString());
-        if(cache != null) {
+        if (cache != null) {
             callback.run(cache);
             return;
         }
@@ -220,7 +220,7 @@ public class User {
 //                        fbPictures.put(type, pic);
 
                         ImageCache.getInstance().put(id + type.toString(), pic);
-                        if(callback != null)
+                        if (callback != null)
                             callback.run(pic);
                         return pic;
 

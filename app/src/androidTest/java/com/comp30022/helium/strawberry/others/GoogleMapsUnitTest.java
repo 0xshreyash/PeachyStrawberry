@@ -1,9 +1,11 @@
-package com.comp30022.helium.strawberry;
+package com.comp30022.helium.strawberry.others;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
+import com.comp30022.helium.strawberry.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

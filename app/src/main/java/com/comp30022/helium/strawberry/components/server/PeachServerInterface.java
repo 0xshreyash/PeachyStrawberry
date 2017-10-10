@@ -59,7 +59,7 @@ public class PeachServerInterface implements Publisher<Event> {
         return System.currentTimeMillis() - initTime > EXPIRE_TIME;
     }
 
-    private PeachServerInterface(String token, Subscriber<Event> toNotify) {
+    protected PeachServerInterface(String token, Subscriber<Event> toNotify) {
         StrawberryApplication.getInstance().getRequestQueue().getCache().clear();
 
         Log.i(TAG, "Initializing with token " + token);

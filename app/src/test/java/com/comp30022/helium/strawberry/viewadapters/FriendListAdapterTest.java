@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.friends;
+package com.comp30022.helium.strawberry.viewadapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -13,6 +13,7 @@ import com.comp30022.helium.strawberry.activities.FriendListTestActivity;
 import com.comp30022.helium.strawberry.activities.fragments.FriendListFragment;
 import com.comp30022.helium.strawberry.components.friends.FriendListAdapter;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.mocks.MockUser;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 
 import org.junit.Before;
@@ -38,7 +39,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * Test for FriendListAdapterClass created to be able to have a list of friends.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Log.class, LayoutInflater.class, FriendListAdapter.class})
+@PrepareForTest({Log.class, LayoutInflater.class, FriendListAdapter.class, StrawberryApplication.class})
 public class FriendListAdapterTest {
 
     @Mock
@@ -70,11 +71,12 @@ public class FriendListAdapterTest {
      */
     @Before
     public void setUp() throws Exception {
-
         MockitoAnnotations.initMocks(this);
         mockStatic(LayoutInflater.class);
         mockStatic(Log.class);
         mockStatic(FriendListAdapter.class);
+
+        mockStatic(StrawberryApplication.class);
 
         //mockStatic(FacebookFragment.class);
         mockContext = new MockContext() {
@@ -102,8 +104,10 @@ public class FriendListAdapterTest {
     public void checkSize() {
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
-        friendList.add(User.getUser("1234", "Shreyash"));
-        friendList.add(User.getUser("5678", "Harry"));
+
+        friendList.add(MockUser.getMockUser("1234", "Shreyash"));
+        friendList.add(MockUser.getMockUser("5678", "Harry"));
+
         Context fakeContext = new MockContext();
         FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
         assertEquals(2, adapter.getItemCount());
@@ -130,8 +134,9 @@ public class FriendListAdapterTest {
 
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
-        friendList.add(User.getUser("1234", "Shreyash"));
-        friendList.add(User.getUser("5678", "Harry"));
+        friendList.add(MockUser.getMockUser("1234", "Shreyash"));
+        friendList.add(MockUser.getMockUser("5678", "Harry"));
+
         Context fakeContext = new MockContext();
         FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
         adapter.setSelectedPosition(0);
@@ -156,8 +161,8 @@ public class FriendListAdapterTest {
 
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
-        friendList.add(User.getUser("1234", "Shreyash"));
-        friendList.add(User.getUser("5678", "Harry"));
+        friendList.add(MockUser.getMockUser("1234", "Shreyash"));
+        friendList.add(MockUser.getMockUser("5678", "Harry"));
         Context fakeContext = new MockContext();
         FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
 
@@ -184,8 +189,8 @@ public class FriendListAdapterTest {
     public void checkViewHolderCreationTwo() {
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
-        friendList.add(User.getUser("1234", "Shreyash"));
-        friendList.add(User.getUser("5678", "Harry"));
+        friendList.add(MockUser.getMockUser("1234", "Shreyash"));
+        friendList.add(MockUser.getMockUser("5678", "Harry"));
         Context fakeContext = new MockContext();
         FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
 
@@ -229,8 +234,8 @@ public class FriendListAdapterTest {
     public void checkFriendHolderPublishing() {
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
-        friendList.add(User.getUser("1234", "Shreyash"));
-        friendList.add(User.getUser("5678", "Harry"));
+        friendList.add(MockUser.getMockUser("1234", "Shreyash"));
+        friendList.add(MockUser.getMockUser("5678", "Harry"));
 
         when(mockParent.getContext()).thenReturn(mockContext);
         when(LayoutInflater.from(mockContext)).thenReturn(mockInflater);
