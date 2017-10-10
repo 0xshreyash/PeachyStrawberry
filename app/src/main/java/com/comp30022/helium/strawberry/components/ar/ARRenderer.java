@@ -1,6 +1,7 @@
 package com.comp30022.helium.strawberry.components.ar;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,9 +11,12 @@ import android.location.Location;
 import android.opengl.Matrix;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 
+import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.ar.helper.CoordinateConverter;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
+import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
@@ -60,28 +64,27 @@ public class ARRenderer extends View {
     private Paint arrowPaint;
     private Paint profilePicturePaint;
 
+    private ProgressBar progressBar;
+    private boolean loading;
+
     private enum Direction {
         UP, DOWN, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BTM_LEFT, BTM_RIGHT
     }
 
 
-    public ARRenderer(Context context) {
+    public ARRenderer(Context context, ProgressBar progressBar) {
         super(context);
         // this is dangerous, but we're sure that only ARActivity is using this ARRenderer for now
         this.arActivity = (ARActivity) context;
         this.trackers = new ArrayList<>();
+        this.currentLocation = LocationService.getInstance().getDeviceLocation();
+        this.progressBar = progressBar;
         setupArrowPaint();
         setupNamePaint();
         setupProfilePicturePaint();
     }
 
-
-    public void addTrackers(List<ARTrackerBeacon> trackers) {
-        // the list of tracking points we want to track and render on screen
-        this.trackers = trackers;
-    }
-
-    public void addTracker(final ARTrackerBeacon tracker) {
+    public void addTracker(ARTrackerBeacon tracker) {
         // add to the list of tracking points we want to track and render on screen
         this.trackers.add(tracker);
     }
@@ -122,8 +125,16 @@ public class ARRenderer extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (currentLocation == null || this.projectionMatrix == null) {
+//        if (currentLocation == null || this.projectionMatrix == null) {
+        if (true) {
+            this.loading = true;
+            this.progressBar.setVisibility(View.VISIBLE);
+            this.progressBar.bringToFront();
             return;
+        }
+        if (this.loading) {
+            this.loading = false;
+            this.progressBar.setVisibility(View.INVISIBLE);
         }
 
 

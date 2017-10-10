@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
@@ -51,7 +52,7 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         this.sensorManager = (SensorManager) this.getSystemService(SENSOR_SERVICE);
 
         // init a new ARRenderer for AR display overlay
-        this.arRenderer = new ARRenderer(this);
+        this.arRenderer = new ARRenderer(this, (ProgressBar) this.container.findViewById(R.id.arwait));
         // add currently selected user to track
         trackSelectedUser();
 
@@ -152,7 +153,7 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
             ARTrackerBeacon target = new ARTrackerBeacon(targetUser);
             this.arRenderer.addTracker(target);
             // track this user!
-            locationService.addTracker(targetUser);
+            this.locationService.addTracker(targetUser);
             Log.i(TAG, "Tracking: " + selectedUser);
         }
     }
