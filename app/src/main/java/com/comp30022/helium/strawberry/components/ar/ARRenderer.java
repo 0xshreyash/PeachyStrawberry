@@ -11,6 +11,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 import android.view.View;
 
+import com.comp30022.helium.strawberry.components.ar.helper.CoordinateConverter;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
@@ -122,8 +123,12 @@ public class ARRenderer extends View {
         }
 
 
+        // for each tracker beacon, we draw them on screen if they're in positive Z axis (i.e.
+        // in front of us), else we render a guide pointing towards the target on the edges of the
+        // screen.
         for (int i = 0; i != trackers.size(); ++i) {
             ARTrackerBeacon target = trackers.get(i);
+            // convert from : GPS -> ENU
             float[] ENUCoordinates = getENU(target.getLocation());
             // convert from : ENU -> Camera
             float[] cameraCoordinates = convertToCameraSpace(ENUCoordinates);
@@ -163,7 +168,7 @@ public class ARRenderer extends View {
                         y - NAME_HEIGHT_OFFSET, this.defaultPaintCircle);
 
                 /* ************************************************************************
-                 * if the x and y will not be seen in screen, render guide!
+                 * if the x and y will not be seen in screen, render the guide instead!
                  * ************************************************************************/
 
                 ////////////////////////////////////////////////
@@ -202,9 +207,9 @@ public class ARRenderer extends View {
     }
 
     private float[] getENU(Location targetLocation) {
-        float[] deviceLocationECEF = Converter.GPS2ECEF(this.currentLocation);
-        float[] targetECEF = Converter.GPS2ECEF(targetLocation);
-        return Converter.ECEF2ENU(this.currentLocation,
+        float[] deviceLocationECEF = CoordinateConverter.GPS2ECEF(this.currentLocation);
+        float[] targetECEF = CoordinateConverter.GPS2ECEF(targetLocation);
+        return CoordinateConverter.ECEF2ENU(this.currentLocation,
                 deviceLocationECEF,
                 targetECEF);
     }
@@ -227,7 +232,7 @@ public class ARRenderer extends View {
             x = x < 0 ? GUIDE_OFFSET : canvas.getWidth() - GUIDE_OFFSET;
         }
         if (y < 0 || y > canvas.getHeight()) {
-            y  = y < 0 ? GUIDE_OFFSET : canvas.getHeight() - GUIDE_OFFSET;
+            y = y < 0 ? GUIDE_OFFSET : canvas.getHeight() - GUIDE_OFFSET;
         }
         float dx = 0;
         float dy = 0;
@@ -268,7 +273,7 @@ public class ARRenderer extends View {
                 break;
             case TOP_RIGHT:
                 dx = canvas.getWidth() - GUIDE_OFFSET;
-                dy = GUIDE_OFFSET ;
+                dy = GUIDE_OFFSET;
                 rotation = -135;
                 xOffset = -IMAGE_OFFSET;
                 yOffset = IMAGE_OFFSET;
@@ -310,64 +315,4 @@ public class ARRenderer extends View {
         }
     }
 
-
-    /**
-     * This class is a convertion class for location -> ECEF (Earth centered earth focused)
-     * -> ENU (east north up)
-     * <p>
-     * Adapted from
-     * https://github.com/dat-ng/ar-location-based-android/blob/master/app/src/main/java/ng/dat/ar/helper/LocationHelper.java
-     * <p>
-     * and conversion formula obtained from:
-     * http://digext6.defence.gov.au/dspace/bitstream/1947/3538/1/DSTO-TN-0432.pdf
-     * <p>
-     * <p>
-     * The variables named here follows the variables named in the PDF file as the formula was
-     * laid out
-     **/
-    private static class Converter {
-        // WGS 84 semi-major axis constant in meters
-        private final static double WGS84_A = 6378137.0;
-        // square of WGS 84 eccentricity
-        private final static double WGS84_E2 = 0.00669437999014;
-
-        private static float[] GPS2ECEF(Location location) {
-            double radiansLat = Math.toRadians(location.getLatitude());
-            double radiansLong = Math.toRadians(location.getLongitude());
-
-            float cosLat = (float) Math.cos(radiansLat);
-            float sinLat = (float) Math.sin(radiansLat);
-            float cosLong = (float) Math.cos(radiansLong);
-            float sinLong = (float) Math.sin(radiansLong);
-
-            float chi = (float) (WGS84_A / Math.sqrt(1.0 - WGS84_E2 * sinLat * sinLat));
-
-            float x = (float) ((chi + location.getAltitude()) * cosLat * cosLong);
-            float y = (float) ((chi + location.getAltitude()) * cosLat * sinLong);
-            float z = (float) ((chi * (1.0 - WGS84_E2) + location.getAltitude()) * sinLat);
-
-            return new float[]{x, y, z};
-
-        }
-
-        private static float[] ECEF2ENU(Location location, float[] ECEF, float[] targetECEF) {
-            double radiansLat = Math.toRadians(location.getLatitude());
-            double radiansLon = Math.toRadians(location.getLongitude());
-
-            float cosLat = (float) Math.cos(radiansLat);
-            float sinLat = (float) Math.sin(radiansLat);
-            float cosLong = (float) Math.cos(radiansLon);
-            float sinLong = (float) Math.sin(radiansLon);
-
-            float dx = targetECEF[0] - ECEF[0];
-            float dy = targetECEF[1] - ECEF[1];
-            float dz = targetECEF[2] - ECEF[2];
-
-            float east = -sinLong * dx + cosLong * dy;
-            float north = -sinLat * cosLong * dx - sinLat * sinLong * dy + cosLat * dz;
-            float up = cosLat * cosLong * dx + cosLat * sinLong * dy + sinLat * dz;
-
-            return new float[]{east, north, up, 1};
-        }
-    }
 }
