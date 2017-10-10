@@ -21,6 +21,8 @@ import android.location.Location;
  **/
 public class CoordinateConverter {
     // WGS 84 semi-major axis in meters(A)
+    // value obtained from World Geodetic System 1984 (WGS 84) in
+    // https://en.wikipedia.org/wiki/Geodetic_datum#Local_east.2C_north.2C_up_.28ENU.29_coordinates
     private final static double WGS84_A = 6378137.0;
     // WGS 84 eccentricity squared (E^2)
     private final static double WGS84_E2 = 0.00669437999014;
