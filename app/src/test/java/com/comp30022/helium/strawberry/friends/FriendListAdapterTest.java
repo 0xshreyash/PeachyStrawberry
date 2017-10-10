@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.activities.FriendListTestActivity;
-import com.comp30022.helium.strawberry.activities.fragments.FacebookFragment;
 import com.comp30022.helium.strawberry.activities.fragments.FriendListFragment;
 import com.comp30022.helium.strawberry.components.friends.FriendListAdapter;
 import com.comp30022.helium.strawberry.entities.User;
@@ -103,8 +102,8 @@ public class FriendListAdapterTest {
     public void checkSize() {
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
-        friendList.add(new User("1234", "Shreyash"));
-        friendList.add(new User("5678", "Harry"));
+        friendList.add(User.getUser("1234", "Shreyash"));
+        friendList.add(User.getUser("5678", "Harry"));
         Context fakeContext = new MockContext();
         FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
         assertEquals(2, adapter.getItemCount());
@@ -131,8 +130,8 @@ public class FriendListAdapterTest {
 
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
-        friendList.add(new User("1234", "Shreyash"));
-        friendList.add(new User("5678", "Harry"));
+        friendList.add(User.getUser("1234", "Shreyash"));
+        friendList.add(User.getUser("5678", "Harry"));
         Context fakeContext = new MockContext();
         FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
         adapter.setSelectedPosition(0);
@@ -157,8 +156,8 @@ public class FriendListAdapterTest {
 
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
-        friendList.add(new User("1234", "Shreyash"));
-        friendList.add(new User("5678", "Harry"));
+        friendList.add(User.getUser("1234", "Shreyash"));
+        friendList.add(User.getUser("5678", "Harry"));
         Context fakeContext = new MockContext();
         FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
 
@@ -185,8 +184,8 @@ public class FriendListAdapterTest {
     public void checkViewHolderCreationTwo() {
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
-        friendList.add(new User("1234", "Shreyash"));
-        friendList.add(new User("5678", "Harry"));
+        friendList.add(User.getUser("1234", "Shreyash"));
+        friendList.add(User.getUser("5678", "Harry"));
         Context fakeContext = new MockContext();
         FriendListAdapter adapter = new FriendListAdapter(fakeContext, friendList, fragment);
 
@@ -230,8 +229,8 @@ public class FriendListAdapterTest {
     public void checkFriendHolderPublishing() {
         List<User> friendList = new ArrayList<>();
         FriendListFragment fragment = new FriendListFragment();
-        friendList.add(new User("1234", "Shreyash"));
-        friendList.add(new User("5678", "Harry"));
+        friendList.add(User.getUser("1234", "Shreyash"));
+        friendList.add(User.getUser("5678", "Harry"));
 
         when(mockParent.getContext()).thenReturn(mockContext);
         when(LayoutInflater.from(mockContext)).thenReturn(mockInflater);

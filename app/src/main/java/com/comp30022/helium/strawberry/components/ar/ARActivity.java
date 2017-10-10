@@ -51,7 +51,8 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         // init a new ARRenderer for AR display overlay
         this.arRenderer = new ARRenderer(this);
         // add currently selected user to track
-        User targetUser =new User(StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
+        User targetUser = User.getUser(StrawberryApplication.
+                getString(StrawberryApplication.SELECTED_USER_TAG));
         ARTrackerBeacon target = new ARTrackerBeacon(targetUser);
         this.arRenderer.addTracker(target);
         // track this user!

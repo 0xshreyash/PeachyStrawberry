@@ -11,11 +11,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.example.noxm.googlemapsexample.MapsActivity"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/transport_stats" />
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/transport_option"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:layout_alignParentStart="true"
@@ -64,9 +64,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/linearLayout"
+        android:layout_below="@+id/transport_option"
         android:background="@color/colorPrimaryDark"
-        android:id="@+id/relativeLayout"
+        android:id="@+id/transport_stats"
         tools:layout_editor_absoluteY="48dp"
         tools:layout_editor_absoluteX="0dp">
 

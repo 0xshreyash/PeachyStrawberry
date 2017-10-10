@@ -6,15 +6,19 @@ import com.comp30022.helium.strawberry.entities.User;
  * Created by shreyashpatodia on 15/09/17.
  */
 
+/**
+ * A message that the users might use to communicate with each other.
+ */
 public class Message {
 
     private String message;
-    private User sender;
+    private User sender, receiver;
     private long createdAt;
 
-    public Message(String message, User sender, long createdAt) {
+    public Message(String message, User sender, User receiver, long createdAt) {
         this.message = message;
         this.sender = sender;
+        this.receiver = receiver;
         this.createdAt = createdAt;
     }
 
@@ -22,24 +26,16 @@ public class Message {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public User getSender() {
         return sender;
-    }
-
-    public void setSender(User sender) {
-        this.sender = sender;
     }
 
     public long getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(long createdAt) {
-        this.createdAt = createdAt;
+    public User getReceiver() {
+        return receiver;
     }
 
     @Override
@@ -49,5 +45,15 @@ public class Message {
             return this.message.equals(other.message) && this.createdAt == other.createdAt;
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "message='" + message + '\'' +
+                ", sender=" + sender +
+                ", receiver=" + receiver +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }
