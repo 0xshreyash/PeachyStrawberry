@@ -1,6 +1,5 @@
 package com.comp30022.helium.strawberry.components.map.helpers;
 
-import android.graphics.Color;
 import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -9,7 +8,6 @@ import android.widget.Button;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.maps.model.Marker;
 
 /**
