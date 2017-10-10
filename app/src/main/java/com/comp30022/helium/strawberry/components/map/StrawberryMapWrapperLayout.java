@@ -10,6 +10,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+/**
+ * Relative layout to wrap around map object.
+ */
 public class StrawberryMapWrapperLayout extends RelativeLayout {
 
     private GoogleMap map;
