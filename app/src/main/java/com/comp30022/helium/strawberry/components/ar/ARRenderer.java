@@ -155,10 +155,7 @@ public class ARRenderer extends View {
                 this.arActivity.displayInfoHUD("You have arrived at " + target.getUserName()
                         + "'s location");
             } else {
-                @SuppressLint("DefaultLocale")
-                String formatted = String.format("%.2fm away from %s",
-                        target.getLocation().distanceTo(currentLocation), target.getUserName());
-                this.arActivity.displayInfoHUD(formatted);
+                writeDistanceTo(target);
             }
 
             // if the point is in front of us ==> i.e. we should render it!
@@ -215,6 +212,20 @@ public class ARRenderer extends View {
                 }
             }
         }
+    }
+
+    private void writeDistanceTo(ARTrackerBeacon target) {
+        double distanceTo = target.getLocation().distanceTo(currentLocation);
+        String unit = "m";
+        // if we're > 1km, convert m to km
+        if (distanceTo > 1000) {
+            distanceTo /= 1000;
+            unit = "km";
+        }
+        @SuppressLint("DefaultLocale")
+        String formatted = String.format("%.2f%s away from %s", distanceTo,
+                unit, target.getUserName());
+        this.arActivity.displayInfoHUD(formatted);
     }
 
     private float[] getENU(Location targetLocation) {
