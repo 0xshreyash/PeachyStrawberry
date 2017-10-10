@@ -74,7 +74,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private boolean firstMove = true;
     private Location lastPathUpdateLocationUser = null;
     private Location lastPathUpdateLocationFriend = null;
-    private int MARKER_HEIGHT = 40;
+    private int MARKER_HEIGHT = 5;
     private int OFFSET_FROM_MARKER = 20;
 
     public MapFragment() {
@@ -118,6 +118,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 return false;
             }
         });
+
 
         String savedTransport = StrawberryApplication.getString(StrawberryApplication.SELECTED_TRANSPORT_TAG);
 

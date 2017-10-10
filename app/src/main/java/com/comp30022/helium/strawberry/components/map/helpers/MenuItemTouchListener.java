@@ -31,12 +31,12 @@ public abstract class MenuItemTouchListener implements View.OnTouchListener {
 
     @Override
     public boolean onTouch(View vv, MotionEvent event) {
-        return onTouch(event);
+        return onTouch(event, vv);
     }
 
-    public boolean onTouch(MotionEvent event) {
+    public boolean onTouch(MotionEvent event, View vv) {
         if (0 <= event.getX() && event.getX() <= view.getWidth() &&
-                0 <= event.getY() && event.getY() <= view.getHeight())
+                0 <= event.getY() && event.getY() <= vv.getHeight())
         {
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN: startPress(view);

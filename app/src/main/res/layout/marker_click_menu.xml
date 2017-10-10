@@ -8,6 +8,16 @@
     android:divider="@drawable/divider"
     android:showDividers="middle">
 
+    <Button
+        android:id="@+id/button_ar"
+        android:layout_width="fill_parent"
+        android:layout_height="35dp"
+        android:layout_weight="1"
+        android:background="@color/colorPrimaryDark"
+        android:textColor="@android:color/white"
+        android:text="AR"
+        android:textSize="20dp" />
+
     <TextView
         android:id="@+id/friend_name"
         android:layout_width="fill_parent"
@@ -19,25 +29,15 @@
         android:paddingRight="7.5dp"
         android:text="shreyash.patodia"
         android:textColor="@android:color/black"
-        android:textSize="25dp"/>
-
-    <Button
-        android:id="@+id/button_ar"
-        android:layout_width="fill_parent"
-        android:layout_height="35dp"
-        android:layout_weight="1"
-        android:background="@color/colorPrimaryDark"
-        android:textColor="@android:color/white"
-        android:text="AR"
-        android:textSize="20dp" />
+        android:textSize="25dp" />
 
     <Button
         android:id="@+id/button_chat"
         android:layout_width="fill_parent"
         android:layout_height="35dp"
         android:background="@color/colorPrimaryDark"
-        android:textColor="@android:color/white"
         android:text="Chat"
+        android:textColor="@android:color/white"
         android:textSize="20dp" />
 
 </LinearLayout>
