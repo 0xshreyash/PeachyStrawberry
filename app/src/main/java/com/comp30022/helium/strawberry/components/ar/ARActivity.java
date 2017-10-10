@@ -135,12 +135,21 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
     protected void onResume() {
         super.onResume();
         listenToSensors();
+        this.locationService.registerSubscriber(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         this.sensorManager.unregisterListener(this);
+        this.locationService.deregisterSubscriber(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        this.sensorManager.unregisterListener(this);
+        this.finish();
     }
 
     @Override

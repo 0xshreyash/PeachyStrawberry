@@ -39,15 +39,7 @@ public class ARCameraSurface extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         // surface has been created, tell the camera to render preview
-        if (this.camera == null) {
-            this.camera = CameraHelper.getCamera();
-        }
-        try {
-            this.camera.setPreviewDisplay(this.surfaceHolder);
-            this.camera.startPreview();
-        } catch (IOException e) {
-            Log.e(TAG, "ERROR: Can't set camera preview -- " + e.getMessage());
-        }
+        startCamera();
 
     }
 
@@ -67,10 +59,7 @@ public class ARCameraSurface extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
         if (this.camera != null) {
-            this.camera.setPreviewCallback(null);
-            this.camera.stopPreview();
-            this.camera.release();
-            this.camera = null;
+            stopCamera();
         }
     }
 
@@ -134,6 +123,25 @@ public class ARCameraSurface extends SurfaceView implements SurfaceHolder.Callba
             }
         }
         return -1;
+    }
+
+    private void stopCamera() {
+        this.camera.setPreviewCallback(null);
+        this.camera.stopPreview();
+        this.camera.release();
+        this.camera = null;
+    }
+
+    private void startCamera() {
+        if (this.camera == null) {
+            this.camera = CameraHelper.getCamera();
+        }
+        try {
+            this.camera.setPreviewDisplay(this.surfaceHolder);
+            this.camera.startPreview();
+        } catch (IOException e) {
+            Log.e(TAG, "ERROR: Can't set camera preview -- " + e.getMessage());
+        }
     }
 
 }
