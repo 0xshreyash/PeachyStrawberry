@@ -144,14 +144,14 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         this.arButton = (Button) clickMenu.findViewById(R.id.button_ar);
         this.chatButtom = (Button) clickMenu.findViewById(R.id.button_chat);
 
-        this.chatListener = new MenuItemTouchListener(clickMenu) {
+        this.chatListener = new MenuItemTouchListener(clickMenu, R.id.button_chat) {
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
                 Toast.makeText(getContext(), marker.getTitle() + " chat was clicked", Toast.LENGTH_LONG).show();
             }
         };
         this.chatButtom.setOnTouchListener(chatListener);
-        this.arListener = new MenuItemTouchListener(clickMenu) {
+        this.arListener = new MenuItemTouchListener(clickMenu, R.id.button_ar) {
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
                 Toast.makeText(getContext(), marker.getTitle() + " ar was clicked", Toast.LENGTH_LONG).show();
