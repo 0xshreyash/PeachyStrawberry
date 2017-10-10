@@ -26,7 +26,9 @@ public class UserCache {
 
     public void put(String key, User user) {
         synchronized (cache) {
-            if(cache.get(key) == null) {
+            if(key == null){
+                Log.w(TAG, "Key for " + user + " cannot be null");
+            } else if(cache.get(key) == null) {
                 Log.i(TAG, "User " + user.getId() + " created and cached");
                 cache.put(key, user);
             } else {
@@ -37,6 +39,9 @@ public class UserCache {
 
     public User get(String key) {
         synchronized (cache) {
+            if(key == null)
+                return null;
+
             User user = cache.get(key);
             Log.i(TAG, "Get User " + user);
             // null if not found
