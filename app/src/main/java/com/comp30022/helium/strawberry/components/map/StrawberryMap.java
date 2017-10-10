@@ -5,6 +5,7 @@ import android.location.Location;
 import android.util.Log;
 
 import com.comp30022.helium.strawberry.R;
+
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
 import com.comp30022.helium.strawberry.components.map.exceptions.NoSuchMarkerException;
