@@ -64,6 +64,10 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
         me = PeachServerInterface.currentUser();
 
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
+
+        if(selectedId == null)
+            selectedId = me.getId();
+
         friend = User.getUser(selectedId);
 
         //TODO: update later to STOMP
