@@ -175,7 +175,8 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
                 getString(StrawberryApplication.SELECTED_USER_TAG);
         if (selectedUser == null) {
             Log.i(TAG, "No targeted user selected globally");
-            displayInfoHUD("Not tracking anyone. Select a user from the main menu!");
+            this.infoHUD.setText("Not tracking anyone. Select a user from the main menu!");
+            this.displayOverride = true;
         } else {
             User targetUser = User.getUser(selectedUser);
             ARTrackerBeacon target = new ARTrackerBeacon(targetUser);
