@@ -414,7 +414,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     }
 
     public String[] getFriendList() {
-        Map<String. Marker> = map.getMarkers()
+        return map.getFriendNames();
     }
 
     // Update the arrival time and distance which will be shown in the textview.

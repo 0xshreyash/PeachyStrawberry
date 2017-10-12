@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 
+import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.activities.MainActivity;
 import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
 
@@ -42,7 +43,7 @@ public class TextChangeListener implements TextWatcher {
         // TODO: update this with the actual getter for the users list
         String[] usersList = parentFragment.getFriendList();
 
-        mainActivity.myAdapter = new AutocompleteAdapter(mainActivity, R.layout.list_view, usersList);
+        parentFragment.getAutoCompleteAdapter()= new AutocompleteAdapter(parentFragment, R.layout.list_view, usersList);
 
         // TODO: update myAdapter with the actual name of the adapter
         // used in main and also myAutoComplete

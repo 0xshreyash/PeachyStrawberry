@@ -229,8 +229,13 @@ public class StrawberryMap {
         }
     }
 
-    public Map<String, Marker> getMarkers() {
-        return markers;
+    public String[] getFriendNames() {
+        String[] friendNames = new String[markers.size()];
+        int index = 0;
+        for(String id : markers.keySet()) {
+            friendNames[index++] = markers.get(id).getTitle();
+        }
+        return friendNames;
     }
 
     /**
