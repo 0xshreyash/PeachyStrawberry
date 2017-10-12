@@ -9,6 +9,7 @@ import android.os.Bundle;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.components.map.StrawberryMapWrapperLayout;
+import com.comp30022.helium.strawberry.components.map.helpers.AutocompleteView;
 import com.comp30022.helium.strawberry.components.map.helpers.MenuItemTouchListener;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
@@ -20,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Switch;
@@ -76,6 +78,9 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private Location lastPathUpdateLocationFriend = null;
     private int MARKER_HEIGHT = 5;
     private int OFFSET_FROM_MARKER = 20;
+
+    private ArrayAdapter<String> autoCompleteAdapter;
+    private AutocompleteView autocompleteView;
 
     public MapFragment() {
         // Required empty public constructor
@@ -398,6 +403,18 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         makeIconWhite(lastChanged);
 
         map.updatePath(PeachServerInterface.currentUser().getId(), StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
+    }
+
+    public ArrayAdapter<String> getAutoCompleteAdapter() {
+        return autoCompleteAdapter;
+    }
+
+    public void setAutoCompleteAdapter(ArrayAdapter<String> autoCompleteAdapter) {
+        this.autoCompleteAdapter = autoCompleteAdapter;
+    }
+
+    public String[] getFriendList() {
+        Map<String. Marker> = map.getMarkers()
     }
 
     // Update the arrival time and distance which will be shown in the textview.

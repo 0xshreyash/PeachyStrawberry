@@ -229,6 +229,10 @@ public class StrawberryMap {
         }
     }
 
+    public Map<String, Marker> getMarkers() {
+        return markers;
+    }
+
     /**
      * THis critically crashes if not on main thread
      * @param id
