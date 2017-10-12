@@ -36,8 +36,8 @@ public class AutocompleteAdapter extends ArrayAdapter<String> {
 
         String listItem = data[position];
 
-        TextView textView = (TextView) view.findViewById(R.id.textView);
-        textView.setText(listItem.objectName);
+        TextView textView = (TextView) view.findViewById(R.id.user_data_item);
+        textView.setText(listItem);
 
         return view;
     }

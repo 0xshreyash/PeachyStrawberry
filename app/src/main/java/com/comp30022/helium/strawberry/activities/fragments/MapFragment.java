@@ -110,6 +110,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         transit = (ImageButton) view.findViewById(R.id.transit);
         transit.setOnClickListener(this);
 
+        autocompleteView = (AutocompleteView)getActivity().findViewById()
+
         toggleFollow = (Switch) view.findViewById(R.id.toggle_follow_switch);
         toggleFollow.setChecked(StrawberryApplication.getBoolean(TOGGLE_FOLLOW_VAL_KEY));
         toggleFollow.setOnTouchListener(new View.OnTouchListener() {
@@ -415,6 +417,10 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
     public String[] getFriendList() {
         return map.getFriendNames();
+    }
+
+    public AutocompleteView getAutocompleteView() {
+        return autocompleteView;
     }
 
     // Update the arrival time and distance which will be shown in the textview.

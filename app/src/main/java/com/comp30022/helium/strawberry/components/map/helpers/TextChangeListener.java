@@ -13,14 +13,17 @@ import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.activities.MainActivity;
 import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class TextChangeListener implements TextWatcher {
 
     MapFragment parentFragment;
+    Context context;
 
-    public TextChangeListener(MapFragment parentFragment){
+    public TextChangeListener(MapFragment parentFragment, Context context){
         this.parentFragment = parentFragment;
+        this.context = context;
     }
 
     @Override
@@ -35,18 +38,24 @@ public class TextChangeListener implements TextWatcher {
     @Override
     public void onTextChanged(CharSequence userInput, int start, int before, int count) {
 
-
-        // TODO: update myAdapter with the actual name of the adapter
-        // used in main
         parentFragment.getAutoCompleteAdapter().notifyDataSetChanged();
+        String[] friendList = parentFragment.getFriendList();
 
-        // TODO: update this with the actual getter for the users list
-        String[] usersList = parentFragment.getFriendList();
+        parentFragment.setAutoCompleteAdapter(new AutocompleteAdapter(context, R.layout.list_view,
+                findRelevantResults(friendList, userInput.toString())));
+        parentFragment.getAutocompleteView().setAdapter(parentFragment.getAutoCompleteAdapter());
+    }
 
-        parentFragment.getAutoCompleteAdapter()= new AutocompleteAdapter(parentFragment, R.layout.list_view, usersList);
-
-        // TODO: update myAdapter with the actual name of the adapter
-        // used in main and also myAutoComplete
-        mainActivity.myAutoComplete.setAdapter(mainActivity.myAdapter);
+    public String[] findRelevantResults(String[] friendList, String userInput) {
+        ArrayList<String> relevantFriends = new ArrayList<>();
+        for(String friend : friendList) {
+            if(userInput.toLowerCase().contains(friend.toLowerCase())) {
+                relevantFriends.add(friend);
+            }
+        }
+        String[] relevantFriendArray = new String[relevantFriends.size()];
+        relevantFriendArray = relevantFriends.toArray(relevantFriendArray);
+        return relevantFriendArray;
     }
 }
+

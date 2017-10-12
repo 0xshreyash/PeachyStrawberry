@@ -13,7 +13,10 @@
         android:id="@+id/map_wrapper_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.comp30022.helium.strawberry.activities.fragments.MapFragment">
+        tools:context="com.comp30022.helium.strawberry.activities.fragments.MapFragment"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="21dp">
 
         <fragment
             android:id="@+id/map"
@@ -21,8 +24,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context="com.example.noxm.googlemapsexample.MapsActivity"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/transport_stats" />
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
 
     </com.comp30022.helium.strawberry.components.map.StrawberryMapWrapperLayout>
 
@@ -42,8 +45,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/map_mode_default"
-            android:src="@drawable/ic_directions_car_black_24dp"
-            />
+            android:src="@drawable/ic_directions_car_black_24dp" />
 
         <ImageButton
             android:id="@+id/walk"
@@ -169,6 +171,43 @@
             android:layout_marginStart="8dp" />
 
     </android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/transport_stats"
+        android:weightSum="1">
+
+        <com.comp30022.helium.strawberry.components.map.helpers.AutocompleteView
+            android:id="@+id/search_box"
+            android:layout_width="180dp"
+            android:layout_height="40dp"
+            android:background="@color/colorPrimaryLight"
+            android:completionThreshold="1"
+            android:paddingLeft="10dp"
+            android:hint="Search Location Here"
+            android:textColor="@color/black"
+            android:layout_weight="0.96"
+            android:pointerIcon=""/>
+
+        <ImageButton
+            android:id="@+id/search_button"
+
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/button_shape"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:text="Button"
+            android:textColor="#FFFFFF"
+            android:textSize="10dp"
+            android:src="" />
+
+
+
+    </LinearLayout>
+
 
 
     <!--Add a textview to show the distance-->
