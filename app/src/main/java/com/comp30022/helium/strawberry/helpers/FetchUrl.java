@@ -3,6 +3,8 @@ package com.comp30022.helium.strawberry.helpers;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.comp30022.helium.strawberry.patterns.ParserTask;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

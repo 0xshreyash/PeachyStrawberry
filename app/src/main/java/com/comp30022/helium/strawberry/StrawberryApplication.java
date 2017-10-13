@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.content.res.ObbInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -26,6 +27,9 @@ import java.util.List;
 import java.util.Set;
 
 public class StrawberryApplication extends Application {
+    private static final String TAG = "StraweberryApplication";
+    private static final String DEFAULT_MAC = "ff-ff-ff-ff-ff-ff";
+
     private RequestQueue requestQueue;
     private static StrawberryApplication myApplication;
     public static final String MY_PREFS = "my-prefs";
@@ -117,9 +121,16 @@ public class StrawberryApplication extends Application {
     }
 
     private static String findMacAddress() {
-        WifiManager manager = (WifiManager) getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiInfo info = manager.getConnectionInfo();
-        String address = info.getMacAddress();
+        String address;
+        try {
+            WifiManager manager = (WifiManager) getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo info = manager.getConnectionInfo();
+            address = info.getMacAddress();
+
+        } catch (NullPointerException e) {
+            Log.w(TAG, "No network card found, setting as default");
+            address = DEFAULT_MAC;
+        }
 
         return address;
     }

@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.chat;
+package com.comp30022.helium.strawberry.viewadapters;
 
 /**
  * Created by shreyashpatodia on 03/10/17.
@@ -17,6 +17,7 @@ import com.comp30022.helium.strawberry.components.chat.Message;
 import com.comp30022.helium.strawberry.components.chat.MessageListAdapter;
 import com.comp30022.helium.strawberry.components.friends.FriendListAdapter;
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.mocks.MockUser;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,16 +63,18 @@ public class MessageListAdapterTest {
      */
     @Before
     public void setUp() throws Exception {
-
         MockitoAnnotations.initMocks(this);
         mockStatic(LayoutInflater.class);
         mockStatic(Log.class);
         mockStatic(FriendListAdapter.class);
         List<Message> messages = new ArrayList<>();
-        User one = User.getUser("123", "Shreyash");
-        User two= User.getUser("345", "Michael");
+
+        User one = MockUser.getMockUser("123", "Shreyash");
+        User two= MockUser.getMockUser("345", "Michael");
+
         messages.add(new Message("Hey how are you", one, null, 12345677));
         messages.add(new Message("I am good as good can be ", one, null, 12345699));
+
         //mockStatic(FacebookFragment.class);
         mockContext = new MockContext();
         //TODO: changed to null here

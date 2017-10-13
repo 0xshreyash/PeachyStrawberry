@@ -1,8 +1,9 @@
-package com.comp30022.helium.strawberry.patterns;
+package com.comp30022.helium.strawberry.mocks;
 
 import android.location.Location;
 
 import com.comp30022.helium.strawberry.entities.User;
+import com.comp30022.helium.strawberry.patterns.Subscriber;
 
 /**
  * Created by jjjjessie on 7/10/17.

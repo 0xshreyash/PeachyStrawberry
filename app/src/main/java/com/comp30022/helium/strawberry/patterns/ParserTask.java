@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.helpers;
+package com.comp30022.helium.strawberry.patterns;
 
 import android.os.AsyncTask;
 

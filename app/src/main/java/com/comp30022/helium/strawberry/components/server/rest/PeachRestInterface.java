@@ -12,7 +12,7 @@ import java.util.Map;
  * Volley.
  */
 public class PeachRestInterface {
-    private static final String TAG = PeachRestInterface.class.getSimpleName();
+    private static final String TAG = "PeachRestInterface";
 
     public static final String PROTOCOL = "https";
     public static final String HOSTNAME = "gnomie.me";
