@@ -41,6 +41,7 @@ public abstract class SearchSwipeListener implements OnTouchListener {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.e(TAG, "On fling is called");
             boolean result = false;
             try {
                 float diffY = e2.getY() - e1.getY();
@@ -72,19 +73,20 @@ public abstract class SearchSwipeListener implements OnTouchListener {
         }
     }
 
-    public void onSwipeRight() {
-        Log.i(TAG, "Swiped right");
+    public void onSwipeRight()
+    {
+        Log.e(TAG, "Swiped right");
     }
 
     public void onSwipeLeft() {
-        Log.i(TAG, "Swiped left");
+        Log.e(TAG, "Swiped left");
     }
 
     public void onSwipeTop() {
-        Log.i(TAG, "Swiped top");
+        Log.e(TAG, "Swiped top");
     }
 
     public void onSwipeBottom() {
-        Log.i(TAG, "Swiped bottom");
+        Log.e(TAG, "Swiped bottom");
     }
 }

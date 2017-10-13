@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import android.support.constraint.ConstraintLayout;
-import android.support.constraint.ConstraintSet;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.DisplayMetrics;
@@ -19,7 +18,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.volley.Response;
@@ -28,13 +26,13 @@ import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.activities.fragments.ChatFragment;
 import com.comp30022.helium.strawberry.activities.fragments.FriendListFragment;
 import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
+import com.comp30022.helium.strawberry.components.ar.ARActivity;
 import com.comp30022.helium.strawberry.components.location.LocationService;
 
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.components.server.exceptions.InstanceExpiredException;
 import com.comp30022.helium.strawberry.components.server.rest.components.StrawberryListener;
 import com.comp30022.helium.strawberry.entities.User;
-import com.comp30022.helium.strawberry.helpers.DisplayHelper;
 import com.comp30022.helium.strawberry.patterns.Event;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedException;
@@ -451,5 +449,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
             }
 
         }
+    }
+
+    // TODO: HARRY: DON"T NEED THIS! (DEBUG OLY)
+    public void gotoAR(View bundle) {
+        Intent intent = new Intent(getApplicationContext(), ARActivity.class);
+        startActivity(intent);
     }
 }

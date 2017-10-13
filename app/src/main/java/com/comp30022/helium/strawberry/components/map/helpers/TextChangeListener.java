@@ -41,7 +41,7 @@ public class TextChangeListener implements TextWatcher {
         parentFragment.getAutoCompleteAdapter().notifyDataSetChanged();
         String[] friendList = parentFragment.getFriendList();
 
-        parentFragment.setAutoCompleteAdapter(new AutocompleteAdapter(context, R.layout.list_view,
+        parentFragment.setAutoCompleteAdapter(new AutocompleteAdapter(context, R.layout.item_friend,
                 findRelevantResults(friendList, userInput.toString())));
         parentFragment.getAutocompleteView().setAdapter(parentFragment.getAutoCompleteAdapter());
     }

@@ -17,7 +17,7 @@ import java.util.Map;
  */
 
 public class PeachCookieStore implements CookieStore {
-    private static final String TAG = PeachCookieStore.class.getSimpleName();
+    private static final String TAG = "PeachCookieStore";
     private static final String AUTH_SUB_PATH = "authorize";
 
     Map<URI, List<HttpCookie>> cookieMap = new HashMap<>();

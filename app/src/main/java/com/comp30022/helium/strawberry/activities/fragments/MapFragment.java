@@ -11,6 +11,7 @@ import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.components.map.StrawberryMapWrapperLayout;
 import com.comp30022.helium.strawberry.components.map.helpers.AutocompleteView;
 import com.comp30022.helium.strawberry.components.map.helpers.MenuItemTouchListener;
+import com.comp30022.helium.strawberry.components.map.helpers.SearchSwipeListener;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
@@ -24,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,7 +60,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private StrawberryMap map;
     private SupportMapFragment mMapView;
     private View view;
-    private ViewGroup clickMenu;
+    private ViewGroup clickMenu, searchBar;
     private TextView userName;
     private Button chatButtom;
     private Button arButton;
@@ -66,7 +68,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private MenuItemTouchListener arListener;
     private StrawberryMapWrapperLayout mapLayout;
 
-    private ImageButton drive, walk, bicycle, transit, lastChanged;
+    private ImageButton drive, walk, bicycle, transit, lastChanged, searchButton;
 
     private TextView arrivalTime;
     private TextView arrivalDistance;
@@ -80,16 +82,16 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private int OFFSET_FROM_MARKER = 20;
 
     private ArrayAdapter<String> autoCompleteAdapter;
-    private AutocompleteView autocompleteView;
+    private AutocompleteView searchBox;
 
     public MapFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.view = inflater.inflate(R.layout.fragment_map, container, false);
-        Log.e(TAG, this.view.findViewById(R.id.map_wrapper_layout).getId() + " the id of the map_wrapper is");
+        //Log.i(TAG, this.view.findViewById(R.id.map_wrapper_layout).getId() + " the id of the map_wrapper is");
 
         // find views
         mMapView = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -109,8 +111,6 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         transit = (ImageButton) view.findViewById(R.id.transit);
         transit.setOnClickListener(this);
-
-        autocompleteView = (AutocompleteView)getActivity().findViewById()
 
         toggleFollow = (Switch) view.findViewById(R.id.toggle_follow_switch);
         toggleFollow.setChecked(StrawberryApplication.getBoolean(TOGGLE_FOLLOW_VAL_KEY));
@@ -146,6 +146,10 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        /**
+         * Stuff for the custon onClick for markers
+         */
         this.clickMenu = (ViewGroup)inflater.inflate(R.layout.marker_click_menu, null);
         this.userName = (TextView)clickMenu.findViewById(R.id.friend_name);
         this.arButton = (Button) clickMenu.findViewById(R.id.button_ar);
@@ -166,6 +170,59 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         };
         this.arButton.setOnTouchListener(arListener);
 
+
+        /**
+         * Search stuff begins here
+         */
+        searchBar = (ViewGroup)view.findViewById(R.id.my_search_bar);
+        searchButton = (ImageButton)view.findViewById(R.id.my_search_button);
+        searchBox = (AutocompleteView)view.findViewById(R.id.my_search_box);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(searchBox.getVisibility() == View.VISIBLE) {
+                    searchBox.setVisibility(View.INVISIBLE);
+                    searchBox.setVisibility(View.GONE);
+                    //searchBox.setWidth(searchBox.getWidth() + DisplayHelper.dpToPixel(10, getContext()));
+                }
+                else if(searchBox.getVisibility() == View.GONE) {
+                    searchBox.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        /*
+        searchButton.setOnTouchListener(new SearchSwipeListener(getActivity()) {
+            @Override
+            public void onSwipeRight() {
+                //super.onSwipeRight();
+                if(searchBox.getVisibility() == View.VISIBLE) {
+                    searchBox.setVisibility(View.GONE);
+                }
+
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                if(searchBox.getVisibility() == View.GONE) {
+                    searchBox.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        searchBox.setOnTouchListener(new SearchSwipeListener(getActivity()) {
+            @Override
+            public void onSwipeLeft() {
+                if(searchBox.getVisibility() == View.GONE) {
+                    searchBox.setVisibility(View.VISIBLE);
+                }
+            }
+            @Override
+            public void onSwipeRight() {
+                if(searchBox.getVisibility() == View.VISIBLE) {
+                    searchBox.setVisibility(View.GONE);
+                }
+            }
+        });
+        */
         mMapView.getMapAsync(this);
         return view;
     }
@@ -420,7 +477,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     }
 
     public AutocompleteView getAutocompleteView() {
-        return autocompleteView;
+        return searchBox;
     }
 
     // Update the arrival time and distance which will be shown in the textview.

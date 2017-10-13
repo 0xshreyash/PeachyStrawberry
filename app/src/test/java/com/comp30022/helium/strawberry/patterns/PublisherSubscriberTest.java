@@ -1,7 +1,7 @@
 package com.comp30022.helium.strawberry.patterns;
 
-import android.location.Location;
-import android.provider.Settings;
+import com.comp30022.helium.strawberry.mocks.MockPublisher;
+import com.comp30022.helium.strawberry.mocks.MockSubscriber;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -8,6 +8,7 @@ import android.util.DisplayMetrics;
  */
 
 public class DisplayHelper {
+
     public static float pixelToDP(int pixels, DisplayMetrics dm) {
         return pixels * dm.density / dm.densityDpi;
     }
