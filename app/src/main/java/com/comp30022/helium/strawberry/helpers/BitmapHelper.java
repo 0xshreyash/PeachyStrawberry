@@ -1,14 +1,45 @@
 package com.comp30022.helium.strawberry.helpers;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 
 /**
  * Created by noxm on 4/10/17.
  */
 
 public class BitmapHelper {
-    //TODO
+
+    // Taken as-is from:
+    // https://stackoverflow.com/questions/11932805/cropping-circular-area-from-bitmap-in-android
+
+    /**
+     * Converts rectangular bitmaps into circles
+     * @param bitmap input rectangle bitmaps
+     * @return Circularized bitmaps
+     */
     public static Bitmap makeCircular(Bitmap bitmap) {
-        return bitmap;
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
+                bitmap.getWidth() / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        //Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);
+        //return _bmp;
+        return output;
     }
 }
