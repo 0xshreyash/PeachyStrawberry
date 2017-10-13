@@ -52,7 +52,7 @@ public class LocationHelperTest {
     }
 
     public boolean cmpLocation(Location result){
-        Double latitude = result.getAltitude();
+        Double latitude = result.getLatitude();
         Double longitude = result.getLongitude();
 
         if(!(latitude != null && Math.abs(latitude - mockLocation.getAltitude()) < EPSILON)) {

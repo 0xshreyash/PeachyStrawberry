@@ -27,7 +27,7 @@ public class MockGoogleApiClient extends GoogleApiClient {
 
     public void updateLocation(LocationService locationServiceToTest) {
         NEW_LOCATION.setLongitude(new Random().nextDouble());
-        NEW_LOCATION.setLongitude(new Random().nextDouble());
+        NEW_LOCATION.setLatitude(new Random().nextDouble());
         locationServiceToTest.onLocationChanged(NEW_LOCATION);
     }
 
