@@ -28,8 +28,9 @@ public class User {
 
     public static User getUser(String id) {
         UserCache userCache = UserCache.getInstance();
+
         if (userCache.get(id) != null)
-            userCache.get(id);
+            return userCache.get(id);
 
         User user = new User(id);
         userCache.put(id, user);
@@ -38,8 +39,9 @@ public class User {
 
     public static User getUser(String id, String username) {
         UserCache userCache = UserCache.getInstance();
+
         if (userCache.get(id) != null)
-            userCache.get(id);
+            return userCache.get(id);
 
         User user = new User(id, username);
         userCache.put(id, user);
@@ -48,8 +50,9 @@ public class User {
 
     public static User getUser(String id, String username, String facebookId) {
         UserCache userCache = UserCache.getInstance();
+
         if (userCache.get(id) != null)
-            userCache.get(id);
+            return userCache.get(id);
 
         User user = new User(id, username, facebookId);
         userCache.put(id, user);
