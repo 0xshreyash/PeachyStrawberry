@@ -9,9 +9,11 @@ import android.os.Bundle;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.components.map.StrawberryMapWrapperLayout;
+import com.comp30022.helium.strawberry.components.map.helpers.AutocompleteAdapter;
 import com.comp30022.helium.strawberry.components.map.helpers.AutocompleteView;
 import com.comp30022.helium.strawberry.components.map.helpers.MenuItemTouchListener;
 import com.comp30022.helium.strawberry.components.map.helpers.SearchSwipeListener;
+import com.comp30022.helium.strawberry.components.map.helpers.TextChangeListener;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
@@ -174,6 +176,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         /**
          * Search stuff begins here
          */
+
         searchBar = (ViewGroup)view.findViewById(R.id.my_search_bar);
         searchButton = (ImageButton)view.findViewById(R.id.my_search_button);
         searchBox = (AutocompleteView)view.findViewById(R.id.my_search_box);
@@ -190,6 +193,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 }
             }
         });
+        searchBox.addTextChangedListener(new TextChangeListener(this, getContext()));
+
         /*
         searchButton.setOnTouchListener(new SearchSwipeListener(getActivity()) {
             @Override
@@ -343,6 +348,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             }
         });
 
+        this.autoCompleteAdapter = new AutocompleteAdapter(getContext(), R.layout.item_friend, this.getFriendList());
+        this.getAutocompleteView().setAdapter(autoCompleteAdapter);
     }
 
     public void refreshPath() {

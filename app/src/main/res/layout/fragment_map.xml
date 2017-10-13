@@ -185,12 +185,13 @@
         <com.comp30022.helium.strawberry.components.map.helpers.AutocompleteView
 
             android:id="@+id/my_search_box"
-            android:layout_width="290dp"
+            android:layout_width="280dp"
             android:layout_height="40dp"
             android:layout_marginTop="5dp"
             android:backgroundTint="@color/colorPrimaryLight"
             android:completionThreshold="1"
             android:paddingLeft="10dp"
+            android:layout_marginBottom="5dp"
             android:layout_marginLeft="10dp"
             android:hint="Search Location Here"
             android:background="@drawable/rounded_corner"

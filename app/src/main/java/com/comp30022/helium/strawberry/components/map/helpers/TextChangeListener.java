@@ -16,6 +16,8 @@ import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static android.content.ContentValues.TAG;
+
 public class TextChangeListener implements TextWatcher {
 
     MapFragment parentFragment;
@@ -40,7 +42,9 @@ public class TextChangeListener implements TextWatcher {
 
         parentFragment.getAutoCompleteAdapter().notifyDataSetChanged();
         String[] friendList = parentFragment.getFriendList();
-
+        Log.e(TAG, "friends list length " + friendList.length);
+        Log.e(TAG, "UserInput " + userInput.toString());
+        String relevantFriends[] = findRelevantResults(friendList, userInput.toString());
         parentFragment.setAutoCompleteAdapter(new AutocompleteAdapter(context, R.layout.item_friend,
                 findRelevantResults(friendList, userInput.toString())));
         parentFragment.getAutocompleteView().setAdapter(parentFragment.getAutoCompleteAdapter());
@@ -49,11 +53,13 @@ public class TextChangeListener implements TextWatcher {
     public String[] findRelevantResults(String[] friendList, String userInput) {
         ArrayList<String> relevantFriends = new ArrayList<>();
         for(String friend : friendList) {
-            if(userInput.toLowerCase().contains(friend.toLowerCase())) {
+            Log.e(TAG, "The friend I am comparing to " + friend);
+            if(friend.toLowerCase().contains(userInput.toLowerCase())) {
                 relevantFriends.add(friend);
             }
         }
         String[] relevantFriendArray = new String[relevantFriends.size()];
+        Log.e(TAG, "relevant list length " + relevantFriendArray.length);
         relevantFriendArray = relevantFriends.toArray(relevantFriendArray);
         return relevantFriendArray;
     }
