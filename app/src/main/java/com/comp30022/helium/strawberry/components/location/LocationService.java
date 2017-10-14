@@ -215,10 +215,12 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
 
                                         Double longitude = (Double) latestLoc.get("longitude");
                                         Double latitude = (Double) latestLoc.get("latitude");
+                                        Double altitude = (Double) latestLoc.get("altitude");
                                         Location newLocation = new Location(this.getClass().getSimpleName());
 
                                         newLocation.setLatitude(latitude);
                                         newLocation.setLongitude(longitude);
+                                        newLocation.setAltitude(altitude);
 
                                         updateLocationCache(friend, newLocation);
                                     }
@@ -239,8 +241,7 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
     private void updateLocationCache(User user, Location location) {
         if (locationCache.containsKey(user)) {
             Location lastLoc = locationCache.get(user);
-            // TODO: update if altitude added
-            if (lastLoc.getLatitude() == location.getLatitude() && lastLoc.getLongitude() == location.getLongitude())
+            if (lastLoc.getLatitude() == location.getLatitude() && lastLoc.getLongitude() == location.getLongitude() && lastLoc.getAltitude() == location.getAltitude())
                 return;
         }
 
