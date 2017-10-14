@@ -19,6 +19,7 @@ import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationService;
+import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
@@ -189,14 +190,21 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
             trackAllTopFriends(MAX_DISP_MARKER, User.ProfilePictureType.NORMAL);
         } else {
             User targetUser = User.getUser(selectedUser);
-            this.arRenderer.addTracker(new ARTrackerBeacon(targetUser, true,
-                    User.ProfilePictureType.LARGE));
-            // track this user!
-            this.locationService.addTracker(targetUser);
-            Log.i(TAG, "Tracking: " + selectedUser);
-            trackAllTopFriends(MAX_DISP_MARKER, User.ProfilePictureType.NORMAL);
+            if (targetUser.equals(PeachServerInterface.currentUser())) {
+                Log.i(TAG, "No targeted user selected globally");
+                this.infoHUD.setText("Not tracking anyone. Select a user from the main menu!");
+                trackAllTopFriends(MAX_DISP_MARKER, User.ProfilePictureType.NORMAL);
+            } else {
+                this.arRenderer.addTracker(new ARTrackerBeacon(targetUser, true,
+                        User.ProfilePictureType.LARGE));
+                // track this user!
+                this.locationService.addTracker(targetUser);
+                Log.i(TAG, "Tracking: " + selectedUser);
+                trackAllTopFriends(MAX_DISP_MARKER, User.ProfilePictureType.NORMAL);
+            }
         }
     }
+
 
     private void trackAllTopFriends(int top, User.ProfilePictureType ppsize) {
         List<User> friends = StrawberryApplication.getCachedFriends();

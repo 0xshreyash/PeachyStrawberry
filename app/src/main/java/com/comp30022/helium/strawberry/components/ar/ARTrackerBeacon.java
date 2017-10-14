@@ -172,7 +172,7 @@ public class ARTrackerBeacon {
 
     @Override
     public boolean equals(Object other) {
-        if (other.getClass() != this.getClass()) {
+        if (other == null || other.getClass() != this.getClass()) {
             return false;
         }
 
