@@ -187,12 +187,11 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
             trackAllTopFriends(MAX_DISP_MARKER);
         } else {
             User targetUser = User.getUser(selectedUser);
-            ARTrackerBeacon target = new ARTrackerBeacon(targetUser);
-            this.arRenderer.addTracker(target);
+            this.arRenderer.addTracker(new ARTrackerBeacon(targetUser, true,
+                    User.ProfilePictureType.LARGE));
             // track this user!
             this.locationService.addTracker(targetUser);
             Log.i(TAG, "Tracking: " + selectedUser);
-            this.arRenderer.setProfilePictureSize(User.ProfilePictureType.LARGE);
         }
     }
 
@@ -200,16 +199,13 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         List<User> friends = StrawberryApplication.getCachedFriends();
         int counter = 0;
         for (User u : friends) {
-            this.arRenderer.addTracker(new ARTrackerBeacon(u));
+            this.arRenderer.addTracker(new ARTrackerBeacon(u, false,
+                    User.ProfilePictureType.NORMAL));
             this.locationService.addTracker(u);
             Log.i(TAG, "Tracking: " + u);
             counter++;
             if (counter >= top) break;
         }
-        // since the ALL friends are rendered, lets just make them small (normal size) for now
-        this.arRenderer.setProfilePictureSize(User.ProfilePictureType.NORMAL);
-        // dont display name anymore (or else it'll overlap!)
-        this.arRenderer.setDisplayName(false);
     }
 
 }

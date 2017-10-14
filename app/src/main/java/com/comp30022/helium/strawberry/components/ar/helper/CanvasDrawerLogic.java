@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.util.Log;
 
 import com.comp30022.helium.strawberry.components.ar.ARRenderer;
 import com.comp30022.helium.strawberry.components.ar.ARTrackerBeacon;
@@ -60,12 +61,10 @@ public class CanvasDrawerLogic {
      * Draws profile picture according to specified size on canvas at (x,y). Draws a default
      * knob if the user profile picture is null
      * @param canvas Canvas to draw on
-     * @param size Size of profile picture
      * @param target ARTrackerBeacon of current rendering target
      */
-    public void drawProfilePicture(Canvas canvas, User.ProfilePictureType size,
-                                   ARTrackerBeacon target) {
-        Bitmap profilePicture = target.getProfilePicture(this.context, size);
+    public void drawProfilePicture(Canvas canvas, ARTrackerBeacon target) {
+        Bitmap profilePicture = target.getProfilePicture();
         if (profilePicture != null)
             canvas.drawBitmap(profilePicture, target.getX(), target.getY(),
                     this.profilePicturePaint);
@@ -99,7 +98,8 @@ public class CanvasDrawerLogic {
         } else if (x < 0) {
             drawGuide(ARRenderer.Direction.LEFT, canvas, target);
         } else if (x > canvas.getWidth()) {
-            drawGuide(ARRenderer.Direction.RIGHT, canvas, target); } else if (y < 0) {
+            drawGuide(ARRenderer.Direction.RIGHT, canvas, target);
+        } else if (y < 0) {
             drawGuide(ARRenderer.Direction.UP, canvas, target);
         } else if (y > canvas.getHeight()) {
             drawGuide(ARRenderer.Direction.DOWN, canvas, target);
@@ -183,13 +183,18 @@ public class CanvasDrawerLogic {
         canvas.drawText(arrow, dx, dy, this.arrowPaint);
         canvas.restore();
 
-        Bitmap profilePicture = target.getProfilePicture(context, User.ProfilePictureType.SMALL);
+        // transaction start
+        User.ProfilePictureType oldSize = target.getSize();
+        target.setSize(User.ProfilePictureType.SMALL);
+        Bitmap profilePicture = target.getProfilePicture();
         if (profilePicture != null) {
             canvas.drawBitmap(profilePicture, dx + xOffset, dy + yOffset, this.profilePicturePaint);
         } else {
             // no profile picture available for this user (yet) - draw a dot
             canvas.drawCircle(dx + xOffset, dy + yOffset, DEFAULT_CIRCLE_RADIUS, this.namePaint);
         }
+        target.setSize(oldSize);
+        // transaction end
     }
 
 }

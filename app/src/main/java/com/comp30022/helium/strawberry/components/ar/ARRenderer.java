@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.location.Location;
 import android.support.constraint.ConstraintLayout;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -23,12 +24,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ARRenderer extends View {
+public class ARRenderer extends View implements View.OnTouchListener {
     private float[] projectionMatrix;
     private static final String TAG = ARRenderer.class.getSimpleName();
+    // max number of profile picture waits to do
+    private static final int MAX_BOTTLE_NECK = 50;
     private List<ARTrackerBeacon> trackers;
     private Location currentLocation;
-    private User.ProfilePictureType profilePictureType = User.ProfilePictureType.LARGE;
     private boolean drawName = true;
     // index values for camera coordinates float[]{x,y,z,w}
     private static final int X = 0;
@@ -42,6 +44,8 @@ public class ARRenderer extends View {
     private ProgressBar progressBar;
     private TextView loadingText;
     private boolean loading;
+    private int profilePictureBottleNeckCount;
+
 
     public enum Direction {
         UP, DOWN, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BTM_LEFT, BTM_RIGHT
@@ -57,6 +61,7 @@ public class ARRenderer extends View {
         this.progressBar = (ProgressBar) container.findViewById(R.id.arwait);
         this.loadingText = (TextView) container.findViewById(R.id.ar_load_msg);
         this.canvasDrawer = new CanvasDrawerLogic(this);
+        setOnTouchListener(this);
     }
 
     public void addTracker(ARTrackerBeacon tracker) {
@@ -97,6 +102,17 @@ public class ARRenderer extends View {
         return this.arActivity;
     }
 
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        int x = (int)motionEvent.getX();
+        int y = (int)motionEvent.getY();
+//        switch (motionEvent.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//            case MotionEvent.ACTION_MOVE:
+//            case MotionEvent.ACTION_UP:
+//        }
+        return false;
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -132,7 +148,7 @@ public class ARRenderer extends View {
 
             // if the point is in front of us ==> i.e. we should render it!
             if (cameraCoordinates[Z] > 0) {
-                canvasDrawer.drawProfilePicture(canvas, this.profilePictureType, target);
+                canvasDrawer.drawProfilePicture(canvas, target);
                 // Draw name above profile / circle
                 if (this.drawName) {
                     canvasDrawer.drawName(canvas, target.getUserName(),
@@ -153,8 +169,22 @@ public class ARRenderer extends View {
 
     @SuppressLint("SetTextI18n")
     private boolean loadIfInsufficientData() {
+        boolean load = false;
+        for (ARTrackerBeacon tracker : trackers) {
+            if (!tracker.finishLoading()) {
+                load = true;
+                this.profilePictureBottleNeckCount++;
+                break;
+            }
+        }
+
+        // don't spend forever waiting for that one profile picture, just render a dot.
+        if (this.profilePictureBottleNeckCount >= MAX_BOTTLE_NECK) {
+            load = false;
+        }
+
         // if we have insufficient data, show the loading screen
-        if (currentLocation == null || this.projectionMatrix == null) {
+        if (load || currentLocation == null || this.projectionMatrix == null) {
             // if we aren't already showing the loading screen, show it
             if (!this.loading) {
                 this.arActivity.displayInfoHUD("Loading...");
@@ -190,14 +220,5 @@ public class ARRenderer extends View {
         String formatted = String.format("%.2f%s away from %s", distanceTo,
                 unit, target.getUserName());
         this.arActivity.displayInfoHUD(formatted);
-    }
-
-
-    public void setProfilePictureSize(User.ProfilePictureType size) {
-            this.profilePictureType = size;
-    }
-
-    public void setDisplayName(boolean bool) {
-        this.drawName = bool;
     }
 }
