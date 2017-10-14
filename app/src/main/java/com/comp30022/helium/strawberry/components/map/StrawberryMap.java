@@ -220,8 +220,14 @@ public class StrawberryMap {
         paths.put(name, path);
     }
 
-    public void changeText(String name, String value) {
-        mapFragment.changeText(name, value);
+    // Update arrival distance.
+    public void setArrivalDistance(String value) {
+        mapFragment.setArrivalDistance(value);
+    }
+
+    // Update arrival time.
+    public void setArrivalTime(String value) {
+        mapFragment.setArrivalTime(value);
     }
 
     public void deleteAllPaths() {
