@@ -14,7 +14,7 @@ public class MockUser extends User {
     public static MockUser getMockUser(String id) {
         MockUserCache userCache = MockUserCache.getInstance();
         if (userCache.get(id) != null)
-            userCache.get(id);
+            return userCache.get(id);
 
         MockUser user = new MockUser(id);
         userCache.put(id, user);
@@ -24,7 +24,7 @@ public class MockUser extends User {
     public static MockUser getMockUser(String id, String username) {
         MockUserCache userCache = MockUserCache.getInstance();
         if (userCache.get(id) != null)
-            userCache.get(id);
+            return userCache.get(id);
 
         MockUser user = new MockUser(id, username);
         userCache.put(id, user);
@@ -34,7 +34,7 @@ public class MockUser extends User {
     public static MockUser getMockUser(String id, String username, String facebookId) {
         MockUserCache userCache = MockUserCache.getInstance();
         if (userCache.get(id) != null)
-            userCache.get(id);
+            return userCache.get(id);
 
         MockUser user = new MockUser(id, username, facebookId);
         userCache.put(id, user);

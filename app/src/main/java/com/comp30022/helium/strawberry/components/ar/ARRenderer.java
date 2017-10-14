@@ -1,18 +1,15 @@
 package com.comp30022.helium.strawberry.components.ar;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.location.Location;
-import android.opengl.Matrix;
 import android.support.constraint.ConstraintLayout;
 import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -24,19 +21,17 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.comp30022.helium.strawberry.components.ar.helper.CoordinateConverter.convertToScreenSpace;
 
 public class ARRenderer extends View {
     private float[] projectionMatrix;
     private static final String TAG = ARRenderer.class.getSimpleName();
     private List<ARTrackerBeacon> trackers;
     private Location currentLocation;
+    private User.ProfilePictureType profilePictureType = User.ProfilePictureType.LARGE;
+    private boolean drawName = true;
     // index values for camera coordinates float[]{x,y,z,w}
     private static final int X = 0;
     private static final int Y = 1;
@@ -164,7 +159,7 @@ public class ARRenderer extends View {
 
             // if the point is in front of us ==> i.e. we should render it!
             if (cameraCoordinates[Z] > 0) {
-                Bitmap profilePicture = target.getProfilePicture(this, false);
+                Bitmap profilePicture = target.getProfilePicture(this, this.profilePictureType);
                 if (profilePicture != null) {
                     canvas.drawBitmap(profilePicture, x, y, this.profilePicturePaint);
                 } else {
@@ -175,9 +170,10 @@ public class ARRenderer extends View {
                 ////////////////////////////////////////
                 // Draw name above profile / circle
                 ////////////////////////////////////////
-                canvas.drawText(target.getUserName(),
-                        x - (NAME_WIDTH_OFFSET * target.getUserName().length() / 2),
-                        y - NAME_HEIGHT_OFFSET, this.namePaint);
+                if (this.drawName)
+                    canvas.drawText(target.getUserName(),
+                            x - (NAME_WIDTH_OFFSET * target.getUserName().length() / 2),
+                            y - NAME_HEIGHT_OFFSET, this.namePaint);
 
                 /* ************************************************************************
                  * if the x and y will not be seen in screen, render the guide instead!
@@ -335,13 +331,21 @@ public class ARRenderer extends View {
         canvas.drawText(arrow, dx, dy, this.arrowPaint);
         canvas.restore();
 
-        Bitmap profilePicture = target.getProfilePicture(this, true);
+        Bitmap profilePicture = target.getProfilePicture(this, User.ProfilePictureType.SMALL);
         if (profilePicture != null) {
             canvas.drawBitmap(profilePicture, dx + xOffset, dy + yOffset, this.profilePicturePaint);
         } else {
             // no profile picture available for this user (yet) - draw a dot
             canvas.drawCircle(dx + xOffset, dy + yOffset, DEFAULT_CIRCLE_RADIUS, this.namePaint);
         }
+    }
+
+    public void setProfilePictureSize(User.ProfilePictureType size) {
+            this.profilePictureType = size;
+    }
+
+    public void setDisplayName(boolean bool) {
+        this.drawName = bool;
     }
 
     /**
@@ -370,5 +374,4 @@ public class ARRenderer extends View {
     private void setupProfilePicturePaint() {
         this.profilePicturePaint = new Paint();
     }
-
 }
