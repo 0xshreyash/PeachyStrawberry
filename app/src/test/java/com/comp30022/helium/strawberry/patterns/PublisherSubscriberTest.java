@@ -1,7 +1,7 @@
 package com.comp30022.helium.strawberry.patterns;
 
-import android.location.Location;
-import android.provider.Settings;
+import com.comp30022.helium.strawberry.mocks.MockPublisher;
+import com.comp30022.helium.strawberry.mocks.MockSubscriber;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +22,10 @@ public class PublisherSubscriberTest {
     @Mock
     List<MockSubscriber> mockSubscriberList;
 
+    /**
+     * Setup befoer the tests are run
+     * @throws Exception
+     */
     @Before
     public void setUp() throws Exception {
         mockPublisher = new MockPublisher();
@@ -32,6 +36,10 @@ public class PublisherSubscriberTest {
         }
     }
 
+
+    /**
+     * Test whether the publisher and subscriber works correctly or not.
+     */
     @Test
     public void publish_oneSubscriber() throws Exception {
         for(int i = 0; i <= 10; i ++){

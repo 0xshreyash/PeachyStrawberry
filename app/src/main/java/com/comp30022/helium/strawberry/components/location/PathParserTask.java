@@ -5,7 +5,7 @@ import android.util.Log;
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.helpers.JSONParser;
-import com.comp30022.helium.strawberry.helpers.ParserTask;
+import com.comp30022.helium.strawberry.patterns.ParserTask;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -97,16 +97,14 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
         }
 
         if (distance != null) {
-            strawberryMap.changeText("distance", distance);
+            strawberryMap.setArrivalDistance(distance);
         } else {
-            strawberryMap.changeText("distance", "Unknown");
             Log.e("onPostExecute", "without distance");
         }
 
         if (duration != null) {
-            strawberryMap.changeText("duration", duration);
+            strawberryMap.setArrivalTime(duration);
         } else {
-            strawberryMap.changeText("duration", "Unknown");
             Log.e("onPostExecute", "without duration");
         }
     }

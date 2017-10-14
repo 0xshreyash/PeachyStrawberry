@@ -16,15 +16,16 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_bias="1.0"
         tools:layout_constraintTop_creator="1"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1"
         app:layout_constraintBottom_toBottomOf="@+id/linearLayout2"
-        android:layout_marginBottom="48dp" />
+        android:layout_marginBottom="0dp" />
 
     <android.support.constraint.ConstraintLayout
+        android:animateLayoutChanges="true"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="0dp"
@@ -33,12 +34,13 @@
         android:layout_marginRight="0dp"
         android:layout_marginStart="0dp"
         android:layout_marginTop="92dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/map_fragment_test"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintVertical_bias="0.0"
+        android:id="@+id/constraintLayout">
 
         <fragment
             android:id="@+id/chat_fragment"
@@ -58,6 +60,7 @@
 
         <ImageButton
             android:id="@+id/chat_expand_button"
+            android:visibility="invisible"
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:layout_marginBottom="0dp"
@@ -68,22 +71,22 @@
 
     </android.support.constraint.ConstraintLayout>
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="bottom|right"
-        android:orientation="horizontal"
-        android:weightSum="1"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/map_fragment_test"
-        app:layout_constraintVertical_bias="1.0"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintTop_creator="1">
+    <!--<LinearLayout-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:gravity="bottom|right"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:weightSum="1"-->
+        <!--app:layout_constraintBottom_toTopOf="@+id/linearLayout2"-->
+        <!--app:layout_constraintHorizontal_bias="1.0"-->
+        <!--app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--app:layout_constraintRight_toRightOf="parent"-->
+        <!--app:layout_constraintTop_toTopOf="@+id/map_fragment_test"-->
+        <!--app:layout_constraintVertical_bias="1.0"-->
+        <!--tools:layout_constraintLeft_creator="1"-->
+        <!--tools:layout_constraintTop_creator="1">-->
 
-    </LinearLayout>
+    <!--</LinearLayout>-->
 
     <LinearLayout
         android:layout_width="0dp"
@@ -98,6 +101,7 @@
         android:id="@+id/linearLayout2">
 
         <ImageButton
+            android:visibility="gone"
             android:id="@+id/friend_list_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
