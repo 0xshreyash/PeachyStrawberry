@@ -109,6 +109,14 @@ public class ARTrackerBeacon {
         }
     }
 
+    public boolean isActive() {
+        return this.activeSelected;
+    }
+
+    public void setActive(boolean bool) {
+        this.activeSelected = bool;
+    }
+
     private void loadProfilePictures() {
         StrawberryCallback<Bitmap> callback = new StrawberryCallback<Bitmap>() {
             @Override
@@ -134,5 +142,18 @@ public class ARTrackerBeacon {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return user.hashCode();
+    }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() != this.getClass()) {
+            return false;
+        }
+
+        ARTrackerBeacon castedOther = (ARTrackerBeacon) other;
+        return castedOther.user.equals(this.user);
+    }
 }

@@ -184,7 +184,7 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
             Log.i(TAG, "No targeted user selected globally");
             this.infoHUD.setText("Not tracking anyone. Select a user from the main menu!");
             this.displayOverride = true;
-            trackAllTopFriends(MAX_DISP_MARKER);
+            trackAllTopFriends(MAX_DISP_MARKER, User.ProfilePictureType.NORMAL);
         } else {
             User targetUser = User.getUser(selectedUser);
             this.arRenderer.addTracker(new ARTrackerBeacon(targetUser, true,
@@ -192,15 +192,16 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
             // track this user!
             this.locationService.addTracker(targetUser);
             Log.i(TAG, "Tracking: " + selectedUser);
+            trackAllTopFriends(MAX_DISP_MARKER, User.ProfilePictureType.NORMAL);
         }
     }
 
-    private void trackAllTopFriends(int top) {
+    private void trackAllTopFriends(int top, User.ProfilePictureType ppsize) {
         List<User> friends = StrawberryApplication.getCachedFriends();
         int counter = 0;
         for (User u : friends) {
             this.arRenderer.addTracker(new ARTrackerBeacon(u, false,
-                    User.ProfilePictureType.NORMAL));
+                    ppsize));
             this.locationService.addTracker(u);
             Log.i(TAG, "Tracking: " + u);
             counter++;

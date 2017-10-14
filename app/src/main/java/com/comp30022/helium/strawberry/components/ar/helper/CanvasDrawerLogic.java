@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.util.Log;
 
 import com.comp30022.helium.strawberry.components.ar.ARRenderer;
 import com.comp30022.helium.strawberry.components.ar.ARTrackerBeacon;
@@ -38,9 +37,8 @@ public class CanvasDrawerLogic {
     private Paint arrowPaint;
     private Paint profilePicturePaint;
     private Paint namePaint;
-    private ARRenderer context;
 
-    public CanvasDrawerLogic(ARRenderer context) {
+    public CanvasDrawerLogic() {
         this.namePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         this.namePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         this.namePaint.setColor(ColourScheme.PRIMARY_DARK);
@@ -54,7 +52,6 @@ public class CanvasDrawerLogic {
         this.arrowPaint.setTextSize(120);
 
         this.profilePicturePaint = new Paint();
-        this.context = context;
     }
 
     /**

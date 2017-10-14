@@ -22,16 +22,17 @@ import com.comp30022.helium.strawberry.helpers.ColourScheme;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ARRenderer extends View implements View.OnTouchListener {
     private float[] projectionMatrix;
     private static final String TAG = ARRenderer.class.getSimpleName();
     // max number of profile picture waits to do
     private static final int MAX_BOTTLE_NECK = 50;
-    private List<ARTrackerBeacon> trackers;
+    private Set<ARTrackerBeacon> trackers;
     private Location currentLocation;
-    private boolean drawName = true;
     // index values for camera coordinates float[]{x,y,z,w}
     private static final int X = 0;
     private static final int Y = 1;
@@ -56,11 +57,11 @@ public class ARRenderer extends View implements View.OnTouchListener {
         super(context);
         // this is dangerous, but we're sure that only ARActivity is using this ARRenderer for now
         this.arActivity = (ARActivity) context;
-        this.trackers = new ArrayList<>();
+        this.trackers = new HashSet<>();
         this.currentLocation = LocationService.getInstance().getDeviceLocation();
         this.progressBar = (ProgressBar) container.findViewById(R.id.arwait);
         this.loadingText = (TextView) container.findViewById(R.id.ar_load_msg);
-        this.canvasDrawer = new CanvasDrawerLogic(this);
+        this.canvasDrawer = new CanvasDrawerLogic();
         setOnTouchListener(this);
     }
 
@@ -121,8 +122,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
         // for each tracker beacon, we draw them on screen if they're in positive Z axis (i.e.
         // in front of us), else we render a guide pointing towards the target on the edges of the
         // screen.
-        for (int i = 0; i != trackers.size(); ++i) {
-            ARTrackerBeacon target = trackers.get(i);
+        for (ARTrackerBeacon target : trackers) {
             // convert from : GPS -> ENU
             float[] ENUCoordinates = CoordinateConverter.getENU(target.getLocation(),
                     this.currentLocation);
@@ -137,31 +137,45 @@ public class ARRenderer extends View implements View.OnTouchListener {
 
             target.setXY(screenCoordinates[X], screenCoordinates[Y]);
 
-            // this happens if you're exactly at the target's location because the difference
-            // between you and target's ENU coordinate is 0
-            if (Float.isNaN(target.getX()) || Float.isNaN(target.getY())) {
-                this.arActivity.displayInfoHUD("You have arrived at " + target.getUserName()
-                        + "'s location");
-            } else {
-                writeDistanceTo(target);
+            if (target.isActive()) {
+                // this happens if you're exactly at the target's location because the difference
+                // between you and target's ENU coordinate is 0
+                if (Float.isNaN(target.getX()) || Float.isNaN(target.getY())) {
+                    this.arActivity.displayInfoHUD("You have arrived at " + target.getUserName()
+                            + "'s location");
+                } else {
+                    writeDistanceTo(target);
+                }
             }
 
             // if the point is in front of us ==> i.e. we should render it!
             if (cameraCoordinates[Z] > 0) {
-                canvasDrawer.drawProfilePicture(canvas, target);
-                // Draw name above profile / circle
-                if (this.drawName) {
+                if (target.isActive()) {
+                    // draw it in LARGE size
+                    canvasDrawer.drawProfilePicture(canvas, target);
+                    // Draw name above profile / circle
                     canvasDrawer.drawName(canvas, target.getUserName(),
                             target.getX(), target.getY());
+                    // if the x and y will not be seen in screen, render the guide instead!
+                    canvasDrawer.deduceGuide(canvas, target);
+                } else {
+                    // BEGIN TRANSACTION
+                    // draw it in NORMAL size
+                    User.ProfilePictureType oldSize = target.getSize();
+                    target.setSize(User.ProfilePictureType.NORMAL);
+                    canvasDrawer.drawProfilePicture(canvas, target);
+                    target.setSize(oldSize);
+                    // END TRANSACTION
+                    // don't bother drawing name on someone UNSELECTED
                 }
-                // if the x and y will not be seen in screen, render the guide instead!
-                canvasDrawer.deduceGuide(canvas, target);
             } else {
                 // Draw Guide artefact in general direction
-                if (target.getX() > 0) {
-                    canvasDrawer.drawGuide(Direction.LEFT, canvas, target);
-                } else {
-                    canvasDrawer.drawGuide(Direction.RIGHT, canvas, target);
+                if (target.isActive()) {
+                    if (target.getX() > 0) {
+                        canvasDrawer.drawGuide(Direction.LEFT, canvas, target);
+                    } else {
+                        canvasDrawer.drawGuide(Direction.RIGHT, canvas, target);
+                    }
                 }
             }
         }
