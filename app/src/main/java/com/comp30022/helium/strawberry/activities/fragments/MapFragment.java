@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.media.Image;
 import android.os.Bundle;
 
 import com.comp30022.helium.strawberry.StrawberryApplication;
@@ -22,6 +23,7 @@ import com.comp30022.helium.strawberry.entities.User;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -68,8 +70,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private View view;
     private ViewGroup clickMenu, searchBar;
     private TextView userName;
-    private Button chatButtom;
-    private Button arButton;
+    private ImageButton chatButtom;
+    private ImageButton arButton;
     private MenuItemTouchListener chatListener;
     private MenuItemTouchListener arListener;
     private StrawberryMapWrapperLayout mapLayout;
@@ -87,8 +89,9 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private int MARKER_HEIGHT = 5;
     private int OFFSET_FROM_MARKER = 20;
 
-    private ArrayAdapter<String> autoCompleteAdapter;
+    private AutocompleteAdapter autoCompleteAdapter;
     private AutocompleteView searchBox;
+    private User[] friendArray;
 
     public MapFragment() {
         // Required empty public constructor
@@ -98,6 +101,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.view = inflater.inflate(R.layout.fragment_map, container, false);
         //Log.i(TAG, this.view.findViewById(R.id.map_wrapper_layout).getId() + " the id of the map_wrapper is");
+        friendArray = new User[StrawberryApplication.getCachedFriends().size()];
+        friendArray = StrawberryApplication.getCachedFriends().toArray(friendArray);
 
         // find views
         mMapView = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -158,8 +163,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
          */
         this.clickMenu = (ViewGroup) inflater.inflate(R.layout.marker_click_menu, null);
         this.userName = (TextView) clickMenu.findViewById(R.id.friend_name);
-        this.arButton = (Button) clickMenu.findViewById(R.id.button_ar);
-        this.chatButtom = (Button) clickMenu.findViewById(R.id.button_chat);
+        this.arButton = (ImageButton) clickMenu.findViewById(R.id.button_ar);
+        this.chatButtom = (ImageButton) clickMenu.findViewById(R.id.button_chat);
 
         this.chatListener = new MenuItemTouchListener(clickMenu, R.id.button_chat) {
             @Override
@@ -170,6 +175,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 }
             }
         };
+
         this.chatButtom.setOnTouchListener(chatListener);
         this.arListener = new MenuItemTouchListener(clickMenu, R.id.button_ar) {
             @Override
@@ -180,6 +186,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 }
             }
         };
+
         this.arButton.setOnTouchListener(arListener);
 
 
@@ -194,12 +201,31 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         searchBox.setSelectAllOnFocus(true);
         searchBox.setFocusableInTouchMode(true);
 
+        searchBox.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if(keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                    User curr = autoCompleteAdapter.getTopUser();
+                    if(curr != null ) {
+                        resetSearchBar();
+                        showWindowForFriend(curr);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (searchBox.getVisibility() == View.VISIBLE) {
                     searchBox.setVisibility(View.INVISIBLE);
                     searchBox.setVisibility(View.GONE);
+                    searchBox.setText("");
+
+                    InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
 
                     RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) searchBar.getLayoutParams();
                     layoutParams.removeRule(RelativeLayout.BELOW);
@@ -358,12 +384,6 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override
             public View getInfoWindow(Marker marker) {
-                return null;
-            }
-
-            @Override
-            public View getInfoContents(Marker marker) {
-                // Setting up the infoWindow with current's marker info
                 userName.setText(marker.getTitle());
                 chatListener.setMarker(marker);
                 arListener.setMarker(marker);
@@ -373,9 +393,15 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                 mapLayout.setMarkerWithInfoWindow(marker, clickMenu);
                 return clickMenu;
             }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                // Setting up the infoWindow with current's marker info
+                return null;
+            }
         });
 
-        this.autoCompleteAdapter = new AutocompleteAdapter(getContext(), R.layout.item_friend, this.getFriendList(), this);
+        this.autoCompleteAdapter = new AutocompleteAdapter(getContext(), R.layout.item_friend, friendArray, this);
         this.getAutocompleteView().setAdapter(autoCompleteAdapter);
     }
 
@@ -498,20 +524,20 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         map.updatePath(PeachServerInterface.currentUser().getId(), StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
     }
 
-    public ArrayAdapter<String> getAutoCompleteAdapter() {
+    public ArrayAdapter<User> getAutoCompleteAdapter() {
         return autoCompleteAdapter;
     }
 
-    public void setAutoCompleteAdapter(ArrayAdapter<String> autoCompleteAdapter) {
+    public void setAutoCompleteAdapter(AutocompleteAdapter autoCompleteAdapter) {
         this.autoCompleteAdapter = autoCompleteAdapter;
     }
 
-    public void showWindowForFriend(String title) {
-        this.map.showWindowForMarker(title);
+    public void showWindowForFriend(User user) {
+        this.map.showWindowForMarker(user.getId());
     }
 
-    public String[] getFriendList() {
-        return map.getFriendNames();
+    public User[] getFriendArray() {
+        return friendArray;
     }
 
     public AutocompleteView getAutocompleteView() {
@@ -535,10 +561,6 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     }
 
     public void resetSearchBar() {
-        searchBox.setText("");
         searchButton.callOnClick();
-
-        InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
     }
 }

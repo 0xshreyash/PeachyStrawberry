@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
@@ -40,7 +40,7 @@ public abstract class MenuItemTouchListener implements View.OnTouchListener {
     }
 
     public boolean onTouch(MotionEvent event, View vv) {
-        Button b = (Button)view.findViewById(this.id);
+        ImageButton b = (ImageButton)view.findViewById(this.id);
         Log.e(TAG, b.getId() + "");
         if (0 <= event.getX() && event.getX() <= view.getWidth() &&
                 0 <= event.getY() && event.getY() <= vv.getHeight())
@@ -67,10 +67,9 @@ public abstract class MenuItemTouchListener implements View.OnTouchListener {
     public void startPress(View view) {
         if (!pressed) {
             pressed = true;
-            Button button = (Button)view.findViewById(this.id);
+            ImageButton button = (ImageButton)view.findViewById(this.id);
 
-            button.setBackgroundColor(ColourScheme.PRIMARY_LIGHT);
-            button.setTextColor(button.getResources().getColor(R.color.black));
+            button.setBackgroundColor(ColourScheme.SECONDARY_DARK);
             handler.removeCallbacks(confirmClickRunnable);
             if (marker != null)
                 marker.showInfoWindow();
@@ -80,9 +79,8 @@ public abstract class MenuItemTouchListener implements View.OnTouchListener {
     private boolean endPress() {
         if (pressed) {
             this.pressed = false;
-            Button button = (Button)view.findViewById(this.id);
-            button.setBackgroundColor(ColourScheme.PRIMARY_DARK);
-            button.setTextColor(button.getResources().getColor(R.color.white));
+            ImageButton button = (ImageButton)view.findViewById(this.id);
+            button.setBackgroundColor(ColourScheme.SECONDARY);
             handler.removeCallbacks(confirmClickRunnable);
             if (marker != null)
                 marker.showInfoWindow();

@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
+import com.comp30022.helium.strawberry.entities.User;
 
 /**
  * Created by shreyashpatodia on 14/10/17.
@@ -15,27 +16,26 @@ import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
 
 public class SearchOptionClickListener implements View.OnClickListener {
 
+    private final User currUser;
     private MapFragment parentFragment;
     private static final String TAG = "SearchOptionClicked";
-    private String[] options;
     private TextChangeListener textChangeListener;
 
-    public SearchOptionClickListener(MapFragment parentFragment, String[] options, TextChangeListener textChangeListener) {
+    public SearchOptionClickListener(MapFragment parentFragment, User currUser, TextChangeListener textChangeListener) {
+        this.currUser = currUser;
         this.parentFragment = parentFragment;
-        this.options = options;
         this.textChangeListener = textChangeListener;
     }
 
     @Override
     public void onClick(View view) {
         Log.e(TAG, "OnClick for search Item is called");
-        parentFragment.resetSearchBar();
-        TextView username = (TextView) view.findViewById(R.id.username);
 
-        parentFragment.showWindowForFriend(username.getText().toString());
+        parentFragment.showWindowForFriend(currUser);
+        parentFragment.resetSearchBar();
 
         //options = new String[options.length];
-        if(textChangeListener != null) {
+        if (textChangeListener != null) {
             textChangeListener.onTextChanged(new CharSequence() {
                 @Override
                 public int length() {

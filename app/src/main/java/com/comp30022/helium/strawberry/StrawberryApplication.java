@@ -103,7 +103,7 @@ public class StrawberryApplication extends Application {
     public static String getMacAddress() {
         SharedPreferences pref = getInstance().getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
         String mac = pref.getString(MAC_TAG, "UNKNOWN");
-        
+
         return mac;
     }
 
@@ -147,10 +147,13 @@ public class StrawberryApplication extends Application {
         notifyAllSubscribers(name, val);
     }
 
-    private static void notifyAllSubscribers(String name, Object val) {
-        ListIterator<Subscriber<Event>> subIterator = subs.listIterator();
-        while(subIterator.hasNext()) {
-            subIterator.next().update(new GlobalVariableChangeEvent(myApplication, name, val));
+    private synchronized static void notifyAllSubscribers(String name, Object val) {
+        synchronized (StrawberryApplication.class) {
+            ListIterator<Subscriber<Event>> subIterator = subs.listIterator();
+
+            while (subIterator.hasNext()) {
+                subIterator.next().update(new GlobalVariableChangeEvent(myApplication, name, val));
+            }
         }
     }
 
@@ -174,12 +177,12 @@ public class StrawberryApplication extends Application {
 
     public static List<User> getCachedFriends() {
         Set<String> friendSet = getStringSet("friends");
-        if(friendSet == null)
+        if (friendSet == null)
             return Collections.emptyList();
 
         List<User> list = new ArrayList<>();
 
-        for(String friend: friendSet) {
+        for (String friend : friendSet) {
             list.add(User.toObject(friend));
         }
 
@@ -209,11 +212,15 @@ public class StrawberryApplication extends Application {
 
 
     public static void registerSubscriber(Subscriber<Event> sub) {
-        subs.add(sub);
+        synchronized (StrawberryApplication.class) {
+            subs.add(sub);
+        }
     }
 
     public static void deregisterSubscriber(Subscriber<Event> sub) {
-        subs.remove(sub);
+        synchronized (StrawberryApplication.class) {
+            subs.remove(sub);
+        }
     }
 
     public static class GlobalVariableChangeEvent implements Event<Application, String, Object> {

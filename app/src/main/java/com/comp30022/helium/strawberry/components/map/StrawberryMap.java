@@ -239,10 +239,10 @@ public class StrawberryMap {
         return friendNames;
     }
 
-    public void showWindowForMarker(String title) {
-        for(String id : markers.keySet()) {
-            Marker currentMarker = markers.get(id);
-            if(title.equals(currentMarker.getTitle())) {
+    public void showWindowForMarker(String id) {
+        for(String key : markers.keySet()) {
+            if(id.equals(key)) {
+                Marker currentMarker = markers.get(key);
                 currentMarker.showInfoWindow();
                 Location temp = new Location(LocationManager.GPS_PROVIDER);
                 temp.setLatitude(currentMarker.getPosition().latitude);

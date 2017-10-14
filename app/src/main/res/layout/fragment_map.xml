@@ -200,6 +200,7 @@
             android:backgroundTint="@color/colorSecondary"
             android:completionThreshold="1"
             android:hint="@string/search_friend"
+            android:maxLines="1"
             android:paddingStart="10dp"
             android:textColor="@color/black"
             android:visibility="gone"
@@ -228,9 +229,4 @@
             android:layout_marginBottom="0dp" />
 
     </android.support.constraint.ConstraintLayout>
-
-
-
-    <!--Add a textview to show the distance-->
-
 </RelativeLayout>
