@@ -23,11 +23,7 @@ public class PublisherSubscriberTest {
     List<MockSubscriber> mockSubscriberList;
 
     /**
-<<<<<<< HEAD
-     * Setup befoere the tests is run
-=======
-     * Setup befoere the tests are run
->>>>>>> develop
+     * Setup befoer the tests are run
      * @throws Exception
      */
     @Before
