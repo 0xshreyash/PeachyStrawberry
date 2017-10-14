@@ -3,6 +3,7 @@ package com.comp30022.helium.strawberry.helpers;
 
 import android.location.Location;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import com.comp30022.helium.strawberry.helpers.LocationHelper;
 
@@ -20,11 +21,9 @@ public class LocationHelperTest {
     private Double EPSILON = 0.000001;
 
     private Location mockLocation;
-    private LocationHelper mockLocationHelper;
 
     @Before
     public void setUp() throws Exception {
-        mockLocationHelper = new LocationHelper();
         double lo, la;
         lo = 200.0;
         la = 20.0;
@@ -36,7 +35,7 @@ public class LocationHelperTest {
     @Test
     public void locationToString_isValid() throws Exception {
         String result;
-        result = mockLocationHelper.locationToString(mockLocation);
+        result = LocationHelper.locationToString(mockLocation);
         String ans = "20.0 200.0";
         assertEquals(ans, result);
     }
@@ -44,10 +43,8 @@ public class LocationHelperTest {
     @Test
     public void stringToLocation_isValid() throws Exception {
         String test = "20.0 200.0";
-        Location result;
-        result = mockLocationHelper.stringToLocation(test);
-        boolean val = cmpLocation(result);
-        assertEquals(true, val);
+        Location result = LocationHelper.stringToLocation(test);
+        assertTrue(cmpLocation(result));
 
     }
 
@@ -55,7 +52,7 @@ public class LocationHelperTest {
         Double latitude = result.getLatitude();
         Double longitude = result.getLongitude();
 
-        if(!(latitude != null && Math.abs(latitude - mockLocation.getAltitude()) < EPSILON)) {
+        if(!(latitude != null && Math.abs(latitude - mockLocation.getLatitude()) < EPSILON)) {
             return false;
         }
         if(!(longitude != null && Math.abs(longitude - mockLocation.getLongitude()) < EPSILON)) {
