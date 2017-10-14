@@ -7,7 +7,7 @@ android {
         applicationId "com.comp30022.helium.strawberry"
         minSdkVersion 19
         targetSdkVersion 25
-        versionName '1.0.0'
+        versionName '1.1.0'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         versionNameSuffix 'berry'
     }
