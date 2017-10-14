@@ -2,10 +2,7 @@ package com.comp30022.helium.strawberry.components.ar;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.location.Location;
 import android.support.constraint.ConstraintLayout;
 import android.util.Log;
@@ -14,6 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
+import com.comp30022.helium.strawberry.components.ar.helper.CanvasDrawerLogic;
 import com.comp30022.helium.strawberry.components.ar.helper.CoordinateConverter;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationService;
@@ -38,37 +36,14 @@ public class ARRenderer extends View {
     private static final int Z = 2;
     private static final int W = 3;
 
-    // offset for the username height
-    private static final int NAME_HEIGHT_OFFSET = 70;
-    // offset for the username width
-    private static final int NAME_WIDTH_OFFSET = 7;
-    // When the user has no profile picture/callback hasn't returned, we render a temporary
-    // circle with this radius as replacement for the profile picture
-    private static final int DEFAULT_CIRCLE_RADIUS = 30;
-    // offset for the guide artefact
-    private static final int GUIDE_OFFSET = 31;
-    // when drawing the guide, offset the image away from the arrow
-    private static final int IMAGE_OFFSET = 100;
-
-    /* The following offsets are for visual treats, they make the cropped profile picture align well
-            with the guide arrow. The values are determined by eye. */
-    private static final int LEFT_IMAGE_OFFSET = 60;
-    private static final int RIGHT_IMAGE_OFFSET = 30;
-    private static final int BTM_LEFT_IMAGE_OFFSET = RIGHT_IMAGE_OFFSET;
-    private static final int BTM_IMAGE_OFFSET = 50;
-    private static final int TOP_LEFT_IMAGE_OFFSET = 60;
-    private static final int BTM_RIGHT_IMAGE_OFFSET = 30;
-
     private ARActivity arActivity;
-    private Paint namePaint;
-    private Paint arrowPaint;
-    private Paint profilePicturePaint;
+    private CanvasDrawerLogic canvasDrawer;
 
     private ProgressBar progressBar;
     private TextView loadingText;
     private boolean loading;
 
-    private enum Direction {
+    public enum Direction {
         UP, DOWN, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BTM_LEFT, BTM_RIGHT
     }
 
@@ -81,9 +56,7 @@ public class ARRenderer extends View {
         this.currentLocation = LocationService.getInstance().getDeviceLocation();
         this.progressBar = (ProgressBar) container.findViewById(R.id.arwait);
         this.loadingText = (TextView) container.findViewById(R.id.ar_load_msg);
-        setupArrowPaint();
-        setupNamePaint();
-        setupProfilePicturePaint();
+        this.canvasDrawer = new CanvasDrawerLogic(this);
     }
 
     public void addTracker(ARTrackerBeacon tracker) {
@@ -145,12 +118,12 @@ public class ARRenderer extends View {
                     cameraCoordinates,
                     canvas.getWidth(),
                     canvas.getHeight());
-            float x = screenCoordinates[X];
-            float y = screenCoordinates[Y];
+
+            target.setXY(screenCoordinates[X], screenCoordinates[Y]);
 
             // this happens if you're exactly at the target's location because the difference
             // between you and target's ENU coordinate is 0
-            if (Float.isNaN(x) || Float.isNaN(y)) {
+            if (Float.isNaN(target.getX()) || Float.isNaN(target.getY())) {
                 this.arActivity.displayInfoHUD("You have arrived at " + target.getUserName()
                         + "'s location");
             } else {
@@ -159,56 +132,20 @@ public class ARRenderer extends View {
 
             // if the point is in front of us ==> i.e. we should render it!
             if (cameraCoordinates[Z] > 0) {
-                Bitmap profilePicture = target.getProfilePicture(this, this.profilePictureType);
-                if (profilePicture != null) {
-                    canvas.drawBitmap(profilePicture, x, y, this.profilePicturePaint);
-                } else {
-                    // no profile picture available for this user (yet)
-                    canvas.drawCircle(x, y, DEFAULT_CIRCLE_RADIUS, this.namePaint);
-                }
-
-                ////////////////////////////////////////
+                canvasDrawer.drawProfilePicture(canvas, this.profilePictureType, target);
                 // Draw name above profile / circle
-                ////////////////////////////////////////
-                if (this.drawName)
-                    canvas.drawText(target.getUserName(),
-                            x - (NAME_WIDTH_OFFSET * target.getUserName().length() / 2),
-                            y - NAME_HEIGHT_OFFSET, this.namePaint);
-
-                /* ************************************************************************
-                 * if the x and y will not be seen in screen, render the guide instead!
-                 * ************************************************************************/
-
-                ////////////////////////////////////////////////
-                // Draw Guide artefact in general direction
-                ////////////////////////////////////////////////
-                if (x < 0 && y < 0) {
-                    drawGuide(Direction.TOP_LEFT, canvas, target, x, y);
-                } else if (x > canvas.getWidth() && y < 0) {
-                    drawGuide(Direction.TOP_RIGHT, canvas, target, x, y);
-                } else if (x < 0 && y > canvas.getHeight()) {
-                    drawGuide(Direction.BTM_LEFT, canvas, target, x, y);
-                } else if (x > canvas.getWidth() && y > canvas.getHeight()) {
-                    drawGuide(Direction.BTM_RIGHT, canvas, target, x, y);
-                } else if (x < 0) {
-                    drawGuide(Direction.LEFT, canvas, target, x, y);
-                } else if (x > canvas.getWidth()) {
-                    drawGuide(Direction.RIGHT, canvas, target, x, y);
-                } else if (y < 0) {
-                    drawGuide(Direction.UP, canvas, target, x, y);
-                } else if (y > canvas.getHeight()) {
-                    drawGuide(Direction.DOWN, canvas, target, x, y);
+                if (this.drawName) {
+                    canvasDrawer.drawName(canvas, target.getUserName(),
+                            target.getX(), target.getY());
                 }
-
+                // if the x and y will not be seen in screen, render the guide instead!
+                canvasDrawer.deduceGuide(canvas, target);
             } else {
-
-                ////////////////////////////////////////////////
                 // Draw Guide artefact in general direction
-                ////////////////////////////////////////////////
-                if (x > 0) {
-                    drawGuide(Direction.LEFT, canvas, target, x, y);
+                if (target.getX() > 0) {
+                    canvasDrawer.drawGuide(Direction.LEFT, canvas, target);
                 } else {
-                    drawGuide(Direction.RIGHT, canvas, target, x, y);
+                    canvasDrawer.drawGuide(Direction.RIGHT, canvas, target);
                 }
             }
         }
@@ -256,122 +193,11 @@ public class ARRenderer extends View {
     }
 
 
-    private void drawGuide(Direction direction, Canvas canvas, ARTrackerBeacon target, float x, float y) {
-        if (x < 0 || x > canvas.getWidth()) {
-            x = x < 0 ? GUIDE_OFFSET : canvas.getWidth() - GUIDE_OFFSET;
-        }
-        if (y < 0 || y > canvas.getHeight()) {
-            y = y < 0 ? GUIDE_OFFSET : canvas.getHeight() - GUIDE_OFFSET;
-        }
-        float dx = 0;
-        float dy = 0;
-        float xOffset = 0;
-        float yOffset = 0;
-        final String arrow = "<";
-        float rotation = 0;
-        switch (direction) {
-            case UP:
-                dx = x;
-                dy = GUIDE_OFFSET;
-                rotation = -90;
-                yOffset = IMAGE_OFFSET;
-                break;
-            case DOWN:
-                dx = x;
-                dy = canvas.getHeight() - GUIDE_OFFSET;
-                rotation = 90;
-                yOffset = -(IMAGE_OFFSET + BTM_IMAGE_OFFSET);
-                xOffset = -BTM_IMAGE_OFFSET;
-                break;
-            case LEFT:
-                dx = GUIDE_OFFSET;
-                dy = y;
-                rotation = 0;
-                xOffset = IMAGE_OFFSET;
-                yOffset = -LEFT_IMAGE_OFFSET;
-                break;
-            case RIGHT:
-                dx = canvas.getWidth() - GUIDE_OFFSET;
-                dy = y;
-                rotation = 180;
-                xOffset = -(IMAGE_OFFSET + RIGHT_IMAGE_OFFSET);
-                break;
-            case TOP_LEFT:
-                dx = GUIDE_OFFSET;
-                dy = GUIDE_OFFSET;
-                rotation = -45;
-                xOffset = IMAGE_OFFSET - TOP_LEFT_IMAGE_OFFSET / 2;
-                yOffset = IMAGE_OFFSET - TOP_LEFT_IMAGE_OFFSET;
-                break;
-            case TOP_RIGHT:
-                dx = canvas.getWidth() - GUIDE_OFFSET;
-                dy = GUIDE_OFFSET;
-                rotation = -135;
-                xOffset = -IMAGE_OFFSET;
-                yOffset = IMAGE_OFFSET;
-                break;
-            case BTM_LEFT:
-                dx = GUIDE_OFFSET;
-                dy = canvas.getHeight() - GUIDE_OFFSET;
-                rotation = 45;
-                xOffset = IMAGE_OFFSET - BTM_LEFT_IMAGE_OFFSET * 2;
-                yOffset = -IMAGE_OFFSET - BTM_LEFT_IMAGE_OFFSET;
-                break;
-            case BTM_RIGHT:
-                dx = canvas.getWidth() - GUIDE_OFFSET;
-                dy = canvas.getHeight() - GUIDE_OFFSET;
-                rotation = 135;
-                xOffset = -(IMAGE_OFFSET + BTM_RIGHT_IMAGE_OFFSET);
-                yOffset = -IMAGE_OFFSET + BTM_RIGHT_IMAGE_OFFSET;
-                break;
-        }
-        canvas.save();
-        // negative rotation because android uses positive clockwise system
-        canvas.rotate(-rotation, dx, dy);
-        canvas.drawText(arrow, dx, dy, this.arrowPaint);
-        canvas.restore();
-
-        Bitmap profilePicture = target.getProfilePicture(this, User.ProfilePictureType.SMALL);
-        if (profilePicture != null) {
-            canvas.drawBitmap(profilePicture, dx + xOffset, dy + yOffset, this.profilePicturePaint);
-        } else {
-            // no profile picture available for this user (yet) - draw a dot
-            canvas.drawCircle(dx + xOffset, dy + yOffset, DEFAULT_CIRCLE_RADIUS, this.namePaint);
-        }
-    }
-
     public void setProfilePictureSize(User.ProfilePictureType size) {
             this.profilePictureType = size;
     }
 
     public void setDisplayName(boolean bool) {
         this.drawName = bool;
-    }
-
-    /**
-     * Username's paint style
-     */
-    private void setupNamePaint() {
-        this.namePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.namePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        this.namePaint.setColor(ColourScheme.PRIMARY_DARK);
-        this.namePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        this.namePaint.setTextSize(60);
-    }
-
-    /**
-     * Guide arrow's paint style
-     */
-    private void setupArrowPaint() {
-        // set default arrow paint
-        this.arrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.arrowPaint.setStyle(Paint.Style.FILL);
-        this.arrowPaint.setColor(ColourScheme.PRIMARY_DARK);
-        this.arrowPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-        this.arrowPaint.setTextSize(120);
-    }
-
-    private void setupProfilePicturePaint() {
-        this.profilePicturePaint = new Paint();
     }
 }

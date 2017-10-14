@@ -19,6 +19,7 @@ public class ARTrackerBeacon {
     private Bitmap normalProfilePicture;
     private Bitmap smallprofilePicture;
     private static final String TAG = ARTrackerBeacon.class.getSimpleName();
+    private float x, y;
 
     public ARTrackerBeacon(User user) {
         this.user = user;
@@ -83,5 +84,18 @@ public class ARTrackerBeacon {
 
     public User getUser() {
         return user;
+    }
+
+    public void setXY(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
     }
 }
