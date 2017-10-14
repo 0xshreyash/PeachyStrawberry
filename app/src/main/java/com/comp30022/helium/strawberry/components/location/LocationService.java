@@ -192,7 +192,7 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         }
     }
 
-    private TimerTask getLocationQueryTimerTask() {
+    public TimerTask getLocationQueryTimerTask() {
         return new TimerTask() {
             @Override
             public void run() {

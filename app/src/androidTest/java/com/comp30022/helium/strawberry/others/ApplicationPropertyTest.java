@@ -1,10 +1,8 @@
-package com.comp30022.helium.strawberry;
+package com.comp30022.helium.strawberry.others;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.core.deps.guava.util.concurrent.ExecutionError;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import org.junit.Test;
@@ -23,9 +21,10 @@ public class ApplicationPropertyTest {
 
     public ApplicationPropertyTest() {
         Log.i(TAG, "----------------------------------------\n" +
-                   "         Google Maps Unit Test\n"+
+                   "            Application Test\n"+
                    "----------------------------------------\n");
     }
+
     @Test
     public void packageName_isCorrect() throws Exception {
         // Context of the app under test.

@@ -2,9 +2,11 @@ package com.comp30022.helium.strawberry.components.map;
 
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 
 import com.comp30022.helium.strawberry.R;
+
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
 import com.comp30022.helium.strawberry.components.map.exceptions.NoSuchMarkerException;
@@ -234,6 +236,29 @@ public class StrawberryMap {
         }
     }
 
+    public String[] getFriendNames() {
+        String[] friendNames = new String[markers.size()];
+        int index = 0;
+        for(String id : markers.keySet()) {
+            friendNames[index++] = markers.get(id).getTitle();
+        }
+        return friendNames;
+    }
+
+    public void showWindowForMarker(String id) {
+        for(String key : markers.keySet()) {
+            if(id.equals(key)) {
+                Marker currentMarker = markers.get(key);
+                currentMarker.showInfoWindow();
+                Location temp = new Location(LocationManager.GPS_PROVIDER);
+                temp.setLatitude(currentMarker.getPosition().latitude);
+                temp.setLongitude(currentMarker.getPosition().longitude);
+                //float distance = location.distanceTo(temp);
+                this.moveCamera(temp, this.getCurrentZoom());
+            }
+        }
+    }
+
     /**
      * THis critically crashes if not on main thread
      * @param id
@@ -249,5 +274,9 @@ public class StrawberryMap {
                 }
             }
         });
+    }
+
+    public void setInfoWindowAdapter(GoogleMap.InfoWindowAdapter infoWindowAdapter) {
+        googleMap.setInfoWindowAdapter(infoWindowAdapter);
     }
 }

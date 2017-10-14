@@ -5,7 +5,7 @@ import android.util.Log;
 import com.comp30022.helium.strawberry.components.map.StrawberryMap;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.helpers.JSONParser;
-import com.comp30022.helium.strawberry.helpers.ParserTask;
+import com.comp30022.helium.strawberry.patterns.ParserTask;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 

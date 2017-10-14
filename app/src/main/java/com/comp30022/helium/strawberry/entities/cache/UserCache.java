@@ -1,4 +1,4 @@
-package com.comp30022.helium.strawberry.helpers.Cache;
+package com.comp30022.helium.strawberry.entities.cache;
 
 import android.util.Log;
 import android.util.LruCache;
