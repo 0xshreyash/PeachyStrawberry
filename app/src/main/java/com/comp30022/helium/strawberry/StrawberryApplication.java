@@ -29,7 +29,7 @@ import java.util.ListIterator;
 import java.util.Set;
 
 public class StrawberryApplication extends Application {
-    private static final String TAG = "StraweberryApplication";
+    private static final String TAG = "StrawberryApplication";
     private static final String DEFAULT_MAC = "ff-ff-ff-ff-ff-ff";
 
     private RequestQueue requestQueue;
@@ -149,12 +149,16 @@ public class StrawberryApplication extends Application {
 
     private synchronized static void notifyAllSubscribers(String name, Object val) {
         synchronized (StrawberryApplication.class) {
-            ListIterator<Subscriber<Event>> subIterator = subs.listIterator();
-            synchronized (subIterator) {
-                while (subIterator.hasNext()) {
+            for(Iterator<Subscriber<Event>> subIterator = subs.iterator(); subIterator.hasNext(); ) {
+                try {
                     subIterator
                             .next()
                             .update(new GlobalVariableChangeEvent(myApplication, name, val));
+
+                } catch (Exception e) {
+                    Log.e(TAG, "Error message: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
                 }
             }
         }
