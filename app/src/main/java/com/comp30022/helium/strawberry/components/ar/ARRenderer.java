@@ -20,18 +20,22 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ARRenderer extends View implements View.OnTouchListener {
-    private float[] projectionMatrix;
-    private static final String TAG = ARRenderer.class.getSimpleName();
     // max number of profile picture waits to do
     private static final int MAX_BOTTLE_NECK = 50;
+    // maximum threshold for a finger touch event (200 screen units ~ roughly the large
+    // profile pic size)
+    private static final int NEAREST_DISTANCE_THRESHOLD = 200;
+
+    private float[] projectionMatrix;
+    private static final String TAG = ARRenderer.class.getSimpleName();
     private Set<ARTrackerBeacon> trackers;
+    private Set<ARTrackerBeacon> copyOftrackers;
     private Location currentLocation;
     // index values for camera coordinates float[]{x,y,z,w}
     private static final int X = 0;
@@ -58,6 +62,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
         // this is dangerous, but we're sure that only ARActivity is using this ARRenderer for now
         this.arActivity = (ARActivity) context;
         this.trackers = new HashSet<>();
+        this.copyOftrackers = new HashSet<>();
         this.currentLocation = LocationService.getInstance().getDeviceLocation();
         this.progressBar = (ProgressBar) container.findViewById(R.id.arwait);
         this.loadingText = (TextView) container.findViewById(R.id.ar_load_msg);
@@ -107,12 +112,58 @@ public class ARRenderer extends View implements View.OnTouchListener {
     public boolean onTouch(View view, MotionEvent motionEvent) {
         int x = (int)motionEvent.getX();
         int y = (int)motionEvent.getY();
+        handleOnTouch(x, y);
 //        switch (motionEvent.getAction()) {
 //            case MotionEvent.ACTION_DOWN:
 //            case MotionEvent.ACTION_MOVE:
 //            case MotionEvent.ACTION_UP:
 //        }
         return false;
+    }
+
+    private void handleOnTouch(int x, int y) {
+        ARTrackerBeacon nearestBeacon = null;
+        ARTrackerBeacon currentActiveNode = null;
+        double nearestDistance = Double.POSITIVE_INFINITY;
+        for (ARTrackerBeacon beacon : trackers) {
+            double dist = beacon.distanceTo(x, y);
+            if (dist < nearestDistance) {
+                nearestBeacon = beacon;
+                nearestDistance = dist;
+            }
+            if (beacon.isActive()) {
+                currentActiveNode = beacon;
+            }
+        }
+        if (nearestBeacon == null || nearestDistance > NEAREST_DISTANCE_THRESHOLD) return;
+
+        // if we touch the current user, remove ALL except current user
+        if (nearestBeacon.equals(currentActiveNode)) {
+            Log.i(TAG, "You touched the current user");
+
+            // if current trackers has more values, we back it up first, then we wipe them
+            // i.e. only focus on currently tapped user
+            if (trackers.size() > 1) {
+                Log.w(TAG, "Focusing on target tapped only");
+                copyOftrackers.addAll(trackers);
+                trackers.clear();
+            } else {
+                // else, current tracker is cleared, refill it
+                // i.e. we return all the wiped users
+                Log.w(TAG, "Readding all saved targets");
+                trackers.addAll(copyOftrackers);
+                copyOftrackers.clear();
+            }
+            // either way, we're focusing on this current node
+            trackers.add(currentActiveNode);
+        // else, we set the new dude as the active beacon we're tracking
+        } else {
+            Log.i(TAG, "You touched " + nearestBeacon.getUserName());
+            nearestBeacon.setActive(true);
+            if (currentActiveNode != null) {
+                currentActiveNode.setActive(false);
+            }
+        }
     }
 
     @Override
@@ -203,7 +254,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
             if (!this.loading) {
                 this.arActivity.displayInfoHUD("Loading...");
                 this.progressBar.setVisibility(View.VISIBLE);
-                this.loadingText.setText("Gathering the sweetest strawberries...");
+                this.loadingText.setText("Gathering virtual strawberries...");
                 this.loadingText.setTextColor(ColourScheme.PRIMARY_DARK);
                 this.loadingText.bringToFront();
                 this.progressBar.bringToFront();

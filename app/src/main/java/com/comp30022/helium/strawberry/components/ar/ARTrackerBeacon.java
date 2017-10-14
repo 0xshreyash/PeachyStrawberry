@@ -113,8 +113,31 @@ public class ARTrackerBeacon {
         return this.activeSelected;
     }
 
-    public void setActive(boolean bool) {
-        this.activeSelected = bool;
+    /**
+     * makes this beacon active. i.e. profile picture will be rendered as large,
+     * name will be rendered, and guides will be shown in ARRenderer
+     * If this is set as false, the user will have non of the privilege said above.
+     * @param activeness true if should be active, false otherwise
+     */
+    public void setActive(boolean activeness) {
+        this.activeSelected = activeness;
+        if (activeness) {
+            this.size = User.ProfilePictureType.LARGE;
+        } else {
+            this.size = User.ProfilePictureType.NORMAL;
+        }
+    }
+
+    /**
+     * Euclidian distance between this ar beacon to the specified screen space (x,y)
+     * @param x x screen coordinate
+     * @param y y screen coordinate
+     * @return Euclidian distance
+     */
+    public double distanceTo(double x, double y) {
+        double x2 = (this.x - x) * (this.x - x);
+        double y2 = (this.y - y) * (this.y - y);
+        return Math.sqrt(x2 + y2);
     }
 
     private void loadProfilePictures() {
@@ -156,4 +179,5 @@ public class ARTrackerBeacon {
         ARTrackerBeacon castedOther = (ARTrackerBeacon) other;
         return castedOther.user.equals(this.user);
     }
+
 }
