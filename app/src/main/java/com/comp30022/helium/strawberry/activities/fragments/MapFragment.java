@@ -1,5 +1,6 @@
 package com.comp30022.helium.strawberry.activities.fragments;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,16 +19,19 @@ import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
 
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -119,8 +123,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         toggleFollow.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    if(!toggleFollow.isChecked()) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if (!toggleFollow.isChecked()) {
                         map.moveCamera(LocationService.getInstance().getDeviceLocation(), map.getCurrentZoom());
                     }
                 }
@@ -131,11 +135,11 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         String savedTransport = StrawberryApplication.getString(StrawberryApplication.SELECTED_TRANSPORT_TAG);
 
-        if(savedTransport == null || savedTransport.equals("transit")) {
+        if (savedTransport == null || savedTransport.equals("transit")) {
             lastChanged = transit;
-        } else if(savedTransport.equals("bicycle")) {
+        } else if (savedTransport.equals("bicycle")) {
             lastChanged = bicycle;
-        } else if(savedTransport.equals("walk")) {
+        } else if (savedTransport.equals("walk")) {
             lastChanged = walk;
         } else {
             lastChanged = drive;
@@ -152,24 +156,28 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         /**
          * Stuff for the custon onClick for markers
          */
-        this.clickMenu = (ViewGroup)inflater.inflate(R.layout.marker_click_menu, null);
-        this.userName = (TextView)clickMenu.findViewById(R.id.friend_name);
+        this.clickMenu = (ViewGroup) inflater.inflate(R.layout.marker_click_menu, null);
+        this.userName = (TextView) clickMenu.findViewById(R.id.friend_name);
         this.arButton = (Button) clickMenu.findViewById(R.id.button_ar);
         this.chatButtom = (Button) clickMenu.findViewById(R.id.button_chat);
 
         this.chatListener = new MenuItemTouchListener(clickMenu, R.id.button_chat) {
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
-                if(!marker.getTitle().equals(PeachServerInterface.currentUser().getUsername()))
+                if (!marker.getTitle().equals(PeachServerInterface.currentUser().getUsername())) {
+                    //TODO: open chat
                     Toast.makeText(getContext(), marker.getTitle() + " chat was clicked", Toast.LENGTH_LONG).show();
+                }
             }
         };
         this.chatButtom.setOnTouchListener(chatListener);
         this.arListener = new MenuItemTouchListener(clickMenu, R.id.button_ar) {
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
-                if(!marker.getTitle().equals(PeachServerInterface.currentUser().getUsername()))
+                if (!marker.getTitle().equals(PeachServerInterface.currentUser().getUsername())) {
+                    //TODO: AR
                     Toast.makeText(getContext(), marker.getTitle() + " ar was clicked", Toast.LENGTH_LONG).show();
+                }
             }
         };
         this.arButton.setOnTouchListener(arListener);
@@ -179,22 +187,39 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
          * Search stuff begins here
          */
 
-        searchBar = (ViewGroup)view.findViewById(R.id.my_search_bar);
-        searchButton = (ImageButton)view.findViewById(R.id.my_search_button);
-        searchBox = (AutocompleteView)view.findViewById(R.id.my_search_box);
+        searchBar = (ViewGroup) view.findViewById(R.id.my_search_bar);
+        searchButton = (ImageButton) view.findViewById(R.id.my_search_button);
+        searchBox = (AutocompleteView) view.findViewById(R.id.my_search_box);
+
+        searchBox.setSelectAllOnFocus(true);
+        searchBox.setFocusableInTouchMode(true);
+
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(searchBox.getVisibility() == View.VISIBLE) {
+                if (searchBox.getVisibility() == View.VISIBLE) {
                     searchBox.setVisibility(View.INVISIBLE);
                     searchBox.setVisibility(View.GONE);
+
+                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) searchBar.getLayoutParams();
+                    layoutParams.removeRule(RelativeLayout.BELOW);
+                    layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+
                     //searchBox.setWidth(searchBox.getWidth() + DisplayHelper.dpToPixel(10, getContext()));
-                }
-                else if(searchBox.getVisibility() == View.GONE) {
+                } else if (searchBox.getVisibility() == View.GONE) {
                     searchBox.setVisibility(View.VISIBLE);
+                    searchBox.requestFocus();
+
+                    InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.showSoftInput(searchBox, InputMethodManager.SHOW_IMPLICIT);
+
+                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) searchBar.getLayoutParams();
+                    layoutParams.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                    layoutParams.addRule(RelativeLayout.BELOW, R.id.transport_stats);
                 }
             }
         });
+
         searchBox.addTextChangedListener(new TextChangeListener(this, getContext()));
 
         /*
@@ -299,7 +324,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         // default remember last pos
         String lastLoc = StrawberryApplication.getString(LocationService.LAST_LOCATION);
-        if(lastLoc != null) {
+        if (lastLoc != null) {
             map.setCameraLocation(LocationHelper.stringToLocation(lastLoc), map.getCurrentZoom());
         }
 
@@ -325,9 +350,9 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         refreshPath();
 
-        mapLayout = (StrawberryMapWrapperLayout)view.findViewById(R.id.map_wrapper_layout);
+        mapLayout = (StrawberryMapWrapperLayout) view.findViewById(R.id.map_wrapper_layout);
         Log.e(TAG, view.toString());
-        Log.e(TAG, view.findViewById(R.id.map_wrapper_layout).getId() + " is also here") ;
+        Log.e(TAG, view.findViewById(R.id.map_wrapper_layout).getId() + " is also here");
         mapLayout.init(googleMap,
                 DisplayHelper.dpToPixel(MARKER_HEIGHT + OFFSET_FROM_MARKER, getContext()));
         map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -388,10 +413,10 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         map.updateMarker(user.getId(), user.getUsername(), currentLocation);
 
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
-        
+
         if (selectedId != null && selectedId.equals(user.getId())) {
             // friend moved
-            if(lastPathUpdateLocationFriend == null || lastPathUpdateLocationFriend.distanceTo(currentLocation) > MIN_MOVE_DIST) {
+            if (lastPathUpdateLocationFriend == null || lastPathUpdateLocationFriend.distanceTo(currentLocation) > MIN_MOVE_DIST) {
                 refreshPath();
                 lastPathUpdateLocationFriend = currentLocation;
             } else {
@@ -401,7 +426,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         if (user.getId().equals(PeachServerInterface.currentUser().getId())) {
             // current user moved
-            if(lastPathUpdateLocationUser == null || lastPathUpdateLocationUser.distanceTo(currentLocation) > MIN_MOVE_DIST) {
+            if (lastPathUpdateLocationUser == null || lastPathUpdateLocationUser.distanceTo(currentLocation) > MIN_MOVE_DIST) {
                 refreshPath();
                 lastPathUpdateLocationUser = currentLocation;
             } else {
@@ -409,7 +434,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             }
         }
 
-        if(firstMove) {
+        if (firstMove) {
             map.moveCamera(currentLocation, INIT_ZOOM);
             firstMove = false;
         } else if (toggleFollow.isChecked()) {
@@ -507,5 +532,13 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             default:
                 Log.d("changeText", "The text is changed successfully");
         }
+    }
+
+    public void resetSearchBar() {
+        searchBox.setText("");
+        searchButton.callOnClick();
+
+        InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
     }
 }

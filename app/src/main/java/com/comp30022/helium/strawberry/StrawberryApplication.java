@@ -23,7 +23,9 @@ import java.net.CookiePolicy;
 import java.net.CookieStore;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 public class StrawberryApplication extends Application {
@@ -146,8 +148,9 @@ public class StrawberryApplication extends Application {
     }
 
     private static void notifyAllSubscribers(String name, Object val) {
-        for(Subscriber<Event> sub: subs) {
-            sub.update(new GlobalVariableChangeEvent(myApplication, name, val));
+        ListIterator<Subscriber<Event>> subIterator = subs.listIterator();
+        while(subIterator.hasNext()) {
+            subIterator.next().update(new GlobalVariableChangeEvent(myApplication, name, val));
         }
     }
 
