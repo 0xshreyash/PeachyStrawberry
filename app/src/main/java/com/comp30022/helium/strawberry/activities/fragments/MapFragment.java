@@ -337,22 +337,6 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         map.updatePath(PeachServerInterface.currentUser().getId(), StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG));
     }
 
-    // Update the arrival time and distance which will be shown in the textview.
-//    public void changeText(String name, String value) {
-//        switch (name) {
-//            case "distance":
-//                arrivalDistance.setText(value);
-//                break;
-//
-//            case "duration":
-//                arrivalTime.setText(value);
-//                break;
-//
-//            default:
-//                Log.d("changeText", "The text is changed successfully");
-//        }
-//    }
-
     // Update the arrival time which will be shown in the textview.
     public void setArrivalTime (String value){
         arrivalTime.setText(value);

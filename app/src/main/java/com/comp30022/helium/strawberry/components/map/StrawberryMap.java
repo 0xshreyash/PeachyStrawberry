@@ -218,9 +218,12 @@ public class StrawberryMap {
         paths.put(name, path);
     }
 
+    // Update arrival distance.
     public void setArrivalDistance(String value) {
         mapFragment.setArrivalDistance(value);
     }
+
+    // Update arrival time.
     public void setArrivalTime(String value) {
         mapFragment.setArrivalTime(value);
     }
