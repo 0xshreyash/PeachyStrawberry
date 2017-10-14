@@ -97,16 +97,14 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
         }
 
         if (distance != null) {
-            strawberryMap.changeText("distance", distance);
+            strawberryMap.setArrivalDistance(distance);
         } else {
-            strawberryMap.changeText("distance", "Unknown");
             Log.e("onPostExecute", "without distance");
         }
 
         if (duration != null) {
-            strawberryMap.changeText("duration", duration);
+            strawberryMap.setArrivalTime(duration);
         } else {
-            strawberryMap.changeText("duration", "Unknown");
             Log.e("onPostExecute", "without duration");
         }
     }
