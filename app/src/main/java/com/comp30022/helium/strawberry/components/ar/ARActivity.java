@@ -1,10 +1,12 @@
 package com.comp30022.helium.strawberry.components.ar;
 
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.Matrix;
+import android.os.Vibrator;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,7 +19,6 @@ import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationService;
-import com.comp30022.helium.strawberry.components.map.StrawberryMap;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
@@ -56,7 +57,8 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         this.sensorManager = (SensorManager) this.getSystemService(SENSOR_SERVICE);
 
         // init a new ARRenderer for AR display overlay
-        this.arRenderer = new ARRenderer(this, (ConstraintLayout) findViewById(R.id.ar_home));
+        this.arRenderer = new ARRenderer(this, (ConstraintLayout) findViewById(R.id.ar_home),
+                (Vibrator)getSystemService(Context.VIBRATOR_SERVICE));
         // add currently selected user to track
         trackSelectedUser();
 
@@ -184,32 +186,29 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
             Log.i(TAG, "No targeted user selected globally");
             this.infoHUD.setText("Not tracking anyone. Select a user from the main menu!");
             this.displayOverride = true;
-            trackAllTopFriends(MAX_DISP_MARKER);
+            trackAllTopFriends(MAX_DISP_MARKER, User.ProfilePictureType.NORMAL);
         } else {
             User targetUser = User.getUser(selectedUser);
-            ARTrackerBeacon target = new ARTrackerBeacon(targetUser);
-            this.arRenderer.addTracker(target);
+            this.arRenderer.addTracker(new ARTrackerBeacon(targetUser, true,
+                    User.ProfilePictureType.LARGE));
             // track this user!
             this.locationService.addTracker(targetUser);
             Log.i(TAG, "Tracking: " + selectedUser);
-            this.arRenderer.setProfilePictureSize(User.ProfilePictureType.LARGE);
+            trackAllTopFriends(MAX_DISP_MARKER, User.ProfilePictureType.NORMAL);
         }
     }
 
-    private void trackAllTopFriends(int top) {
+    private void trackAllTopFriends(int top, User.ProfilePictureType ppsize) {
         List<User> friends = StrawberryApplication.getCachedFriends();
         int counter = 0;
         for (User u : friends) {
-            this.arRenderer.addTracker(new ARTrackerBeacon(u));
+            this.arRenderer.addTracker(new ARTrackerBeacon(u, false,
+                    ppsize));
             this.locationService.addTracker(u);
             Log.i(TAG, "Tracking: " + u);
             counter++;
             if (counter >= top) break;
         }
-        // since the ALL friends are rendered, lets just make them small (normal size) for now
-        this.arRenderer.setProfilePictureSize(User.ProfilePictureType.NORMAL);
-        // dont display name anymore (or else it'll overlap!)
-        this.arRenderer.setDisplayName(false);
     }
 
 }
