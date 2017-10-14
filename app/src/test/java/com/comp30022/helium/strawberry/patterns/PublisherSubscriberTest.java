@@ -22,6 +22,10 @@ public class PublisherSubscriberTest {
     @Mock
     List<MockSubscriber> mockSubscriberList;
 
+    /**
+     * Setup befoere the tests is run
+     * @throws Exception
+     */
     @Before
     public void setUp() throws Exception {
         mockPublisher = new MockPublisher();
@@ -32,6 +36,7 @@ public class PublisherSubscriberTest {
         }
     }
 
+    // Test for both publisher and Subscriber
     @Test
     public void publish_oneSubscriber() throws Exception {
         for(int i = 0; i <= 10; i ++){
