@@ -1,10 +1,12 @@
 package com.comp30022.helium.strawberry.components.ar;
 
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.Matrix;
+import android.os.Vibrator;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,7 +19,6 @@ import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationService;
-import com.comp30022.helium.strawberry.components.map.StrawberryMap;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
@@ -56,7 +57,8 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         this.sensorManager = (SensorManager) this.getSystemService(SENSOR_SERVICE);
 
         // init a new ARRenderer for AR display overlay
-        this.arRenderer = new ARRenderer(this, (ConstraintLayout) findViewById(R.id.ar_home));
+        this.arRenderer = new ARRenderer(this, (ConstraintLayout) findViewById(R.id.ar_home),
+                (Vibrator)getSystemService(Context.VIBRATOR_SERVICE));
         // add currently selected user to track
         trackSelectedUser();
 

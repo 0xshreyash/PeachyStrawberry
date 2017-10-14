@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.location.Location;
+import android.os.Vibrator;
 import android.support.constraint.ConstraintLayout;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -21,13 +22,13 @@ import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ARRenderer extends View implements View.OnTouchListener {
     // max number of profile picture waits to do
     private static final int MAX_BOTTLE_NECK = 50;
+    private static final int VIBRATE_MS = 100;
     // maximum threshold for a finger touch event (200 screen units ~ roughly the large
     // profile pic size)
     private static final int NEAREST_DISTANCE_THRESHOLD = 200;
@@ -37,6 +38,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
     private Set<ARTrackerBeacon> trackers;
     private Set<ARTrackerBeacon> copyOftrackers;
     private Location currentLocation;
+    private Vibrator vibrator;
     // index values for camera coordinates float[]{x,y,z,w}
     private static final int X = 0;
     private static final int Y = 1;
@@ -57,7 +59,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
     }
 
 
-    public ARRenderer(Context context, ConstraintLayout container) {
+    public ARRenderer(Context context, ConstraintLayout container, Vibrator vibrator) {
         super(context);
         // this is dangerous, but we're sure that only ARActivity is using this ARRenderer for now
         this.arActivity = (ARActivity) context;
@@ -67,6 +69,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
         this.progressBar = (ProgressBar) container.findViewById(R.id.arwait);
         this.loadingText = (TextView) container.findViewById(R.id.ar_load_msg);
         this.canvasDrawer = new CanvasDrawerLogic();
+        this.vibrator = vibrator;
         setOnTouchListener(this);
     }
 
@@ -145,6 +148,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
             // i.e. only focus on currently tapped user
             if (trackers.size() > 1) {
                 Log.w(TAG, "Focusing on target tapped only");
+                this.vibrator.vibrate(VIBRATE_MS);
                 copyOftrackers.addAll(trackers);
                 trackers.clear();
             } else {
