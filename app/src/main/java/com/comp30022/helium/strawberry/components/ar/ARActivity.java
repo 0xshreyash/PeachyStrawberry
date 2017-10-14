@@ -17,13 +17,18 @@ import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationService;
+import com.comp30022.helium.strawberry.components.map.StrawberryMap;
 import com.comp30022.helium.strawberry.entities.User;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 
+import java.util.List;
+
 
 public class ARActivity extends AppCompatActivity implements SensorEventListener,
         Subscriber<LocationEvent> {
+    private static final String TAG = ARActivity.class.getSimpleName();
+    private static final int MAX_DISP_MARKER = 5;
     private ARCameraSurface cameraSurface;
     private TextView infoHUD;
     private FrameLayout container;
@@ -33,8 +38,8 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
     private float[] projectionMatrix = new float[16];
     private float[] rotatedMatrix = new float[16];
     private LocationService locationService = LocationService.getInstance();
-    private static final String TAG = ARActivity.class.getSimpleName();
     private boolean displayOverride;
+    private boolean hadBadSensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,10 +105,12 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
                         "  3. Tilt left and right\n");
                 this.infoHUD.setTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_START);
                 this.displayOverride = true;
+                this.hadBadSensor = true;
                 break;
             default:
                 // good accuracy.
-                this.displayOverride = false;
+                if (this.hadBadSensor)
+                    this.displayOverride = false;
                 break;
         }
 
@@ -177,6 +184,7 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
             Log.i(TAG, "No targeted user selected globally");
             this.infoHUD.setText("Not tracking anyone. Select a user from the main menu!");
             this.displayOverride = true;
+            trackAllTopFriends(MAX_DISP_MARKER);
         } else {
             User targetUser = User.getUser(selectedUser);
             ARTrackerBeacon target = new ARTrackerBeacon(targetUser);
@@ -184,7 +192,24 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
             // track this user!
             this.locationService.addTracker(targetUser);
             Log.i(TAG, "Tracking: " + selectedUser);
+            this.arRenderer.setProfilePictureSize(User.ProfilePictureType.LARGE);
         }
+    }
+
+    private void trackAllTopFriends(int top) {
+        List<User> friends = StrawberryApplication.getCachedFriends();
+        int counter = 0;
+        for (User u : friends) {
+            this.arRenderer.addTracker(new ARTrackerBeacon(u));
+            this.locationService.addTracker(u);
+            Log.i(TAG, "Tracking: " + u);
+            counter++;
+            if (counter >= top) break;
+        }
+        // since the ALL friends are rendered, lets just make them small (normal size) for now
+        this.arRenderer.setProfilePictureSize(User.ProfilePictureType.NORMAL);
+        // dont display name anymore (or else it'll overlap!)
+        this.arRenderer.setDisplayName(false);
     }
 
 }
