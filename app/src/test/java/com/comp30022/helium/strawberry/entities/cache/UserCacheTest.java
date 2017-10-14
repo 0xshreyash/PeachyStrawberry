@@ -22,7 +22,7 @@ public class UserCacheTest {
     MockUser mockUser;
 
     /**
-     * Setup befoere the tests is run
+     * Setup befoere the tests are run
      * @throws Exception
      */
     @Before
@@ -31,10 +31,10 @@ public class UserCacheTest {
         mockUser = MockUser.getMockUser("1234");
     }
 
-    /*
-        Make sure the mock user has been actually put into the cache.
-        And test whether the put mock user is the correct one.
-    */
+    /**
+     * Make sure the mock user has been actually put into the cache.
+     * And test whether the put mock user is the correct one.
+     */
     @Test
     public void put() throws Exception {
         mockUserCache.put("key", mockUser);
@@ -47,7 +47,9 @@ public class UserCacheTest {
         assertEquals(mockUser, testUser);
     }
 
-    // Test whether the cache can return the correctly required user.
+    /**
+     * Test whether the cache can return the correctly required user.
+     */
     @Test
     public void get() throws Exception {
         mockUserCache.put("key", mockUser);
