@@ -16,9 +16,14 @@ public class SearchOptionClickListener implements View.OnClickListener {
 
     private MapFragment parentFragment;
     private static final String TAG = "SearchOptionClicked";
+    private String[] options;
+    private TextChangeListener textChangeListener;
 
-    public SearchOptionClickListener(MapFragment parentFragment) {
+    public SearchOptionClickListener(MapFragment parentFragment, String[] options,
+                                     TextChangeListener textChangeListener) {
         this.parentFragment = parentFragment;
+        this.options = options;
+        this.textChangeListener = textChangeListener;
     }
 
     @Override
@@ -26,6 +31,25 @@ public class SearchOptionClickListener implements View.OnClickListener {
         Log.e(TAG, "OnClick for search Item is called");
         TextView username = (TextView) view.findViewById(R.id.username);
         parentFragment.showWindowForFriend(username.getText().toString());
+        //options = new String[options.length];
+        if(textChangeListener != null) {
+            textChangeListener.onTextChanged(new CharSequence() {
+                @Override
+                public int length() {
+                    return 0;
+                }
+
+                @Override
+                public char charAt(int i) {
+                    return 0;
+                }
+
+                @Override
+                public CharSequence subSequence(int i, int i1) {
+                    return null;
+                }
+            }, 0, 0, 0);
+        }
         //View parentView = (View)view.getParent();
         //parentView.setVisibility(View.GONE);
 

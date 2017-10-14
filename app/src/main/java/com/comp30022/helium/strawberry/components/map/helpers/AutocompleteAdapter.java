@@ -23,15 +23,31 @@ public class AutocompleteAdapter extends ArrayAdapter<String> {
     int layoutResId;
     String data[];
     MapFragment parentFragment;
+    TextChangeListener textChangeListener;
 
     public AutocompleteAdapter(Context mContext, int layoutResId,
                                String[] data, MapFragment parentFragment) {
+
         super(mContext, layoutResId, data);
 
         this.layoutResId = layoutResId;
         this.mContext = mContext;
         this.data = data;
         this.parentFragment = parentFragment;
+        this.textChangeListener = null;
+
+    }
+
+    public AutocompleteAdapter(Context mContext, int layoutResId,
+                               String[] data, MapFragment parentFragment, TextChangeListener textChangeListener) {
+        super(mContext, layoutResId, data);
+
+        this.layoutResId = layoutResId;
+        this.mContext = mContext;
+        this.data = data;
+        this.parentFragment = parentFragment;
+        this.textChangeListener = textChangeListener;
+
     }
 
     @Override
@@ -49,7 +65,7 @@ public class AutocompleteAdapter extends ArrayAdapter<String> {
             view= inflater.inflate(layoutResId, parent, false);
         }
 
-        view.setOnClickListener(new SearchOptionClickListener(parentFragment));
+        view.setOnClickListener(new SearchOptionClickListener(parentFragment, data, textChangeListener));
 
         String listItem = data[position];
 
