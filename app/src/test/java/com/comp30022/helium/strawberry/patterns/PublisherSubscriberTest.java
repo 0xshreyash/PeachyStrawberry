@@ -23,7 +23,7 @@ public class PublisherSubscriberTest {
     List<MockSubscriber> mockSubscriberList;
 
     /**
-     * Setup befoere the tests are run
+     * Setup befoer the tests are run
      * @throws Exception
      */
     @Before
@@ -35,6 +35,7 @@ public class PublisherSubscriberTest {
             mockSubscriberList.add(new MockSubscriber(value ++));
         }
     }
+
 
     /**
      * Test whether the publisher and subscriber works correctly or not.
