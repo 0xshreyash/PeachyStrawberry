@@ -51,7 +51,7 @@ public class StrawberryApplication extends Application {
     public void onCreate() {
         super.onCreate();
         myApplication = this;
-        subs = new ArrayList<>();
+        subs = Collections.synchronizedList(new ArrayList<Subscriber<Event>>());
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences(MY_PREFS, MODE_PRIVATE);
 
@@ -150,9 +150,12 @@ public class StrawberryApplication extends Application {
     private synchronized static void notifyAllSubscribers(String name, Object val) {
         synchronized (StrawberryApplication.class) {
             ListIterator<Subscriber<Event>> subIterator = subs.listIterator();
-
-            while (subIterator.hasNext()) {
-                subIterator.next().update(new GlobalVariableChangeEvent(myApplication, name, val));
+            synchronized (subIterator) {
+                while (subIterator.hasNext()) {
+                    subIterator
+                            .next()
+                            .update(new GlobalVariableChangeEvent(myApplication, name, val));
+                }
             }
         }
     }

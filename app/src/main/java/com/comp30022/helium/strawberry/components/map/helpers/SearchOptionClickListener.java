@@ -2,11 +2,7 @@ package com.comp30022.helium.strawberry.components.map.helpers;
 
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.TextView;
 
-import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
 import com.comp30022.helium.strawberry.entities.User;
 
@@ -32,7 +28,7 @@ public class SearchOptionClickListener implements View.OnClickListener {
         Log.e(TAG, "OnClick for search Item is called");
 
         parentFragment.showWindowForFriend(currUser);
-        parentFragment.resetSearchBar();
+        parentFragment.toggleSearchBar();
 
         //options = new String[options.length];
         if (textChangeListener != null) {

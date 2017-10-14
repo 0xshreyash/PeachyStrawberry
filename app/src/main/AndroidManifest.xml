@@ -33,7 +33,8 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".activities.MainActivity"></activity>
+        <activity android:name=".activities.MainActivity"
+            android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".activities.ChatTestActivity" />
         <activity android:name=".activities.MapFragmentTestActivity" />
         <activity android:name=".activities.InitActivity">

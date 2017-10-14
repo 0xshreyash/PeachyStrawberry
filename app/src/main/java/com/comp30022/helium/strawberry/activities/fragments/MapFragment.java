@@ -5,22 +5,20 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.media.Image;
 import android.os.Bundle;
 
 import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.activities.MainActivity;
 import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.components.map.StrawberryMapWrapperLayout;
 import com.comp30022.helium.strawberry.components.map.helpers.AutocompleteAdapter;
 import com.comp30022.helium.strawberry.components.map.helpers.AutocompleteView;
 import com.comp30022.helium.strawberry.components.map.helpers.MenuItemTouchListener;
-import com.comp30022.helium.strawberry.components.map.helpers.SearchSwipeListener;
 import com.comp30022.helium.strawberry.components.map.helpers.TextChangeListener;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.StrawberryCallback;
 import com.comp30022.helium.strawberry.entities.User;
 
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,13 +28,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.components.location.LocationEvent;
@@ -92,6 +87,8 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private AutocompleteAdapter autoCompleteAdapter;
     private AutocompleteView searchBox;
     private User[] friendArray;
+
+    private boolean searchOpen = false;
 
     public MapFragment() {
         // Required empty public constructor
@@ -169,10 +166,11 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         this.chatListener = new MenuItemTouchListener(clickMenu, R.id.button_chat) {
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
-                if (!marker.getTitle().equals(PeachServerInterface.currentUser().getUsername())) {
-                    //TODO: open chat
-                    Toast.makeText(getContext(), marker.getTitle() + " chat was clicked", Toast.LENGTH_LONG).show();
-                }
+                MainActivity main = (MainActivity) getActivity();
+                main.expandChat();
+                collapseSearchBox();
+                marker.hideInfoWindow();
+//                    Toast.makeText(getContext(), marker.getTitle() + " chat was clicked", Toast.LENGTH_LONG).show();
             }
         };
 
@@ -180,10 +178,9 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         this.arListener = new MenuItemTouchListener(clickMenu, R.id.button_ar) {
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
-                if (!marker.getTitle().equals(PeachServerInterface.currentUser().getUsername())) {
-                    //TODO: AR
-                    Toast.makeText(getContext(), marker.getTitle() + " ar was clicked", Toast.LENGTH_LONG).show();
-                }
+                MainActivity main = (MainActivity) getActivity();
+                main.gotoAR();
+//                    Toast.makeText(getContext(), marker.getTitle() + " ar was clicked", Toast.LENGTH_LONG).show();
             }
         };
 
@@ -204,10 +201,10 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         searchBox.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if(keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                     User curr = autoCompleteAdapter.getTopUser();
-                    if(curr != null ) {
-                        resetSearchBar();
+                    if (curr != null) {
+                        toggleSearchBar();
                         showWindowForFriend(curr);
                     }
                     return true;
@@ -220,7 +217,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             @Override
             public void onClick(View view) {
                 if (searchBox.getVisibility() == View.VISIBLE) {
-                    searchBox.setVisibility(View.INVISIBLE);
+                    searchOpen = false;
                     searchBox.setVisibility(View.GONE);
                     searchBox.setText("");
 
@@ -233,6 +230,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
                     //searchBox.setWidth(searchBox.getWidth() + DisplayHelper.dpToPixel(10, getContext()));
                 } else if (searchBox.getVisibility() == View.GONE) {
+                    searchOpen = true;
                     searchBox.setVisibility(View.VISIBLE);
                     searchBox.requestFocus();
 
@@ -283,6 +281,12 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         */
         mMapView.getMapAsync(this);
         return view;
+    }
+
+    private void collapseSearchBox() {
+        if (searchOpen) {
+            searchButton.callOnClick();
+        }
     }
 
     private void makeIconWhite(ImageButton lastChanged) {
@@ -533,6 +537,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     }
 
     public void showWindowForFriend(User user) {
+        StrawberryApplication.setString(StrawberryApplication.SELECTED_USER_TAG, user.getId());
         this.map.showWindowForMarker(user.getId());
     }
 
@@ -560,7 +565,11 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         }
     }
 
-    public void resetSearchBar() {
+    public void toggleSearchBar() {
         searchButton.callOnClick();
+    }
+
+    public boolean isSearchOpen() {
+        return searchOpen;
     }
 }

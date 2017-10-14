@@ -1,6 +1,7 @@
 package com.comp30022.helium.strawberry.activities;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
@@ -14,10 +15,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
@@ -52,6 +58,8 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.security.AccessController.getContext;
+
 public class MainActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, Subscriber<Event> {
     private static final String TAG = "MainActivity";
 
@@ -80,6 +88,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     private boolean paused = false;
 
     private DisplayMetrics metrics;
+    private EditText chatEditBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,6 +197,8 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         setContentView(R.layout.activity_main);
         listButton = (ImageButton) findViewById(R.id.friend_list_button);
         chatButton = (ImageButton) findViewById(R.id.chat_expand_button);
+        chatEditBox = (EditText) findViewById(R.id.edittext_chatbox);
+
         mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment_test);
         chatFragment = (ChatFragment) getSupportFragmentManager().findFragmentById(R.id.chat_fragment);
 
@@ -293,21 +304,31 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         ViewGroup.LayoutParams params = chatFragment.getView().getLayoutParams();
         params.width = MIN_WIDTH;
         chatExpanded = false;
+
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(chatEditBox.getWindowToken(), 0);
+
         chatButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_keyboard_arrow_left_white_24dp));
         chatFragment.getView().setLayoutParams(params);
+        chatFragment.getView().setVisibility(View.GONE);
 
         ConstraintLayout.LayoutParams clayout = (ConstraintLayout.LayoutParams) chatButton.getLayoutParams();
         clayout.rightToLeft = R.id.chat_fragment;
         clayout.leftToLeft = ConstraintLayout.LayoutParams.UNSET;
         chatButton.setLayoutParams(clayout);
+
+        chatButton.setVisibility(View.GONE);
     }
 
-    private void expandChat() {
+    public void expandChat() {
         ViewGroup.LayoutParams params = chatFragment.getView().getLayoutParams();
         params.width = MAX_WIDTH;
         chatExpanded = true;
+
+        chatButton.setVisibility(View.VISIBLE);
         chatButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_keyboard_arrow_right_white_24dp));
         chatFragment.getView().setLayoutParams(params);
+        chatFragment.getView().setVisibility(View.VISIBLE);
 
         ConstraintLayout.LayoutParams clayout = (ConstraintLayout.LayoutParams) chatButton.getLayoutParams();
         clayout.rightToLeft = ConstraintLayout.LayoutParams.UNSET;
@@ -451,9 +472,33 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         }
     }
 
-    // TODO: HARRY: DON"T NEED THIS! (DEBUG OLY)
-    public void gotoAR(View bundle) {
+    public void gotoAR() {
         Intent intent = new Intent(getApplicationContext(), ARActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if (Integer.parseInt(android.os.Build.VERSION.SDK) > 5
+                && keyCode == KeyEvent.KEYCODE_BACK
+                && event.getRepeatCount() == 0) {
+            onBackPressed();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if(mapFragment.isSearchOpen()) {
+            mapFragment.toggleSearchBar();
+
+        } else if(chatExpanded) {
+            collapseChat();
+
+        } else {
+            this.finish();
+        }
     }
 }
