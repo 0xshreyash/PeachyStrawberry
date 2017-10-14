@@ -338,18 +338,28 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     }
 
     // Update the arrival time and distance which will be shown in the textview.
-    public void changeText(String name, String value) {
-        switch (name) {
-            case "distance":
-                arrivalDistance.setText(value);
-                break;
+//    public void changeText(String name, String value) {
+//        switch (name) {
+//            case "distance":
+//                arrivalDistance.setText(value);
+//                break;
+//
+//            case "duration":
+//                arrivalTime.setText(value);
+//                break;
+//
+//            default:
+//                Log.d("changeText", "The text is changed successfully");
+//        }
+//    }
 
-            case "duration":
-                arrivalTime.setText(value);
-                break;
+    // Update the arrival time which will be shown in the textview.
+    public void setArrivalTime (String value){
+        arrivalTime.setText(value);
+    }
 
-            default:
-                Log.d("changeText", "The text is changed successfully");
-        }
+    // Update the arrival Distance which will be shown in the textview.
+    public void setArrivalDistance (String value){
+        arrivalDistance.setText(value);
     }
 }

@@ -218,8 +218,11 @@ public class StrawberryMap {
         paths.put(name, path);
     }
 
-    public void changeText(String name, String value) {
-        mapFragment.changeText(name, value);
+    public void setArrivalDistance(String value) {
+        mapFragment.setArrivalDistance(value);
+    }
+    public void setArrivalTime(String value) {
+        mapFragment.setArrivalTime(value);
     }
 
     public void deleteAllPaths() {
