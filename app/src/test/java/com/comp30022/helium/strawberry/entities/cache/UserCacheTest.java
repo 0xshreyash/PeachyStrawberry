@@ -19,7 +19,10 @@ public class UserCacheTest {
     MockUserCache mockUserCache;
 
     @Mock
-    MockUser mockUser;
+    MockUser mockUser1;
+
+    @Mock
+    MockUser mockUser2;
 
     /**
      * Setup befoere the tests are run
@@ -28,7 +31,8 @@ public class UserCacheTest {
     @Before
     public void setUp() throws Exception {
         mockUserCache = MockUserCache.getInstance();
-        mockUser = MockUser.getMockUser("1234");
+        mockUser1 = MockUser.getMockUser("1234");
+        mockUser2 = MockUser.getMockUser("5678");
     }
 
     /**
@@ -37,14 +41,14 @@ public class UserCacheTest {
      */
     @Test
     public void put() throws Exception {
-        mockUserCache.put("key", mockUser);
+        mockUserCache.put("key1", mockUser1);
         Field cacheField = MockUserCache.getInstance().getClass().getDeclaredField("cache");
         cacheField.setAccessible(true);
         HashMap<String, MockUser> cacheMap =
                 (HashMap<String, MockUser>) cacheField.get(MockUserCache.getInstance());
 
-        MockUser testUser = cacheMap.get("key");
-        assertEquals(mockUser, testUser);
+        MockUser testUser = cacheMap.get("key1");
+        assertEquals(mockUser1, testUser);
     }
 
     /**
@@ -52,10 +56,10 @@ public class UserCacheTest {
      */
     @Test
     public void get() throws Exception {
-        mockUserCache.put("key", mockUser);
-        mockUserCache.get("key");
-        MockUser testUser = mockUserCache.get("key");
-        assertEquals(mockUser, testUser);
+        mockUserCache.put("key2", mockUser2);
+        mockUserCache.get("key2");
+        MockUser testUser = mockUserCache.get("key2");
+        assertEquals(mockUser2, testUser);
     }
 
 }
