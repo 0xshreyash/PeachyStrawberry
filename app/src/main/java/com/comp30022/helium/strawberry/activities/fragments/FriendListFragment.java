@@ -84,8 +84,7 @@ public class FriendListFragment extends Fragment implements Subscriber<Integer> 
 
     public void setRecyclerProperties(Integer info) {
         DEFAULT_SELECTION = info;
-        if(mFriendAdapter != null)
-            StrawberryApplication.deregisterSubscriber(mFriendAdapter);
+
         mFriendAdapter = new FriendListAdapter(getActivity(), friends, this);
         mFriendAdapter.setSelectedPosition(info);
         mFriendRecycler.setAdapter(mFriendAdapter);
