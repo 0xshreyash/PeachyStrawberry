@@ -193,7 +193,7 @@
             android:paddingLeft="10dp"
             android:layout_marginBottom="5dp"
             android:layout_marginLeft="10dp"
-            android:hint="Search Location Here"
+            android:hint="Search Friend Here"
             android:background="@drawable/rounded_corner"
             android:textColor="@color/black"
             android:layout_weight="1"

@@ -160,14 +160,16 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
         this.chatListener = new MenuItemTouchListener(clickMenu, R.id.button_chat) {
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
-                Toast.makeText(getContext(), marker.getTitle() + " chat was clicked", Toast.LENGTH_LONG).show();
+                if(!marker.getTitle().equals(PeachServerInterface.currentUser().getUsername()))
+                    Toast.makeText(getContext(), marker.getTitle() + " chat was clicked", Toast.LENGTH_LONG).show();
             }
         };
         this.chatButtom.setOnTouchListener(chatListener);
         this.arListener = new MenuItemTouchListener(clickMenu, R.id.button_ar) {
             @Override
             protected void onClickConfirmed(View v, Marker marker) {
-                Toast.makeText(getContext(), marker.getTitle() + " ar was clicked", Toast.LENGTH_LONG).show();
+                if(!marker.getTitle().equals(PeachServerInterface.currentUser().getUsername()))
+                    Toast.makeText(getContext(), marker.getTitle() + " ar was clicked", Toast.LENGTH_LONG).show();
             }
         };
         this.arButton.setOnTouchListener(arListener);
@@ -348,7 +350,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
             }
         });
 
-        this.autoCompleteAdapter = new AutocompleteAdapter(getContext(), R.layout.item_friend, this.getFriendList());
+        this.autoCompleteAdapter = new AutocompleteAdapter(getContext(), R.layout.item_friend, this.getFriendList(), this);
         this.getAutocompleteView().setAdapter(autoCompleteAdapter);
     }
 
@@ -477,6 +479,10 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
     public void setAutoCompleteAdapter(ArrayAdapter<String> autoCompleteAdapter) {
         this.autoCompleteAdapter = autoCompleteAdapter;
+    }
+
+    public void showWindowForFriend(String title) {
+        this.map.showWindowForMarker(title);
     }
 
     public String[] getFriendList() {

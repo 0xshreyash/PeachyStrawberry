@@ -11,6 +11,9 @@ import android.widget.TextView;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.activities.MainActivity;
+import com.comp30022.helium.strawberry.activities.fragments.MapFragment;
+
+import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
@@ -19,14 +22,16 @@ public class AutocompleteAdapter extends ArrayAdapter<String> {
     Context mContext;
     int layoutResId;
     String data[];
+    MapFragment parentFragment;
 
     public AutocompleteAdapter(Context mContext, int layoutResId,
-                               String[] data) {
+                               String[] data, MapFragment parentFragment) {
         super(mContext, layoutResId, data);
 
         this.layoutResId = layoutResId;
         this.mContext = mContext;
         this.data = data;
+        this.parentFragment = parentFragment;
     }
 
     @Override
@@ -43,6 +48,8 @@ public class AutocompleteAdapter extends ArrayAdapter<String> {
             LayoutInflater inflater = ((MainActivity) mContext).getLayoutInflater();
             view= inflater.inflate(layoutResId, parent, false);
         }
+
+        view.setOnClickListener(new SearchOptionClickListener(parentFragment));
 
         String listItem = data[position];
 

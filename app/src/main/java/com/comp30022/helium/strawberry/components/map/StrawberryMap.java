@@ -2,6 +2,7 @@ package com.comp30022.helium.strawberry.components.map;
 
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 
 import com.comp30022.helium.strawberry.R;
@@ -236,6 +237,20 @@ public class StrawberryMap {
             friendNames[index++] = markers.get(id).getTitle();
         }
         return friendNames;
+    }
+
+    public void showWindowForMarker(String title) {
+        for(String id : markers.keySet()) {
+            Marker currentMarker = markers.get(id);
+            if(title.equals(currentMarker.getTitle())) {
+                currentMarker.showInfoWindow();
+                Location temp = new Location(LocationManager.GPS_PROVIDER);
+                temp.setLatitude(currentMarker.getPosition().latitude);
+                temp.setLongitude(currentMarker.getPosition().longitude);
+                //float distance = location.distanceTo(temp);
+                this.moveCamera(temp, this.getCurrentZoom());
+            }
+        }
     }
 
     /**
