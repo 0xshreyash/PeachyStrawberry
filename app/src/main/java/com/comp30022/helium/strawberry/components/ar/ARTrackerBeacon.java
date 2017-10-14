@@ -16,6 +16,7 @@ public class ARTrackerBeacon {
     private User user;
     private Location location;
     private Bitmap bigProfilePicture;
+    private Bitmap normalProfilePicture;
     private Bitmap smallprofilePicture;
     private static final String TAG = ARTrackerBeacon.class.getSimpleName();
 
@@ -41,18 +42,24 @@ public class ARTrackerBeacon {
         return user.getUsername();
     }
 
-    public Bitmap getProfilePicture(final ARRenderer context, final boolean small) {
-        if (small && smallprofilePicture != null) {
+    public Bitmap getProfilePicture(final ARRenderer context, final User.ProfilePictureType size) {
+        if (size == User.ProfilePictureType.SMALL && smallprofilePicture != null) {
             return smallprofilePicture;
         }
-        if (!small && bigProfilePicture != null) {
+        if (size == User.ProfilePictureType.LARGE && bigProfilePicture != null) {
             return bigProfilePicture;
         }
+        if (size == User.ProfilePictureType.NORMAL && normalProfilePicture != null) {
+            return normalProfilePicture;
+        }
+
         StrawberryCallback<Bitmap> callback = new StrawberryCallback<Bitmap>() {
             @Override
             public void run(Bitmap bitmap) {
-                if (small) {
+                if (size == User.ProfilePictureType.SMALL) {
                     smallprofilePicture = BitmapHelper.makeCircular(bitmap);
+                } else if (size == User.ProfilePictureType.NORMAL) {
+                    normalProfilePicture = BitmapHelper.makeCircular(bitmap);
                 } else {
                     bigProfilePicture = BitmapHelper.makeCircular(bitmap);
                 }
@@ -66,9 +73,7 @@ public class ARTrackerBeacon {
             }
         };
         try {
-            User.ProfilePictureType profilePictureSize = small ? User.ProfilePictureType.SMALL :
-                    User.ProfilePictureType.LARGE;
-            user.getFbPicture(profilePictureSize, callback);
+            user.getFbPicture(size, callback);
         } catch (FacebookIdNotSetException | MalformedURLException e) {
             Log.e(TAG, e.toString());
         }
