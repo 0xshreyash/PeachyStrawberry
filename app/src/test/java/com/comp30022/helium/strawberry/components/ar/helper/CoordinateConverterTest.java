@@ -25,7 +25,7 @@ public class CoordinateConverterTest {
      * @throws Exception
      */
     @Test
-    public void GPS2ECEF() throws Exception {
+    public void ECEF_melbourneUni() throws Exception {
         MockLocation location1 = new MockLocation(144.9611740, -37.7963690);
         float[] ECEF1 = CoordinateConverter.GPS2ECEF(location1);
         float[] answer = new float[]{-4131735.08504359f, 2897246.60208257f, -3887608.71357792f};
@@ -38,7 +38,7 @@ public class CoordinateConverterTest {
      * @throws Exception
      */
     @Test
-    public void GPS2ECEF2() {
+    public void ECEF_londonEye() {
         MockLocation location2 = new MockLocation(-0.119607, 51.503474, 50);
         float[] ECEF2 = CoordinateConverter.GPS2ECEF(location2);
         float[] answer = new float[]{3978368.49f, -8304.99f, 4968642.18f};
@@ -52,7 +52,7 @@ public class CoordinateConverterTest {
      * @throws Exception
      */
     @Test
-    public void GPS2ECEF3() {
+    public void ECEF_londonEye_Altitude() {
         MockLocation location3 = new MockLocation(-0.119607, 51.503474);
         float[] ECEF3 = CoordinateConverter.GPS2ECEF(location3);
         float[] answer = new float[]{3978337.36919787f, -8304.93437674656f, 4968603.05607586f};
@@ -65,7 +65,7 @@ public class CoordinateConverterTest {
      * @throws Exception
      */
     @Test
-    public void ECEF2ENU() throws Exception {
+    public void ENU_self_to_self() throws Exception {
         // trivial case: self's location to self's location should be 0
         MockLocation location1 = new MockLocation(-0.119607, 51.503474);
         MockLocation location2 = new MockLocation(location1);
@@ -78,7 +78,7 @@ public class CoordinateConverterTest {
     }
 
     @Test
-    public void ECEF2ENU1() throws Exception {
+    public void ENU_londonEye_melbUni() throws Exception {
         // london eye
         MockLocation location1 = new MockLocation(-0.119607, 51.503474);
         // melbourne uni
@@ -95,7 +95,7 @@ public class CoordinateConverterTest {
     }
 
     @Test
-    public void ECEF2ENU2() throws Exception {
+    public void ENU_WH_melbrourneUni() throws Exception {
         // white house
         MockLocation location1 = new MockLocation(-0.175567, 51.473404);
         // melb uni
