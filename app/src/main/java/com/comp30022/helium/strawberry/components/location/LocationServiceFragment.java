@@ -21,7 +21,7 @@ public abstract class LocationServiceFragment extends Fragment implements Subscr
         super.onCreate(savedInstanceState);
 
         locationService = LocationService.getInstance();
-        if(locationService != null) {
+        if (locationService != null) {
             locationService.registerSubscriber(this);
         } else {
             Intent i = new Intent(this.getActivity(), MainActivity.class);

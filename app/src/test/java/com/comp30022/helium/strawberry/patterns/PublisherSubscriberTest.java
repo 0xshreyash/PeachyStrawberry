@@ -23,7 +23,11 @@ public class PublisherSubscriberTest {
     List<MockSubscriber> mockSubscriberList;
 
     /**
+<<<<<<< HEAD
      * Setup befoere the tests is run
+=======
+     * Setup befoere the tests are run
+>>>>>>> develop
      * @throws Exception
      */
     @Before
@@ -36,7 +40,10 @@ public class PublisherSubscriberTest {
         }
     }
 
-    // Test for both publisher and Subscriber
+
+    /**
+     * Test whether the publisher and subscriber works correctly or not.
+     */
     @Test
     public void publish_oneSubscriber() throws Exception {
         for(int i = 0; i <= 10; i ++){
