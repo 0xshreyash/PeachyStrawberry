@@ -157,7 +157,6 @@ public class ARRenderer extends View {
                 writeDistanceTo(target);
             }
 
-            Log.e(TAG, "X: " + x + " Y: " + y);
             // if the point is in front of us ==> i.e. we should render it!
             if (cameraCoordinates[Z] > 0) {
                 Bitmap profilePicture = target.getProfilePicture(this, this.profilePictureType);
