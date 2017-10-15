@@ -461,6 +461,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         } else if (info instanceof StrawberryApplication.GlobalVariableChangeEvent) {
             StrawberryApplication.GlobalVariableChangeEvent event = (StrawberryApplication.GlobalVariableChangeEvent) info;
+
+            chatFragment.update(event);
+
             if (event.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {
                 // selected user has changed
                 mapFragment.refreshPath();

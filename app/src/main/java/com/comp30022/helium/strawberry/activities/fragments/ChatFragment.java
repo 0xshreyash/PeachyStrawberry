@@ -57,7 +57,6 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        StrawberryApplication.registerSubscriber(this);
         messages = new ArrayList<>();
         blockNotify = true;
 
