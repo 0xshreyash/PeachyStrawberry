@@ -57,7 +57,7 @@ public class PathParserTask extends ParserTask<String, Integer, List<List<HashMa
         PolylineOptions lineOptions = null;
         // Traversing through all the routes
 
-        for (int i = 0; i < result.size(); i++) {
+        for (int i = 0; result != null && i < result.size(); i++) {
             points = new ArrayList<>();
             lineOptions = new PolylineOptions();
 
