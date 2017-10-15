@@ -24,6 +24,7 @@ public class ARTrackerBeacon {
     private float x, y;
     private boolean loadDone;
     private User.ProfilePictureType pendingSize;
+    private boolean visible = true;
 
     public ARTrackerBeacon(User user, boolean activeSelected, User.ProfilePictureType size) {
         this.user = user;
@@ -140,6 +141,14 @@ public class ARTrackerBeacon {
         return Math.sqrt(x2 + y2);
     }
 
+    public void setVisible(boolean bool) {
+        this.visible = bool;
+    }
+
+    public boolean isVisible() {
+        return this.visible;
+    }
+
     private void loadProfilePictures() {
         StrawberryCallback<Bitmap> callback = new StrawberryCallback<Bitmap>() {
             @Override
@@ -178,6 +187,11 @@ public class ARTrackerBeacon {
 
         ARTrackerBeacon castedOther = (ARTrackerBeacon) other;
         return castedOther.user.equals(this.user);
+    }
+
+    @Override
+    public String toString() {
+        return user.getUsername();
     }
 
 }
