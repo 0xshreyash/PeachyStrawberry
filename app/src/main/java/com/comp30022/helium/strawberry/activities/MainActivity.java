@@ -94,7 +94,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     protected void onCreate(Bundle savedInstanceState) {
         setTitle("Strawberry");
         super.onCreate(savedInstanceState);
-        StrawberryApplication.registerSubscriber(this);
 
         // check if we actually have permission
         checkPermission();
@@ -435,12 +434,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     protected void onPause() {
         super.onPause();
+        StrawberryApplication.deregisterSubscriber(this);
         this.paused = true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        StrawberryApplication.registerSubscriber(this);
         this.paused = false;
     }
 
