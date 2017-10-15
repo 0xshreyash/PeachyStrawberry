@@ -94,7 +94,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     protected void onCreate(Bundle savedInstanceState) {
         setTitle("Strawberry");
         super.onCreate(savedInstanceState);
-        StrawberryApplication.registerSubscriber(this);
 
         // check if we actually have permission
         checkPermission();
@@ -435,12 +434,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     protected void onPause() {
         super.onPause();
+        StrawberryApplication.deregisterSubscriber(this);
         this.paused = true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        StrawberryApplication.registerSubscriber(this);
         this.paused = false;
     }
 
@@ -461,6 +462,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         } else if (info instanceof StrawberryApplication.GlobalVariableChangeEvent) {
             StrawberryApplication.GlobalVariableChangeEvent event = (StrawberryApplication.GlobalVariableChangeEvent) info;
+
+            chatFragment.update(event);
+
             if (event.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {
                 // selected user has changed
                 mapFragment.refreshPath();
