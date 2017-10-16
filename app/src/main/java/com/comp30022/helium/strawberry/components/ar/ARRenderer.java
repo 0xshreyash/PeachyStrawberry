@@ -32,6 +32,8 @@ public class ARRenderer extends View implements View.OnTouchListener {
     // maximum threshold for a finger touch event (200 screen units ~ roughly the large
     // profile pic size)
     private static final int NEAREST_DISTANCE_THRESHOLD = 200;
+    // threshold distance to YOU"RE AT YOUR DESTINATION message
+    private static final int THRESHOLD_DISTANCE = 7;
 
     private float[] projectionMatrix;
     private static final String TAG = ARRenderer.class.getSimpleName();
@@ -45,7 +47,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
     private static final int Z = 2;
     private static final int W = 3;
 
-    private ARActivity arActivity;
+    private ARBanner arBanner;
     private CanvasDrawerLogic canvasDrawer;
 
     private ProgressBar progressBar;
@@ -59,10 +61,10 @@ public class ARRenderer extends View implements View.OnTouchListener {
     }
 
 
-    public ARRenderer(Context context, ConstraintLayout container, Vibrator vibrator) {
+    public ARRenderer(Context context, ConstraintLayout container, Vibrator vibrator,
+                      ARBanner arBanner) {
         super(context);
-        // this is dangerous, but we're sure that only ARActivity is using this ARRenderer for now
-        this.arActivity = (ARActivity) context;
+        this.arBanner = arBanner;
         this.trackers = new HashSet<>();
         this.copyOftrackers = new HashSet<>();
         this.currentLocation = LocationService.getInstance().getDeviceLocation();
@@ -105,10 +107,6 @@ public class ARRenderer extends View implements View.OnTouchListener {
 
         // re-draw the points
         this.invalidate();
-    }
-
-    public ARActivity getArActivity() {
-        return this.arActivity;
     }
 
     @Override
@@ -195,9 +193,11 @@ public class ARRenderer extends View implements View.OnTouchListener {
             if (target.isActive()) {
                 // this happens if you're exactly at the target's location because the difference
                 // between you and target's ENU coordinate is 0
-                if (Float.isNaN(target.getX()) || Float.isNaN(target.getY())) {
-                    this.arActivity.displayInfoHUD("You have arrived at " + target.getUserName()
-                            + "'s location");
+                if (Float.isNaN(target.getX()) || Float.isNaN(target.getY()) ||
+                        (currentLocation.distanceTo(target.getLocation()) < THRESHOLD_DISTANCE)) {
+                    this.arBanner.display("You have arrived at " + target.getUserName()
+                            + "'s location!");
+                    continue;
                 } else {
                     writeDistanceTo(target);
                 }
@@ -256,7 +256,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
         if (load || currentLocation == null || this.projectionMatrix == null) {
             // if we aren't already showing the loading screen, show it
             if (!this.loading) {
-                this.arActivity.displayInfoHUD("Loading...");
+                this.arBanner.display("Loading ...");
                 this.progressBar.setVisibility(View.VISIBLE);
                 this.loadingText.setText("Gathering virtual strawberries...");
                 this.loadingText.setTextColor(ColourScheme.PRIMARY_DARK);
@@ -285,9 +285,6 @@ public class ARRenderer extends View implements View.OnTouchListener {
             distanceTo /= 1000;
             unit = "km";
         }
-        @SuppressLint("DefaultLocale")
-        String formatted = String.format("%.2f%s away from %s", distanceTo,
-                unit, target.getUserName());
-        this.arActivity.displayInfoHUD(formatted);
+        this.arBanner.displayDistanceFormatted(distanceTo, unit, target.getUserName());
     }
 }
