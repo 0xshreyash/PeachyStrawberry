@@ -38,7 +38,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
     private float[] projectionMatrix;
     private static final String TAG = ARRenderer.class.getSimpleName();
     private Set<ARTrackerBeacon> trackers;
-    private Set<ARTrackerBeacon> copyOftrackers;
+    private Set<ARTrackerBeacon> copyOfTrackers;
     private Location currentLocation;
     private Vibrator vibrator;
     // index values for camera coordinates float[]{x,y,z,w}
@@ -66,7 +66,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
         super(context);
         this.arBanner = arBanner;
         this.trackers = new HashSet<>();
-        this.copyOftrackers = new HashSet<>();
+        this.copyOfTrackers = new HashSet<>();
         this.currentLocation = LocationService.getInstance().getDeviceLocation();
         this.progressBar = (ProgressBar) container.findViewById(R.id.arwait);
         this.loadingText = (TextView) container.findViewById(R.id.ar_load_msg);
@@ -92,21 +92,32 @@ public class ARRenderer extends View implements View.OnTouchListener {
             Log.i(TAG, "You updated location to" + locationEvent.getValue());
             this.currentLocation = new Location(locationEvent.getValue());
         } else {
-            // find the tracking point and update that point's location
-            User updatedUserLocation = locationEvent.getKey();
-            // loop through all our tracking targets and find the user that corresponds to this
-            // update. Once found, update the beacon's location and break off this loop
-            for (ARTrackerBeacon trackerBeacon : trackers) {
-                if (trackerBeacon.getUser().equals(updatedUserLocation)) {
-                    trackerBeacon.updateLocation(locationEvent.getValue());
-                    Log.i(TAG, "Friend updated location to" + locationEvent.getValue());
-                    break;
-                }
+            // if copy of trackers has a non 0 size, it means we're in FOCUS mode.
+            // update that one because tracker itself has length 1
+            if (copyOfTrackers.size() > 0) {
+                updateTrackerLocation(locationEvent, copyOfTrackers);
+            } else {
+                // else, copyOfTrackers is size 0 ==> trackers is tracking EVERYONE. (ALL mode)
+                updateTrackerLocation(locationEvent, trackers);
             }
         }
 
         // re-draw the points
         this.invalidate();
+    }
+
+    public void updateTrackerLocation(LocationEvent locationEvent, Set<ARTrackerBeacon> beacons) {
+        // find the tracking point and update that point's location
+        User updatedUserLocation = locationEvent.getKey();
+        // loop through all our tracking targets and find the user that corresponds to this
+        // update. Once found, update the beacon's location and break off this loop
+        for (ARTrackerBeacon trackerBeacon : beacons) {
+            if (trackerBeacon.getUser().equals(updatedUserLocation)) {
+                trackerBeacon.updateLocation(locationEvent.getValue());
+                Log.i(TAG, "Friend updated location to" + locationEvent.getValue());
+                break;
+            }
+        }
     }
 
     @Override
@@ -126,7 +137,9 @@ public class ARRenderer extends View implements View.OnTouchListener {
         ARTrackerBeacon nearestBeacon = null;
         ARTrackerBeacon currentActiveNode = null;
         double nearestDistance = Double.POSITIVE_INFINITY;
+        // only detect touch on visible markers (i.e. in trackers's set)
         for (ARTrackerBeacon beacon : trackers) {
+            if (!beacon.isVisible()) continue;
             double dist = beacon.distanceTo(x, y);
             if (dist < nearestDistance) {
                 nearestBeacon = beacon;
@@ -144,17 +157,17 @@ public class ARRenderer extends View implements View.OnTouchListener {
 
             // if current trackers has more values, we back it up first, then we wipe them
             // i.e. only focus on currently tapped user
-            if (trackers.size() > 1) {
+            if (copyOfTrackers.isEmpty()) {
                 Log.w(TAG, "Focusing on target tapped only");
                 this.vibrator.vibrate(VIBRATE_MS);
-                copyOftrackers.addAll(trackers);
+                copyOfTrackers.addAll(trackers);
                 trackers.clear();
             } else {
                 // else, current tracker is cleared, refill it
                 // i.e. we return all the wiped users
                 Log.w(TAG, "Readding all saved targets");
-                trackers.addAll(copyOftrackers);
-                copyOftrackers.clear();
+                trackers.addAll(copyOfTrackers);
+                copyOfTrackers.clear();
             }
             // either way, we're focusing on this current node
             trackers.add(currentActiveNode);
@@ -166,6 +179,8 @@ public class ARRenderer extends View implements View.OnTouchListener {
                 currentActiveNode.setActive(false);
             }
         }
+        Log.v(TAG, "Currently in TRACKERS: " + trackers.toString());
+        Log.v(TAG, "Currently in COPYOFTRACKERS: " + copyOfTrackers.toString());
     }
 
     @Override
@@ -205,6 +220,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
 
             // if the point is in front of us ==> i.e. we should render it!
             if (cameraCoordinates[Z] > 0) {
+                target.setVisible(true);
                 if (target.isActive()) {
                     // draw it in LARGE size
                     canvasDrawer.drawProfilePicture(canvas, target);
@@ -225,6 +241,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
                 }
             } else {
                 // Draw Guide artefact in general direction
+                target.setVisible(false);
                 if (target.isActive()) {
                     if (target.getX() > 0) {
                         canvasDrawer.drawGuide(Direction.LEFT, canvas, target);
