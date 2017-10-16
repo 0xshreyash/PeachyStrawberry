@@ -210,8 +210,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
                 // between you and target's ENU coordinate is 0
                 if (Float.isNaN(target.getX()) || Float.isNaN(target.getY()) ||
                         (currentLocation.distanceTo(target.getLocation()) < THRESHOLD_DISTANCE)) {
-                    this.arBanner.display("You have arrived at " + target.getUserName()
-                            + "'s location!");
+                    this.arBanner.arrivedLocation(target.getUserName());
                     // we're gonna skip rendering this target, set its visibility to false
                     target.setVisible(false);
                     continue;

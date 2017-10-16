@@ -24,8 +24,9 @@ public class ARBanner {
     }
 
     public void display(String string, int format) {
-        if (overrideText())
+        if (overrideText()) {
             return;
+        }
         this.infoHUD.setText(string);
         this.infoHUD.setTextAlignment(format);
     }
@@ -57,6 +58,15 @@ public class ARBanner {
             this.noTargetUser = false;
         }
         this.display(formatted);
+    }
+
+    /**
+     * arrived location takes precedence over all other messaging logic. we must tell users that
+     * they've arrive at their destination
+     * @param username User's name
+     */
+    public void arrivedLocation(String username) {
+        this.infoHUD.setText("You have arrived at " + username + "'s location!");
     }
 
     private boolean overrideText() {
