@@ -41,6 +41,7 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
     private Location mLastLocation;
     private static LocationService instance;
     private static boolean setupCalled = false;
+    private boolean overrideSpeedupInterval = false;
     public static final int INTERVAL_SECS = 5;
     public static final int FASTEST_INTERVAL_SECS = 3;
     public static final long QUERY_TIME_SECS = 5;
@@ -144,6 +145,7 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         }
 
         setPeachAutoQuery(true);
+        overrideSpeedupInterval = false;
     }
 
     public void onPause() {
@@ -159,6 +161,18 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         }
         setPeachAutoQuery(false);
     }
+
+    public void requestMaintainLocationUpdateInterval(boolean maintain) {
+        if (maintain) {
+            onResume();
+            overrideSpeedupInterval = true;
+        } else {
+            if (overrideSpeedupInterval) {
+                onPause();
+            }
+        }
+    }
+
 
     @Override
     public void onLocationChanged(Location location) {

@@ -146,6 +146,7 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         super.onResume();
         listenToSensors();
         this.locationService.registerSubscriber(this);
+        this.locationService.requestMaintainLocationUpdateInterval(true);
     }
 
     @Override
@@ -153,12 +154,14 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         super.onPause();
         this.sensorManager.unregisterListener(this);
         this.locationService.deregisterSubscriber(this);
+        this.locationService.requestMaintainLocationUpdateInterval(false);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         this.sensorManager.unregisterListener(this);
+        this.locationService.requestMaintainLocationUpdateInterval(false);
         this.finish();
     }
 
