@@ -212,6 +212,8 @@ public class ARRenderer extends View implements View.OnTouchListener {
                         (currentLocation.distanceTo(target.getLocation()) < THRESHOLD_DISTANCE)) {
                     this.arBanner.display("You have arrived at " + target.getUserName()
                             + "'s location!");
+                    // we're gonna skip rendering this target, set its visibility to false
+                    target.setVisible(false);
                     continue;
                 } else {
                     writeDistanceTo(target);
