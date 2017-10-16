@@ -139,14 +139,14 @@ public class ARRenderer extends View implements View.OnTouchListener {
         double nearestDistance = Double.POSITIVE_INFINITY;
         // only detect touch on visible markers (i.e. in trackers's set)
         for (ARTrackerBeacon beacon : trackers) {
+            if (beacon.isActive()) {
+                currentActiveNode = beacon;
+            }
             if (!beacon.isVisible()) continue;
             double dist = beacon.distanceTo(x, y);
             if (dist < nearestDistance) {
                 nearestBeacon = beacon;
                 nearestDistance = dist;
-            }
-            if (beacon.isActive()) {
-                currentActiveNode = beacon;
             }
         }
         if (nearestBeacon == null || nearestDistance > NEAREST_DISTANCE_THRESHOLD) return;
