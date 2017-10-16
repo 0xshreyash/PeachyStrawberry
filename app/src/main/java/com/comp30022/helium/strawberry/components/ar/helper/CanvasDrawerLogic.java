@@ -2,13 +2,9 @@ package com.comp30022.helium.strawberry.components.ar.helper;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.View;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
