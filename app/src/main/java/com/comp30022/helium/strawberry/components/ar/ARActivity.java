@@ -68,9 +68,6 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         // bind ARRenderer to container
         this.container.addView(this.arRenderer);
 
-        // registers to location service so that we will receive updates
-        locationService.registerSubscriber(this);
-
         // keep the screen from dimming!
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
