@@ -21,7 +21,6 @@ import com.comp30022.helium.strawberry.components.location.LocationEvent;
 import com.comp30022.helium.strawberry.components.location.LocationService;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
 import com.comp30022.helium.strawberry.entities.User;
-import com.comp30022.helium.strawberry.helpers.ColourScheme;
 import com.comp30022.helium.strawberry.patterns.Subscriber;
 
 import java.util.List;
@@ -32,7 +31,7 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
     private static final String TAG = ARActivity.class.getSimpleName();
     private static final int MAX_DISP_MARKER = 5;
     private ARCameraSurface cameraSurface;
-    private TextView infoHUD;
+    private ARBanner arBanner;
     private FrameLayout container;
     private SensorManager sensorManager;
     private ARRenderer arRenderer;
@@ -40,8 +39,6 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
     private float[] projectionMatrix = new float[16];
     private float[] rotatedMatrix = new float[16];
     private LocationService locationService = LocationService.getInstance();
-    private boolean displayOverride;
-    private boolean hadBadSensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,15 +48,15 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         this.cameraSurface = new ARCameraSurface(this);
         // container that contains the camera preview
         this.container = (FrameLayout) findViewById(R.id.camera_frame_layout);
-        // the text box to display information (if needed)
-        this.infoHUD = (TextView) findViewById(R.id.info_HUD);
+        // the text box to display information
+        this.arBanner = new ARBanner((TextView) findViewById(R.id.info_HUD));
 
         // get sensor manager
         this.sensorManager = (SensorManager) this.getSystemService(SENSOR_SERVICE);
 
         // init a new ARRenderer for AR display overlay
         this.arRenderer = new ARRenderer(this, (ConstraintLayout) findViewById(R.id.ar_home),
-                (Vibrator)getSystemService(Context.VIBRATOR_SERVICE));
+                (Vibrator)getSystemService(Context.VIBRATOR_SERVICE), this.arBanner);
         // add currently selected user to track
         trackSelectedUser();
 
@@ -73,22 +70,6 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
 
         // keep the screen from dimming!
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        // make pretty text colours
-        setupInfoHUD();
-
-    }
-
-    /**
-     * If anyone wants to display text in infoHUD, call this method
-     *
-     * @param text
-     */
-    public void displayInfoHUD(String text) {
-        // if ARActivity didn't request for a display override, let others write what they want.
-        if (!this.displayOverride) {
-            this.infoHUD.setText(text);
-        }
     }
 
     @Override
@@ -102,18 +83,10 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
             case SensorManager.SENSOR_STATUS_UNRELIABLE:
             case SensorManager.SENSOR_STATUS_ACCURACY_LOW:
             case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM:
-                this.infoHUD.setText(" Sensor low accuracy, follow these steps:\n" +
-                        "  1. Tilt your phone forward and back\n" +
-                        "  2. Move it side to side\n"+
-                        "  3. Tilt left and right\n");
-                this.infoHUD.setTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_START);
-                this.displayOverride = true;
-                this.hadBadSensor = true;
+                this.arBanner.badSensorDisplay();
                 break;
             default:
-                // good accuracy.
-                if (this.hadBadSensor)
-                    this.displayOverride = false;
+                this.arBanner.revokeBadSensorDisplay();
                 break;
         }
 
@@ -176,23 +149,18 @@ public class ARActivity extends AppCompatActivity implements SensorEventListener
         );
     }
 
-    private void setupInfoHUD() {
-        this.infoHUD.setTextColor(ColourScheme.SECONDARY_DARK);
-    }
-
     private void trackSelectedUser() {
         String selectedUser = StrawberryApplication.
                 getString(StrawberryApplication.SELECTED_USER_TAG);
         if (selectedUser == null) {
             Log.i(TAG, "No targeted user selected globally");
-            this.infoHUD.setText("Not tracking anyone. Select a user from the main menu!");
-            this.displayOverride = true;
+            this.arBanner.noTappedUserDisplay();
             trackAllTopFriends(MAX_DISP_MARKER, User.ProfilePictureType.NORMAL);
         } else {
             User targetUser = User.getUser(selectedUser);
             if (targetUser.equals(PeachServerInterface.currentUser())) {
                 Log.i(TAG, "No targeted user selected globally");
-                this.infoHUD.setText("Not tracking anyone. Select a user from the main menu!");
+                this.arBanner.noTappedUserDisplay();
                 trackAllTopFriends(MAX_DISP_MARKER, User.ProfilePictureType.NORMAL);
             } else {
                 this.arRenderer.addTracker(new ARTrackerBeacon(targetUser, true,
