@@ -169,6 +169,7 @@ public class LocationService implements Publisher<LocationEvent>, LocationListen
         } else {
             if (overrideSpeedupInterval) {
                 onPause();
+                overrideSpeedupInterval = false;
             }
         }
     }
