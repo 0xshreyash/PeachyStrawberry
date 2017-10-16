@@ -73,6 +73,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
         this.canvasDrawer = new CanvasDrawerLogic();
         this.vibrator = vibrator;
         setOnTouchListener(this);
+        setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     }
 
     public void addTracker(ARTrackerBeacon tracker) {
@@ -226,8 +227,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
                     // draw it in LARGE size
                     canvasDrawer.drawProfilePicture(canvas, target);
                     // Draw name above profile / circle
-                    canvasDrawer.drawName(canvas, target.getUserName(),
-                            target.getX(), target.getY());
+                    canvasDrawer.drawName(canvas, target.getUserName());
                     // if the x and y will not be seen in screen, render the guide instead!
                     canvasDrawer.deduceGuide(canvas, target);
                 } else {
