@@ -22,9 +22,9 @@ public class CanvasDrawerLogic {
     // when drawing the guide, offset the image away from the arrow
     private static final int IMAGE_OFFSET = 100;
     // size of the border around the selected user
-    private static final int BORDER_SIZE = 2;
+    private static final float BORDER_SIZE = 1.5f;
     // offset y for the text around the circular path
-    private static final int OFFSET_Y = -30;
+    private static final int OFFSET_Y = -20;
     // angle multiplier to get to angle 0 along the path
     private static final float ANGLE_MULTIPLIER = 1.5f;
 
@@ -46,6 +46,8 @@ public class CanvasDrawerLogic {
     private static final int TOP_LEFT_IMAGE_OFFSET = 60;
     private static final int BTM_RIGHT_IMAGE_OFFSET = 30;
 
+    private static final int USERNAME_LENGTH_THRESHOLD = 10;
+
     private Paint arrowPaint;
     private Paint profilePicturePaint;
     private Paint namePaint;
@@ -61,7 +63,7 @@ public class CanvasDrawerLogic {
         this.namePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         this.namePaint.setColor(StrawberryApplication.getInstance().getResources().getColor(R.color.white));
         this.namePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        this.namePaint.setTextSize(60);
+        this.namePaint.setTextSize(40);
 
         this.arrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         this.arrowPaint.setStyle(Paint.Style.FILL);
@@ -105,6 +107,10 @@ public class CanvasDrawerLogic {
     }
 
     public void drawName(Canvas canvas, String username) {
+        // Just take the first name if the username is too long.
+        if(username.length() > USERNAME_LENGTH_THRESHOLD) {
+            username = username.split(".")[0];
+        }
         float width = namePaint.measureText(username);
         canvas.drawTextOnPath(username, circleDrawPath,
                 (float)(ANGLE_MULTIPLIER*Math.PI*radius - width/2), OFFSET_Y, namePaint);
