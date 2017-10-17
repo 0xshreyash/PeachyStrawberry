@@ -39,7 +39,7 @@ public class LoginActivity extends AppCompatActivity implements Subscriber<Strin
     }
 
     private void continueToMain(String token) {
-        Log.e(TAG, "Continue to main being called");
+        Log.i(TAG, "Continue to main being called");
         setContentView(R.layout.splash);
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
