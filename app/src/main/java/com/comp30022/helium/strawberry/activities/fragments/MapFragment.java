@@ -67,6 +67,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
     private TextView userName;
     private ImageButton chatButtom;
     private ImageButton arButton;
+    private ImageButton logoutButton;
     private MenuItemTouchListener chatListener;
     private MenuItemTouchListener arListener;
     private StrawberryMapWrapperLayout mapLayout;
@@ -193,6 +194,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
 
         searchBar = (ViewGroup) view.findViewById(R.id.my_search_bar);
         searchButton = (ImageButton) view.findViewById(R.id.my_search_button);
+        logoutButton = (ImageButton)view.findViewById(R.id.logout_button);
         searchBox = (AutocompleteView) view.findViewById(R.id.my_search_box);
 
         searchBox.setSelectAllOnFocus(true);
@@ -220,6 +222,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                     searchOpen = false;
                     searchBox.setVisibility(View.GONE);
                     searchBox.setText("");
+                    logoutButton.setVisibility(View.VISIBLE);
 
                     InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     inputMethodManager.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
@@ -233,6 +236,7 @@ public class MapFragment extends LocationServiceFragment implements OnMapReadyCa
                     searchOpen = true;
                     searchBox.setVisibility(View.VISIBLE);
                     searchBox.requestFocus();
+                    logoutButton.setVisibility(View.GONE);
 
                     InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     inputMethodManager.showSoftInput(searchBox, InputMethodManager.SHOW_IMPLICIT);

@@ -2,6 +2,7 @@ package com.comp30022.helium.strawberry.activities;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -14,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -518,23 +520,31 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         if (AccessToken.getCurrentAccessToken() == null) {
             return; // already logged out
         }
-        Log.e(TAG, "Disconnecting from facebook");
-        // Make request to logout to facebook.
-        new GraphRequest(AccessToken.getCurrentAccessToken(), "/me/permissions/",
-                null, HttpMethod.DELETE, new GraphRequest
-                .Callback() {
-            @Override
-            public void onCompleted(GraphResponse graphResponse) {
+        Log.i(TAG, "Disconnecting from facebook");
+        new AlertDialog.Builder(this)
+                .setMessage("Are you sure you want to exit?")
+                .setCancelable(true)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        new GraphRequest(AccessToken.getCurrentAccessToken(), "/me/permissions/",
+                                null, HttpMethod.DELETE, new GraphRequest
+                                .Callback() {
+                            @Override
+                            public void onCompleted(GraphResponse graphResponse) {
 
-                // Clear the shared preferences.
-                SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = pref.edit();
-                editor.clear();
-                editor.commit();
-                // Logout.
-                StrawberryApplication.setString("token", null);
-                backToStart();
-            }
-        }).executeAsync();
+                                // Clear the shared preferences.
+                                SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = pref.edit();
+                                editor.clear();
+                                editor.commit();
+                                // Logout.
+                                StrawberryApplication.setString("token", null);
+                                backToStart();
+                            }
+                        }).executeAsync();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 }
