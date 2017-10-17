@@ -3,6 +3,7 @@ package com.comp30022.helium.strawberry.activities;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
@@ -38,6 +39,7 @@ public class LoginActivity extends AppCompatActivity implements Subscriber<Strin
     }
 
     private void continueToMain(String token) {
+        Log.e(TAG, "Continue to main being called");
         setContentView(R.layout.splash);
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);

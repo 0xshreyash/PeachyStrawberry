@@ -3,6 +3,7 @@ package com.comp30022.helium.strawberry.activities;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -205,7 +206,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         MAX_WIDTH = metrics.widthPixels;
-        Log.d("MAX_WIDTH", MAX_WIDTH + "asdfasd");
+        Log.d("MAX_WIDTH", MAX_WIDTH + " is the max width");
 //        View tStats = findViewById(R.id.transport_stats);
 //        View tOpt = findViewById(R.id.transport_option);
 //        ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) chatFragment.getView().getLayoutParams();
@@ -495,8 +496,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onBackPressed() {
-        if(mapFragment.isSearchOpen()) {
-            mapFragment.toggleSearchBar();
+        if(mapFragment == null) {
+                this.finish();
+            }
+            if(mapFragment != null && mapFragment.isSearchOpen()) {
+                mapFragment.toggleSearchBar();
 
         } else if(chatExpanded) {
             collapseChat();
@@ -504,5 +508,33 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         } else {
             this.finish();
         }
+    }
+
+    /**
+     * Method called when someone clicks the logout button.
+     */
+    public void disconnectFromFacebook(View view) {
+
+        if (AccessToken.getCurrentAccessToken() == null) {
+            return; // already logged out
+        }
+        Log.e(TAG, "Disconnecting from facebook");
+        // Make request to logout to facebook.
+        new GraphRequest(AccessToken.getCurrentAccessToken(), "/me/permissions/",
+                null, HttpMethod.DELETE, new GraphRequest
+                .Callback() {
+            @Override
+            public void onCompleted(GraphResponse graphResponse) {
+
+                // Clear the shared preferences.
+                SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = pref.edit();
+                editor.clear();
+                editor.commit();
+                // Logout.
+                StrawberryApplication.setString("token", null);
+                backToStart();
+            }
+        }).executeAsync();
     }
 }
