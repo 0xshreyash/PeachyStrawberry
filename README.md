@@ -1,3 +1,7 @@
+Table of contents
+=======================
+* [Helium-Beta](#Helium-Beta)
+
 # Helium-Beta
 
 This is the client-side application for Team Helium. 
