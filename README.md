@@ -1,6 +1,6 @@
 Table of contents
 =======================
-* [Helium-Beta](#Helium-Beta)
+* [Helium-Beta](#helium-beta)
 
 # Helium-Beta
 
