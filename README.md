@@ -10,11 +10,10 @@ Table of contents
     * [Testing](#testing)
 * [Usage](#usage)
 * [Features](#features)
+    * [Facebook Login](#facebook-login)
     * [Friend Location Map](#friend-location-map)
     * [Chatting](#chatting)
     * [Augmented Reality](#augmented-reality)
-    * [Facebook Login](#facebook-login)
-    * [Importing Facebook Friends](#importing-friends-from-facebook)
     * [Disabling tracking]()
 * [Future Features](#future-features)
     * [Account Creation](#account-creation)
@@ -25,6 +24,7 @@ Table of contents
     * [Machine Learning - Automated meet-up location](#machine-learning---automated-meet-up-location)
     * [Avatar selection](#avatar-selection)
     * [Reset password](#reset-password)
+* [Testing](#testing)
 
 
 # Helium-Beta
@@ -91,36 +91,51 @@ $ ./gradlew test
  
  
 <!-- ===============================  section four ====================================== -->
-# Usage
+# Application Outline and Usage
 Before stepping in-depth into the [features](#features) we have, this section explores the overview
-of how a user can/should use **Peachy Strawberry**.
+of how a user can/should use **Peachy Strawberry**. **Maybe we should add a fake facebook account to
+allow Luca to download and login to the app**
 
 1. Upon entering the app, first time users (or logged out users) will be prompted to login into their
 facebook accounts. First time users will also be prompted to accept location and camera permissions.
-2. You're greeted by a (suspiciously-google-map-lookalike) map that displays all your friends. They
-will appear as their facebook profile picture in the map view.
-    * If you're trying to find a friend that's too far away, you can use the search bar to find him/her
-    using his/her facebook profile name. You will hone in their direction immediately upon selection.
+We chose to use a facebook login because people would generally tend to download our application as
+a means to find friends and not as a social media, so by giving them the ability to simply download
+the application and login via facebook (thus, adding all your facebook friends that use the application),
+in order to not lose potential users over the hassle of adding and maintaining a friend's list. 
+2. You're greeted by a (a-better-looking-google-map-lookalike) map that displays all your friends. In
+order to make our application unique we chose to use the map as the basic user interface and made
+several modifications to the map (more on this later). All of your friends will appear on the map with
+the same avatar as their facebook profile picture.
+   * If you're trying to find a friend that's too far away, you can use the search bar to find him/her
+    using his/her facebook profile name. You will hone in their direction immediately upon selection. 
 3. By tapping on a user's profile picture or searching (see above), the camera shifts focus onto
 that user and displays a route to him/her with a particular mode of transport. You're free to change
 the default mode. The ETA and distance will be calculated shortly.
 4. By tapping a user, you also bring up a small bubble that shows 2 buttons. The leftmost being the
 chat button. The rightmost button re-directs you to our AR with this user as its target.
 5. If you tap the chat button, you get to chat with the selected user. Surprise surprise!
+   * To exit chat mode swipe the button with the arrow (next to the edit box for your messages) to the
+   right.
 6. Assuming you're close enough to the user that you're itching to use our fabulous AR, tap on the user
 again to bring out the bubble, then tap on the directional (rightmost) icon.
 7. In the AR mode, you'll see (at most) 5 avatars on-screen. The biggest avatar is the currently tracked
 friend. The top HUD shows how far away you are to that person. The smaller avatars are friends in that
-general direction, but since you did not they're not your target of interest, they appear smaller.
+general direction, but since they're not your target of interest, they appear smaller. If the selected
+user is not in the line of sight of the camera then a directional arrow along with their profile picture
+will appear on the side of the screen you need to turn to in order to have them in the line of sight (the
+arrows positioning is relative to not just left or right but also relative to the user's GPS height
+with respect to your height), this does not happen for other users because they are not the point of
+interest for us.
     * A useful feature is to tap the user's profile in AR mode again to enter FOCUS mode. In this mode,
     all other (smaller avatar) friends will disappear, leaving the actively tracked user in AR only.
     You should receive a vibration when this happens to notify you that you're in FOCUS mode.
     * Tap the FOCUSED user again to bring your (smaller avatar) friends back out.
-    * Keep in mind that the AR depends heavily on your GPS location and may produce unreliable result
-    at times. If your device's sensors are poor, it will also display a message prompting you to calibrate it.
+    * If your device's sensors are poor, it will also display a message prompting you to calibrate it.
+    AR will also show you the distance to the selected user, or it will say that you have arrived at the
+    same location when you are close enough but this obviously depends on how accurate the GPS readings
+    on the phone are.
 8. Tap the back button on your android device to exit AR mode anytime.
 
-    
  
  
 
@@ -129,14 +144,39 @@ general direction, but since you did not they're not your target of interest, th
 # Features
 Here, we go in (a little more) detail of how each feature works, with some diagrams.
 
+#### Facebook Login and Auto-Import Friends from Facebook
+We chose to use facebook login, since anyone who is tech-savvy enough to use our application
+will have a facebook account, and they will download the application when they need to "find
+a friend", and would not want to go through the hassle of having to download the application,
+sign-up and then add new friends in order to find them. By using facebook new users are just
+a couple of clicks away from being able to use our application. We also, auto-add all the
+facebook friends that are using the application as it again aids easy start-up when using
+our application. Using facebook also alleivates any concerns users might have about our
+application since we are a new start-up, as they know that facebook won't give up any 
+information about them to us and their data is safe.
+
 #### Friend Location Map
- TODO: describe location map eg (pictures?)
-Provides a bird's eye view of all friends in a given location.
-* Path to friend's location
-* Transportation options
-* ETA
-* Search far away friends
-* etc..
+Our map is the base user interface for the application, it provides a bird's eye view of the
+user's location and their friends' location. We use google maps in order to implement our
+friend's map but we modify it quite a bit in order to achieve the application we wanted.
+First of all, in order to make it explicit that our application is meant to help you locate 
+people in some way and we think this experiment was successful according to the usability 
+testing we did for our application. Our map's colour-scheme is not the only thing that we
+modified from a normal google map, we also show the user's facebook profile picture instead
+of showing a normal marker. When we click on the default google map, an info-window shows
+up (insert picture here) and the info-window cannot be used as a menu, it is clickable
+as a whole but buttons on the info-windows will not be individually clickable, but to 
+achieve what we thought was the best expeirence possible we created our own info-window,
+interecpted touch events on the info-window, calculated where the touch was happening and
+activate either the chat or the ar buttons accordingly. If you want to find your friend, then
+you can choose any of the array of transport options we provide, as soon as you choose a
+transport option, a path to the user will accordingly show up and an estiamted distance
+and time of arrival will be displayed as well. If you are unaware of what country a friend
+might be in, it is not efficient to zoom out of the map and look for the friend, so what we
+have is a search feature that not only suggests friends to located as soon as you start 
+typing it also hones to the friends location upon selection of the friend. This allows for
+smooth transition between friend tracking and would alleviate one of the potential drawbacks
+of having the map as the main ui. 
 
 #### Chatting
 TODO: describe chatting functionality. (pictures?)
@@ -145,12 +185,6 @@ TODO: describe chatting functionality. (pictures?)
 
 #### Augmented Reality
 TODO: insert pictures here after new pull request is merged. (AR-circular-bg)
-
-#### Facebook Login
-TODO: describe facebook login mechanism (pictures?)
-
-#### Importing Friends from Facebook
-TODO: Describe automated process of importing facebook friends
 
 #### Disappear from map
 TODO: Disappearing from map (new feature to prevent stalkers)
