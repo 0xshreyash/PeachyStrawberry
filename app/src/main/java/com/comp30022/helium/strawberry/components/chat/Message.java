@@ -42,7 +42,9 @@ public class Message {
     public boolean equals(Object obj) {
         if(obj instanceof Message) {
             Message other = (Message) obj;
-            return this.message.equals(other.message) && this.createdAt == other.createdAt;
+            return (this.message.equals(other.message) && this.createdAt == other.createdAt &&
+                    this.sender.getId().equals(other.sender.getId()) &&
+                    this.receiver.getId().equals(other.receiver.getId()));
         }
         return false;
     }

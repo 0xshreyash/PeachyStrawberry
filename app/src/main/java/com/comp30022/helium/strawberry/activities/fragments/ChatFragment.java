@@ -10,12 +10,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -55,7 +53,7 @@ import java.util.TimerTask;
  */
 public class ChatFragment extends Fragment implements Subscriber<Event> {
     private static final int QUERY_TIME_SECS = 3;
-    private static final int BG_QUERY_TIME_SECS = 30;
+    private static final int BG_QUERY_TIME_SECS = 15;
     private static final String TAG = "StrawberryChat";
     private RecyclerView mMessageRecycler;
     private View loadingLayout, emptyLayout;
@@ -68,6 +66,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
     List<Message> messages;
     private MessageListAdapter mMessageAdapter;
     private static int NOTIFICATION_ID = 1;
+    private static final String TRACKING_ALERT = "Tracking Alert";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -254,6 +253,15 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
             messages.add(message);
             Log.d(TAG, message + " updated");
 
+            if(message.getSender().getId().equals(friend.getId())) {
+                if(message.getMessage().split(":")[0].equals(TRACKING_ALERT)) {
+                    this.makeNotification(message, true);
+                }
+                else {
+                    this.makeNotification(message, false);
+                }
+            }
+
             Collections.sort(messages, new Comparator<Message>() {
                 @Override
                 public int compare(Message m1, Message m2) {
@@ -278,7 +286,6 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
 //                }
 //            }
         }
-        this.notify(message, false);
         showEmpty(messages.size() == 0);
     }
 
@@ -322,7 +329,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
         }
     }
 
-    public void notify(Message message, boolean autGeneratedMessage) {
+    public void makeNotification(Message message, boolean autGeneratedMessage) {
 
         Notification notification = null;
         String content = message.getMessage();
@@ -355,8 +362,8 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
             notification = builder.build();
         }
 
-        notification.vibrate = new long[]{1000};
-        Uri sound = null;
+        //notification.vibrate = new long[]{1000};
+        Uri sound;
         if(autGeneratedMessage)
             sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         else
