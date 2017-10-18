@@ -41,6 +41,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -63,6 +64,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
     private Timer timer;
     private User friend;
     private User me;
+    HashMap<User, List<Message>> messageDictionary;
     List<Message> messages;
     private MessageListAdapter mMessageAdapter;
     private static int NOTIFICATION_ID = 1;
@@ -70,10 +72,10 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        messages = new ArrayList<>();
         blockNotify = true;
 
         me = PeachServerInterface.currentUser();
+        messageDictionary = new HashMap<>();
 
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
 
@@ -81,6 +83,9 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
             selectedId = me.getId();
 
         friend = User.getUser(selectedId);
+        if(!messageDictionary.containsKey(friend))
+            messageDictionary.put(friend, new ArrayList<Message>());
+        messages = messageDictionary.get(friend);
 
         //TODO: update later to STOMP
         timer = new Timer();
@@ -127,7 +132,10 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
     public void setRecyclerProperties() {
         mMessageAdapter = new MessageListAdapter(this, messages);
         mMessageRecycler.setAdapter(mMessageAdapter);
-        mMessageRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager.setStackFromEnd(true);
+        mMessageRecycler.setLayoutManager(layoutManager);
+        mMessageRecycler.scrollToPosition(messages.size() - 1);
     }
 
     @Override
@@ -252,16 +260,6 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
 
             messages.add(message);
             Log.d(TAG, message + " updated");
-
-            if(message.getSender().getId().equals(friend.getId())) {
-                if(message.getMessage().split(":")[0].equals(TRACKING_ALERT)) {
-                    this.makeNotification(message, true);
-                }
-                else {
-                    this.makeNotification(message, false);
-                }
-            }
-
             Collections.sort(messages, new Comparator<Message>() {
                 @Override
                 public int compare(Message m1, Message m2) {
@@ -286,7 +284,10 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
 //                }
 //            }
         }
-        showEmpty(messages.size() == 0);
+        // Commenting this out because this becomes default in the scenarion messages == null too
+        // showEmpty(messages.size() == 0);
+        else
+            showEmpty(true);
     }
 
     /**
@@ -321,7 +322,10 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
             StrawberryApplication.GlobalVariableChangeEvent event = (StrawberryApplication.GlobalVariableChangeEvent) info;
             if (event.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {
                 friend = User.getUser((String) event.getValue());
-                messages = new ArrayList<>();
+                if(!messageDictionary.containsKey(friend)) {
+                    messageDictionary.put(friend, new ArrayList<Message>());
+                }
+                messages = messageDictionary.get(friend);
                 showEmpty(false);
                 hideLoading(false);
                 setRecyclerProperties();
