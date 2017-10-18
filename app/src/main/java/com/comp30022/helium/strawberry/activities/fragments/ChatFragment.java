@@ -1,20 +1,30 @@
 package com.comp30022.helium.strawberry.activities.fragments;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
 import com.android.volley.Response;
 import com.comp30022.helium.strawberry.R;
 import com.comp30022.helium.strawberry.StrawberryApplication;
+import com.comp30022.helium.strawberry.activities.MainActivity;
 import com.comp30022.helium.strawberry.components.chat.Message;
 import com.comp30022.helium.strawberry.components.chat.MessageListAdapter;
 import com.comp30022.helium.strawberry.components.server.PeachServerInterface;
@@ -28,6 +38,8 @@ import com.comp30022.helium.strawberry.patterns.exceptions.NotInstantiatedExcept
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,6 +59,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
     private static final String TAG = "StrawberryChat";
     private RecyclerView mMessageRecycler;
     private View loadingLayout, emptyLayout;
+    private NotificationManager notificationManager;
 
     boolean blockNotify;
     private Timer timer;
@@ -54,6 +67,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
     private User me;
     List<Message> messages;
     private MessageListAdapter mMessageAdapter;
+    private static int NOTIFICATION_ID = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,6 +86,13 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
         //TODO: update later to STOMP
         timer = new Timer();
         timer.scheduleAtFixedRate(getChatQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
+
+        // Creating a notification channel
+        notificationManager =
+                (NotificationManager)getActivity().
+                        getSystemService(getContext().NOTIFICATION_SERVICE);
+        // The id of the channel.
+
 
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_chat);
@@ -224,10 +245,12 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
      * @param message messsage to be updated
      */
     private void updateMessage(Message message) {
+        // Adding a new message
         if ((
                 message.getSender().getId().equals(friend.getId()) ||
                         (message.getSender().getId().equals(me.getId()) && message.getReceiver().getId().equals(friend.getId()))
         ) && !messages.contains(message)) {
+
             messages.add(message);
             Log.d(TAG, message + " updated");
 
@@ -255,7 +278,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
 //                }
 //            }
         }
-
+        this.notify(message, false);
         showEmpty(messages.size() == 0);
     }
 
@@ -297,5 +320,48 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                 setRecyclerProperties();
             }
         }
+    }
+
+    public void notify(Message message, boolean autGeneratedMessage) {
+
+        Notification notification = null;
+        String content = message.getMessage();
+        Intent intent=new Intent(StrawberryApplication.getInstance().getApplicationContext(),
+                MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(StrawberryApplication.getInstance().
+                getApplicationContext(), 0, intent, 0);
+        Context context = getContext();
+        String title = "New message from " + message.getSender().getUsername() + "!";
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            notification = new Notification();
+            notification.icon = R.mipmap.ic_launcher;
+            try {
+                Method deprecatedMethod = notification.getClass().getMethod("setLatestEventInfo",
+                        Context.class, CharSequence.class, CharSequence.class, PendingIntent.class);
+                deprecatedMethod.invoke(notification, getContext(), content, null, pendingIntent);
+            } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException e) {
+                Log.w(TAG, "Method not found", e);
+            }
+        } else {
+            // Use new API
+            Notification.Builder builder = new Notification.Builder(context)
+                    .setContentIntent(pendingIntent)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(title)
+                    .setContentText(content);
+
+            notification = builder.build();
+        }
+
+        notification.vibrate = new long[]{1000};
+        Uri sound = null;
+        if(autGeneratedMessage)
+            sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        else
+            sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        notification.sound = sound;
+        notificationManager.notify(NOTIFICATION_ID, notification);
     }
 }
