@@ -28,7 +28,11 @@ public class ARTrackerBeacon {
 
     public ARTrackerBeacon(User user, boolean activeSelected, User.ProfilePictureType size) {
         this.user = user;
-        this.location = LocationService.getInstance().getUserLocation(user);
+        if (LocationService.getInstance() != null) {
+            this.location = LocationService.getInstance().getUserLocation(user);
+        } else {
+            this.location = new Location(TAG);
+        }
         this.activeSelected = activeSelected;
         this.size = size;
         this.pendingSize = User.ProfilePictureType.SMALL;
