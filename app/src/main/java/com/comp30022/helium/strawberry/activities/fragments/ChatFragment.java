@@ -72,6 +72,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
     private static int notificationId = 0;
     private static final String TRACKING_ALERT = "Tracking Alert";
     private static final long EPSILON = 60000;
+    private static final String TRACKER_MESSAGE = "Tracking Alert: I am now headed to your location";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,8 +106,6 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                 (NotificationManager)getActivity().
                         getSystemService(getContext().NOTIFICATION_SERVICE);
         // The id of the channel.
-
-
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_chat);
     }
@@ -470,11 +469,29 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
             StrawberryApplication.GlobalVariableChangeEvent event =
                     (StrawberryApplication.GlobalVariableChangeEvent) info;
             if (event.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {
+
                 selectedFriend = User.getUser((String) event.getValue());
+
                 if(!messageDictionary.containsKey(selectedFriend)) {
                     messageDictionary.put(selectedFriend, new ArrayList<Message>());
                 }
                 messages = messageDictionary.get(selectedFriend);
+                String message = TRACKER_MESSAGE;
+                if (message.length() > 0) {
+                    try {
+                        PeachServerInterface.getInstance().postChat(message, selectedFriend.getId(),
+                                new StrawberryListener(new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        Log.e(TAG, "Response from server received");
+                                        querySelectedFriend();
+                                    }
+                                }, null));
+                    } catch (NotInstantiatedException | InstanceExpiredException e) {
+                        e.printStackTrace();
+                    }
+                    //editText.getText().clear();
+                }
                 showEmpty(false);
                 hideLoading(false);
                 setRecyclerProperties();
