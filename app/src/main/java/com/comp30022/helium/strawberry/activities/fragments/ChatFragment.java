@@ -53,7 +53,7 @@ import java.util.TimerTask;
  * RecyclerView is used because it is standard in chat applications.
  */
 public class ChatFragment extends Fragment implements Subscriber<Event> {
-    private static final int QUERY_TIME_SECS = 3;
+    private static final int QUERY_TIME_SECS = 5;
     private static final int BG_QUERY_TIME_SECS = 15;
     private static final String TAG = "StrawberryChat";
     private RecyclerView mMessageRecycler;
@@ -62,12 +62,16 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
 
     boolean blockNotify;
     private Timer timer;
-    private User friend;
+    private User selectedFriend;
     private User me;
-    HashMap<User, List<Message>> messageDictionary;
+    HashMap<User, ArrayList<Message>> messageDictionary;
     List<Message> messages;
+
+    // Used to specify not to send notifications when the app has just been
+    // installed, so as to not bombard them with notifications.
+    private boolean sendNotification;
     private MessageListAdapter mMessageAdapter;
-    private static int NOTIFICATION_ID = 1;
+    private static int notificationId = 0;
     private static final String TRACKING_ALERT = "Tracking Alert";
 
     @Override
@@ -76,16 +80,19 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
 
         me = PeachServerInterface.currentUser();
         messageDictionary = new HashMap<>();
+        for(User friend : StrawberryApplication.getCachedFriends()) {
+           messageDictionary.put(friend, new ArrayList<Message>());
+        }
 
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
 
         if(selectedId == null)
             selectedId = me.getId();
 
-        friend = User.getUser(selectedId);
-        if(!messageDictionary.containsKey(friend))
-            messageDictionary.put(friend, new ArrayList<Message>());
-        messages = messageDictionary.get(friend);
+        selectedFriend = User.getUser(selectedId);
+        if(!messageDictionary.containsKey(selectedFriend))
+            messageDictionary.put(selectedFriend, new ArrayList<Message>());
+        messages = messageDictionary.get(selectedFriend);
 
         //TODO: update later to STOMP
         timer = new Timer();
@@ -158,7 +165,31 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
         timer.scheduleAtFixedRate(getChatQueryTimerTask(), 0, BG_QUERY_TIME_SECS * 1000);
     }
 
-    private void parseAndSaveChatLog(JSONArray chats) {
+//    private void parseAndSaveChatLog(JSONArray chats) {
+//        Log.d(TAG, chats.toString());
+//        try {
+//            for (int i = 0; i < chats.length(); i++) {
+//                JSONObject chat = new JSONObject(chats.get(i).toString());
+//
+//                User sender, receiver;
+//                if (chat.get("from").equals(me.getId()))
+//                    sender = me;
+//                else
+//                    sender = User.getUser(chat.getString("from"));
+//
+//                if (chat.get("to").equals(me.getId()))
+//                    receiver = me;
+//                else
+//                    receiver = User.getUser(chat.getString("to"));
+//
+//                updateMessage(new Message(chat.getString("message"), sender, receiver, chat.getLong("timestamp")));
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    private void parseAndSaveChatLog(JSONArray chats, User friend) {
         Log.d(TAG, chats.toString());
         try {
             for (int i = 0; i < chats.length(); i++) {
@@ -175,7 +206,8 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                 else
                     receiver = User.getUser(chat.getString("to"));
 
-                updateMessage(new Message(chat.getString("message"), sender, receiver, chat.getLong("timestamp")));
+                updateMessage(new Message(chat.getString("message"), sender, receiver,
+                        chat.getLong("timestamp")), messageDictionary.get(friend), friend);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -195,45 +227,104 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
      */
 
     private void queryChat() {
-        if (friend == null || friend.getId() == null)
-            return;
+        for(final User currentFriend : messageDictionary.keySet()) {
+            final boolean showLoading;
+            if(selectedFriend != null && selectedFriend.getId() != null &&
+                    currentFriend.equals(selectedFriend)) {
+                showLoading = true;
+                Log.e(TAG, "Polling for :" + currentFriend.getUsername() + " who is selected");
+            }
+            else {
+                showLoading = false;
+                Log.e(TAG, "Polling for :" + currentFriend.getUsername() + " who is not selected");
+            }
+            ArrayList<Message> currentMessageList = messageDictionary.get(currentFriend);
+            try {
+                if (currentMessageList.isEmpty()) {
+                    PeachServerInterface.getInstance().getRecentChatLog(currentFriend,
+                            new StrawberryListener(new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                JSONArray chats = new JSONArray(response);
+                                if(showLoading)
+                                    hideLoading(true);
+                                parseAndSaveChatLog(chats, currentFriend);
+//                                    blockNotify = false;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, null));
+
+                } else {
+                    Long time = currentMessageList.get(currentMessageList.size() - 1)
+                            .getCreatedAt();
+                    PeachServerInterface.getInstance().getChatLog(currentFriend, time,
+                            new StrawberryListener(new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                if(showLoading)
+                                    hideLoading(true);
+                                JSONArray chats = new JSONArray(response);
+                                parseAndSaveChatLog(chats, currentFriend);
+//                                    blockNotify = false;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, null));
+                }
+
+            } catch (NotInstantiatedException | InstanceExpiredException e) {
+                e.printStackTrace();
+            }
+        }
+        sendNotification = true;
+    }
+
+    private void querySelectedFriend() {
+
         try {
             if (messages.isEmpty()) {
-                PeachServerInterface.getInstance().getRecentChatLog(friend, new StrawberryListener(new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray chats = new JSONArray(response);
-                            hideLoading(true);
-                            parseAndSaveChatLog(chats);
+                PeachServerInterface.getInstance().getRecentChatLog(selectedFriend,
+                        new StrawberryListener(new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    JSONArray chats = new JSONArray(response);
+                                    hideLoading(true);
+                                    parseAndSaveChatLog(chats, selectedFriend);
 //                                    blockNotify = false;
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, null));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, null));
 
             } else {
-                Long time = messages.get(messages.size() - 1).getCreatedAt();
-                PeachServerInterface.getInstance().getChatLog(friend, time, new StrawberryListener(new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            hideLoading(true);
-                            JSONArray chats = new JSONArray(response);
-                            parseAndSaveChatLog(chats);
+                Long time = messages.get(messages.size() - 1)
+                        .getCreatedAt();
+                PeachServerInterface.getInstance().getChatLog(selectedFriend, time,
+                        new StrawberryListener(new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    hideLoading(true);
+                                    JSONArray chats = new JSONArray(response);
+                                    parseAndSaveChatLog(chats, selectedFriend);
 //                                    blockNotify = false;
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, null));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, null));
             }
 
         } catch (NotInstantiatedException | InstanceExpiredException e) {
             e.printStackTrace();
         }
-
     }
 
     public TimerTask getChatQueryTimerTask() {
@@ -251,16 +342,62 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
      *
      * @param message messsage to be updated
      */
-    private void updateMessage(Message message) {
+//    private void updateMessage(Message message) {
+//        // Adding a new message
+//        if ((
+//                message.getSender().getId().equals(selectedFriend.getId()) ||
+//                        (message.getSender().getId().equals(me.getId()) && message.getReceiver().getId().equals(selectedFriend.getId()))
+//        ) && !messages.contains(message)) {
+//
+//            messages.add(message);
+//            Log.d(TAG, message + " updated");
+//            Collections.sort(messages, new Comparator<Message>() {
+//                @Override
+//                public int compare(Message m1, Message m2) {
+//                    if (m1.getCreatedAt() < m2.getCreatedAt())
+//                        return -1;
+//                    if (m1.getCreatedAt() > m2.getCreatedAt())
+//                        return 1;
+//                    return 0;
+//                }
+//            });
+//
+//            // update view
+//            setRecyclerProperties();
+//            mMessageRecycler.scrollToPosition(messages.size() - 1);
+//
+//            // notify
+////            if (!blockNotify) {
+////                if (!message.getSender().getId().equals(me.getId())) {
+////                    Toast toast = Toast.makeText(this.getContext(), selectedFriend.getUsername() + ": " +
+////                            message.getMessage(), Toast.LENGTH_SHORT);
+////                    toast.show();
+////                }
+////            }
+//        }
+//        // Commenting this out because this becomes default in the scenarion messages == null too
+//        // showEmpty(messages.size() == 0);
+//        else
+//            showEmpty(true);
+//    }
+
+    /**
+     * Updates a message
+     *
+     * @param message messsage to be updated
+     */
+    private void updateMessage(Message message, ArrayList<Message> listToAdd,
+                               User correspondingFriend) {
         // Adding a new message
         if ((
-                message.getSender().getId().equals(friend.getId()) ||
-                        (message.getSender().getId().equals(me.getId()) && message.getReceiver().getId().equals(friend.getId()))
-        ) && !messages.contains(message)) {
+                message.getSender().getId().equals(correspondingFriend.getId()) ||
+                        (message.getSender().getId().equals(me.getId()) &&
+                                message.getReceiver().getId().equals(correspondingFriend.getId()))
+        ) && !listToAdd.contains(message)) {
 
-            messages.add(message);
+            listToAdd.add(message);
             Log.d(TAG, message + " updated");
-            Collections.sort(messages, new Comparator<Message>() {
+            Collections.sort(listToAdd, new Comparator<Message>() {
                 @Override
                 public int compare(Message m1, Message m2) {
                     if (m1.getCreatedAt() < m2.getCreatedAt())
@@ -271,23 +408,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                 }
             });
 
-            // update view
-            setRecyclerProperties();
-            mMessageRecycler.scrollToPosition(messages.size() - 1);
-
-            // notify
-//            if (!blockNotify) {
-//                if (!message.getSender().getId().equals(me.getId())) {
-//                    Toast toast = Toast.makeText(this.getContext(), friend.getUsername() + ": " +
-//                            message.getMessage(), Toast.LENGTH_SHORT);
-//                    toast.show();
-//                }
-//            }
         }
-        // Commenting this out because this becomes default in the scenarion messages == null too
-        // showEmpty(messages.size() == 0);
-        else
-            showEmpty(true);
     }
 
     /**
@@ -302,11 +423,11 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
 
         if (message.length() > 0) {
             try {
-                PeachServerInterface.getInstance().postChat(message, friend.getId(),
+                PeachServerInterface.getInstance().postChat(message, selectedFriend.getId(),
                         new StrawberryListener(new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
-                                queryChat();
+                                querySelectedFriend();
                             }
                         }, null));
             } catch (NotInstantiatedException | InstanceExpiredException e) {
@@ -319,13 +440,14 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
     @Override
     public void update(Event info) {
         if (info instanceof StrawberryApplication.GlobalVariableChangeEvent) {
-            StrawberryApplication.GlobalVariableChangeEvent event = (StrawberryApplication.GlobalVariableChangeEvent) info;
+            StrawberryApplication.GlobalVariableChangeEvent event =
+                    (StrawberryApplication.GlobalVariableChangeEvent) info;
             if (event.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {
-                friend = User.getUser((String) event.getValue());
-                if(!messageDictionary.containsKey(friend)) {
-                    messageDictionary.put(friend, new ArrayList<Message>());
+                selectedFriend = User.getUser((String) event.getValue());
+                if(!messageDictionary.containsKey(selectedFriend)) {
+                    messageDictionary.put(selectedFriend, new ArrayList<Message>());
                 }
-                messages = messageDictionary.get(friend);
+                messages = messageDictionary.get(selectedFriend);
                 showEmpty(false);
                 hideLoading(false);
                 setRecyclerProperties();
@@ -339,7 +461,8 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
         String content = message.getMessage();
         Intent intent=new Intent(StrawberryApplication.getInstance().getApplicationContext(),
                 MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(StrawberryApplication.getInstance().
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                StrawberryApplication.getInstance().
                 getApplicationContext(), 0, intent, 0);
         Context context = getContext();
         String title = "New message from " + message.getSender().getUsername() + "!";
@@ -373,6 +496,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
         else
             sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         notification.sound = sound;
-        notificationManager.notify(NOTIFICATION_ID, notification);
+        notificationManager.notify(notificationId, notification);
+        notificationId++;
     }
 }
