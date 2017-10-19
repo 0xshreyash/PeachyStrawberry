@@ -34,7 +34,7 @@ public class CanvasDrawerLogic {
     private static final int NAME_WIDTH_OFFSET = 7;
     // When the user has no profile picture/callback hasn't returned, we render a temporary
     // circle with this radius as replacement for the profile picture
-    private static final int DEFAULT_CIRCLE_RADIUS = 30;
+    private static final int DEFAULT_CIRCLE_RADIUS = 150;
 
 
     // The following offsets are for visual treats, they make the cropped profile picture
@@ -55,7 +55,7 @@ public class CanvasDrawerLogic {
 
     private Path circleDrawPath;
     private double radius;
-
+    private Bitmap profilePicture;
 
 
     public CanvasDrawerLogic() {
@@ -87,7 +87,7 @@ public class CanvasDrawerLogic {
      * @param target ARTrackerBeacon of current rendering target
      */
     public void drawProfilePicture(Canvas canvas, ARTrackerBeacon target) {
-        Bitmap profilePicture = target.getProfilePicture();
+        profilePicture = null;
         if (profilePicture != null) {
             if(target.isActive()) {
                 this.radius = Math.min(profilePicture.getHeight(), profilePicture.getWidth())/2;
@@ -102,18 +102,37 @@ public class CanvasDrawerLogic {
             canvas.drawBitmap(profilePicture, target.getX(), target.getY(),
                     this.profilePicturePaint);
         }
-        else
+        else {
+            circleDrawPath = new Path();
+            radius = DEFAULT_CIRCLE_RADIUS * BORDER_SIZE;
+            canvas.drawCircle(target.getX(),
+                    target.getY(), (float)radius,
+                    profilePictureBorderPaint);
+            circleDrawPath.addCircle(target.getX(),
+                    target.getY(), (float)radius,
+                    Path.Direction.CW);
+
             canvas.drawCircle(target.getX(), target.getY(), DEFAULT_CIRCLE_RADIUS, this.namePaint);
+        }
     }
 
     public void drawName(Canvas canvas, String username) {
+
         // Just take the first name if the username is too long.
-        if(username.length() > USERNAME_LENGTH_THRESHOLD) {
-            username = username.split(".")[0];
+        if (username.length() > USERNAME_LENGTH_THRESHOLD) {
+            username = username.split("\\.")[0];
         }
         float width = namePaint.measureText(username);
-        canvas.drawTextOnPath(username, circleDrawPath,
-                (float)(ANGLE_MULTIPLIER*Math.PI*radius - width/2), OFFSET_Y, namePaint);
+        if(profilePicture != null) {
+            canvas.drawTextOnPath(username, circleDrawPath,
+                    (float) (ANGLE_MULTIPLIER * Math.PI * radius - width / 2), OFFSET_Y, namePaint);
+        }
+        else {
+            canvas.drawTextOnPath(username, circleDrawPath,
+                    (float) (ANGLE_MULTIPLIER * Math.PI * radius - width / 2), 60, namePaint);
+
+        }
+
     }
 
     /**
