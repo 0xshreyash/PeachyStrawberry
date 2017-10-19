@@ -64,31 +64,33 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
     private Timer timer;
     private User selectedFriend;
     private User me;
-    HashMap<User, ArrayList<Message>> messageDictionary;
+    private static HashMap<User, ArrayList<Message>> messageDictionary;
     List<Message> messages;
 
-    // Used to specify not to send notifications when the app has just been
-    // installed, so as to not bombard them with notifications.
-    private boolean sendNotification;
+
     private MessageListAdapter mMessageAdapter;
     private static int notificationId = 0;
     private static final String TRACKING_ALERT = "Tracking Alert";
+    private static final long EPSILON = 60000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         blockNotify = true;
 
         me = PeachServerInterface.currentUser();
-        messageDictionary = new HashMap<>();
-        for(User friend : StrawberryApplication.getCachedFriends()) {
-           messageDictionary.put(friend, new ArrayList<Message>());
+        if(messageDictionary == null) {
+            messageDictionary = new HashMap<>();
+            Log.e(TAG, "New message dictionary created");
+            for (User friend : StrawberryApplication.getCachedFriends()) {
+                messageDictionary.put(friend, new ArrayList<Message>());
+            }
         }
 
         String selectedId = StrawberryApplication.getString(StrawberryApplication.SELECTED_USER_TAG);
 
         if(selectedId == null)
             selectedId = me.getId();
-
+        //sendNotification = false;
         selectedFriend = User.getUser(selectedId);
         if(!messageDictionary.containsKey(selectedFriend))
             messageDictionary.put(selectedFriend, new ArrayList<Message>());
@@ -150,7 +152,6 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
         super.onResume();
         timer.cancel();
         timer.purge();
-
         timer = new Timer();
         timer.scheduleAtFixedRate(getChatQueryTimerTask(), 0, QUERY_TIME_SECS * 1000);
     }
@@ -160,7 +161,6 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
         super.onPause();
         timer.cancel();
         timer.purge();
-
         timer = new Timer();
         timer.scheduleAtFixedRate(getChatQueryTimerTask(), 0, BG_QUERY_TIME_SECS * 1000);
     }
@@ -227,6 +227,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
      */
 
     private void queryChat() {
+
         for(final User currentFriend : messageDictionary.keySet()) {
             final boolean showLoading;
             if(selectedFriend != null && selectedFriend.getId() != null &&
@@ -281,7 +282,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                 e.printStackTrace();
             }
         }
-        sendNotification = true;
+
     }
 
     private void querySelectedFriend() {
@@ -394,7 +395,22 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                         (message.getSender().getId().equals(me.getId()) &&
                                 message.getReceiver().getId().equals(correspondingFriend.getId()))
         ) && !listToAdd.contains(message)) {
-
+            Log.e(TAG, "Just received a new message from : " + message.getSender().getUsername());
+            Log.e(TAG, "Creation time: " + message.getCreatedAt());
+            Log.e(TAG, "Current time: " + (System.currentTimeMillis()));
+            if(message.getSender().equals(correspondingFriend)
+                    && Math.abs(message.getCreatedAt() - (System.currentTimeMillis())) < EPSILON) {
+                if(message.getMessage().split(":").equals(TRACKING_ALERT)) {
+                    // The message is a tracking alert
+                    Log.e(TAG, "Making notifications");
+                    makeNotification(message, true);
+                }
+                else {
+                    // The message is a non-tracking alert
+                    Log.e(TAG, "Making notifications");
+                    makeNotification(message, false);
+                }
+            }
             listToAdd.add(message);
             Log.d(TAG, message + " updated");
             Collections.sort(listToAdd, new Comparator<Message>() {
@@ -408,6 +424,16 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                 }
             });
 
+            if(selectedFriend != null && selectedFriend.getId() != null
+                    && correspondingFriend.equals(selectedFriend)) {
+                // update view
+                setRecyclerProperties();
+               // mMessageRecycler.scrollToPosition(listToAdd.size() - 1);
+
+            }
+        }
+        if(messages == null || (messages != null && messages.size() == 0)) {
+            showEmpty(true);
         }
     }
 
@@ -427,6 +453,7 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
                         new StrawberryListener(new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
+                                Log.e(TAG, "Response from server received");
                                 querySelectedFriend();
                             }
                         }, null));

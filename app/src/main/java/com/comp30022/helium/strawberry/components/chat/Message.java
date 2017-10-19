@@ -43,8 +43,8 @@ public class Message {
         if(obj instanceof Message) {
             Message other = (Message) obj;
             return (this.message.equals(other.message) && this.createdAt == other.createdAt &&
-                    this.sender.getId().equals(other.sender.getId()) &&
-                    this.receiver.getId().equals(other.receiver.getId()));
+                    this.sender.equals(other.sender) &&
+                    this.receiver.equals(other.receiver));
         }
         return false;
     }
