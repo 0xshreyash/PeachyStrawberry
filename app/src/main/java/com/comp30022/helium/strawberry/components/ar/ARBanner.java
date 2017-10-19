@@ -10,6 +10,7 @@ public class ARBanner {
     private TextView infoHUD;
     private boolean noTargetUser = false;
     private boolean hasBadSensor = false;
+    private boolean arrived  = false;
 
     public ARBanner(TextView infoHUD) {
         this.infoHUD = infoHUD;
@@ -58,6 +59,7 @@ public class ARBanner {
             this.noTargetUser = false;
         }
         this.display(formatted);
+        this.arrived = false;
     }
 
     /**
@@ -67,10 +69,11 @@ public class ARBanner {
      */
     public void arrivedLocation(String username) {
         this.infoHUD.setText("You have arrived at " + username + "'s location!");
+        this.arrived = true;
     }
 
     private boolean overrideText() {
-        return this.hasBadSensor || this.noTargetUser;
+        return this.arrived || this.hasBadSensor || this.noTargetUser;
     }
 }
 
