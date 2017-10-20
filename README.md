@@ -1,6 +1,9 @@
+##### Build Status
+> Quick tip: [Build Status](https://hellium.me:8443/job/Helium-Beta/)
+
 Table of contents
 ===
-* [Helium-Beta](#helium-beta)
+* [Peachy Strawberry](#peachy-strawberry)
     * [Latest Build Status](https://hellium.me:8443/job/Helium-Beta/)
     * [Build Status Information](#build-status)
 * [Background](#background)
@@ -25,12 +28,21 @@ Table of contents
     * [Avatar selection](#avatar-selection)
     * [Reset password](#reset-password)
 * [Testing](#testing)
+* [Appendix](#appendix)
 
 
-# Helium-Beta
+# Peachy Strawberry
 This is a **client-side _Android_** application maintained by Team Helium.
 
-Our application is aptly named **Peachy Strawberry**.
+Team Helium is:
+* __Tutor__ Luca Morandini
+* 719577 Max Lee (Ho Suk Lee)
+* 743413 Jia Hong Fong
+* XXXXXX Michael
+* XXXXXX Jessie GUo
+* XXXXXX Shereayshjasd
+
+Our android application is aptly named **Peachy Strawberry**.
 
 ###### Build Status
 Check out our (most probably passing) build status [here](https://hellium.me:8443/job/Helium-Beta/)!
@@ -184,7 +196,11 @@ TODO: describe chatting functionality. (pictures?)
 * Intuitive swipe away chat
 
 #### Augmented Reality
-TODO: insert pictures here after new pull request is merged. (AR-circular-bg)
+Augmented reality help users navigate their way to their friend when they're close enough.
+After selecting a friend on the home page (map view), click the directional icon on the small bubble.
+This transitions the page into a camera view. The user is immediately greeted with their friend's
+avatar (augmented) on screen with their name around it, just in case you forgot your friend's name.
+
 
 #### Disappear from map
 TODO: Disappearing from map (new feature to prevent stalkers)
@@ -220,3 +236,9 @@ TODO: Describe what this means
 
 #### Reset password
 TODO: Describe what this means
+
+### Appendix
+
+#### Small bubble
+The 'small bubble' when tapping a user in **Peachy Strawberry**'s map view.
+![smallbubble](readme_pngs/small-bubble.png)
