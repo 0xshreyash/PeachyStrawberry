@@ -204,7 +204,7 @@ avatar (augmented) on screen with their name around it, in case you forgot your 
 
 <img src="readme_pngs/ar-all.png" width=270 height=480/>
 
-As seen in the image, if 4 other friends are in the same direction as your target, they appear
+As seen in the image, if (up to) 4 other friends are in the same direction as your target, they appear
 as smaller avatar in the background. However, they are not your active target, hence, if your
 target is _off-screen_, the **arrow guide** will only show the currently active target.
 
