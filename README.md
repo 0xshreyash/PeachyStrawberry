@@ -123,7 +123,7 @@ the same avatar as their facebook profile picture.
 3. By tapping on a user's profile picture or searching (see above), the camera shifts focus onto
 that user and displays a route to him/her with a particular mode of transport. You're free to change
 the default mode. The ETA and distance will be calculated shortly.
-4. By tapping a user, you also bring up a small bubble that shows 2 buttons. The leftmost being the
+4. By tapping a user, you also bring up a [small bubble](#small-bubble) that shows 2 buttons. The leftmost being the
 chat button. The rightmost button re-directs you to our AR with this user as its target.
 5. If you tap the chat button, you get to chat with the selected user. Surprise surprise!
    * To exit chat mode swipe the button with the arrow (next to the edit box for your messages) to the
@@ -197,15 +197,33 @@ TODO: describe chatting functionality. (pictures?)
 
 #### Augmented Reality
 Augmented reality help users navigate their way to their friend when they're close enough.
-After selecting a friend on the home page (map view), click the directional icon on the small bubble.
+After selecting a friend on the home page (map view), click the directional icon on the 
+[small bubble](#small-bubble).
 This transitions the page into a camera view. The user is immediately greeted with their friend's
-avatar (augmented) on screen with their name around it, just in case you forgot your friend's name.
+avatar (augmented) on screen with their name around it, in case you forgot your friend's name.
+
+<img src="readme_pngs/ar-all.png" width=270 height=480/>
+
+As seen in the image, if 4 other friends are in the same direction as your target, they appear
+as smaller avatar in the background. However, they are not your active target, hence, if your
+target is _off-screen_, the **arrow guide** will only show the currently active target.
+
+<img src="readme_pngs/ar-guide.png" width=270 height=480/>
 
 
-#### Disappear from map
-TODO: Disappearing from map (new feature to prevent stalkers)
+As mentioned earlier, users can enter _focus_ mode by tapping the desired user. You will receive a
+vibration to confirm this.
 
+<img src="readme_pngs/ar-focused.png" width=270 height=480 />
 
+To exit _focus_ mode, simply tap the avatar again, and all your other friends will re-appear.
+
+This also implies that you can switch your target **on the fly** in AR mode just by tapping their avatar.
+
+Finally, you also get to know the distance between you and your actively selected friend on the
+display above. When you're close enough, it'll change to: _You've arrived at <name here>'s destination_.
+It also displays other useful information - if your sensor readings are poor, it'll prompt you to
+calibrate your phone with on-screen instructions.
 
 
 
@@ -214,7 +232,9 @@ TODO: Disappearing from map (new feature to prevent stalkers)
 This section describes our stretch goals.
 
 #### Account Creation
-TODO: Describe what this means
+
+#### Disappear from map
+TODO: Disappearing from map (new feature to prevent stalkers)
 
 #### Username Login
 TODO: Describe what this means
@@ -241,4 +261,5 @@ TODO: Describe what this means
 
 #### Small bubble
 The 'small bubble' when tapping a user in **Peachy Strawberry**'s map view.
-![smallbubble](readme_pngs/small-bubble.png)
+
+<img src="readme_pngs/small-bubble.png" width=270 height=480/>
