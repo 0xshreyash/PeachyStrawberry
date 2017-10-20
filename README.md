@@ -17,16 +17,16 @@ Table of contents
     * [Friend Location Map](#friend-location-map)
     * [Chatting](#chatting)
     * [Augmented Reality](#augmented-reality)
-    * [Disabling tracking]()
 * [Future Features](#future-features)
     * [Account Creation](#account-creation)
     * [Username Login](#username-login)
+    * [Reset password](#reset-password)
     * [Connecting account to Facebook](#connecting-account-to-facebook)
+    * [Disappear from map](#dissapear-from-map)
     * [Adding Friends via username](#adding-friends-via-username)
     * [Group Chat](#group-chat)
     * [Machine Learning - Automated meet-up location](#machine-learning---automated-meet-up-location)
     * [Avatar selection](#avatar-selection)
-    * [Reset password](#reset-password)
 * [Testing](#testing)
 * [Appendix](#appendix)
 
@@ -230,33 +230,42 @@ calibrate your phone with on-screen instructions.
 
 <!-- ===============================  section six ====================================== -->
 # Future features
-This section describes our stretch goals.
+This section briefly describes our stretch goals.
 
 #### Account Creation
-
-#### Disappear from map
-TODO: Disappearing from map (new feature to prevent stalkers)
+Allows users to create an account with **Peachy Strawberry**.
 
 #### Username Login
-TODO: Describe what this means
-
-#### Connecting account to Facebook
-TODO: Describe what this means
-
-#### Adding Friends via username
-TODO: Describe what this means
-
-#### Group Chat
-TODO: Describe what this means
-
-#### Machine Learning - Automated meet-up location
-TODO: Describe what this means
-
-#### Avatar Selection
-TODO: Describe what this means
+Going along with Account Creation, this allows users to login to their **Peachy Strawberry** account
+instead of their Facebook account. 
 
 #### Reset password
-TODO: Describe what this means
+Going along with Account creation, this allows users to reset their password.
+
+#### Connecting account to Facebook
+Going along with Account Creation, it is also possible for users to link their Facebook account
+with their **Peachy Strawberry** account.
+
+#### Disappear from map
+Prevents unwanted stalkers(friends) from seeing user's location.
+
+#### Adding Friends via username
+Instead of automatically porting all Facebook friends, this option let users choose their
+friends in the app. That way, users have more privacy.
+
+#### Group Chat
+Ability to create a channel with more than 2 users in a chat room.
+
+#### Machine Learning - Automated meet-up location
+Suggests a location to a ground channel. This uses public user information from
+Facebook and learning user behaviour by remembering their past locations. Then, with appropriate
+machine learning techniques, the application can suggest places that the group would most
+likely/conveniently meet.
+
+#### Avatar Selection
+Instead of displaying user profile pictures from Facebook, this allows users to upload their own
+profile picture.
+
 
 ### Appendix
 
