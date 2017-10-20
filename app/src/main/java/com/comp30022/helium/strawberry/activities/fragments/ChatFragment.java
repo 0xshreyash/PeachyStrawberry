@@ -469,31 +469,38 @@ public class ChatFragment extends Fragment implements Subscriber<Event> {
             StrawberryApplication.GlobalVariableChangeEvent event =
                     (StrawberryApplication.GlobalVariableChangeEvent) info;
             if (event.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {
+                User newSelectedFriend =  User.getUser((String) event.getValue());
+                boolean sendTrackingMessage = false;
+                if(!newSelectedFriend.equals(selectedFriend)) {
+                    selectedFriend = newSelectedFriend;
+                    sendTrackingMessage = true;
 
-                selectedFriend = User.getUser((String) event.getValue());
-
+                }
                 if(!messageDictionary.containsKey(selectedFriend)) {
                     messageDictionary.put(selectedFriend, new ArrayList<Message>());
                 }
                 messages = messageDictionary.get(selectedFriend);
-                String message = TRACKER_MESSAGE;
-                if (message.length() > 0) {
-                    try {
-                        PeachServerInterface.getInstance().postChat(message, selectedFriend.getId(),
-                                new StrawberryListener(new Response.Listener<String>() {
-                                    @Override
-                                    public void onResponse(String response) {
-                                        Log.e(TAG, "Response from server received");
-                                        querySelectedFriend();
-                                    }
-                                }, null));
-                    } catch (NotInstantiatedException | InstanceExpiredException e) {
-                        e.printStackTrace();
+                if(sendTrackingMessage && !selectedFriend.equals(me)) {
+                    String message = TRACKER_MESSAGE;
+                    if (message.length() > 0) {
+                        try {
+                            PeachServerInterface.getInstance().postChat(message, selectedFriend.getId(),
+                                    new StrawberryListener(new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            Log.e(TAG, "Response from server received");
+                                            querySelectedFriend();
+                                        }
+                                    }, null));
+                        } catch (NotInstantiatedException | InstanceExpiredException e) {
+                            e.printStackTrace();
+                        }
+                        //editText.getText().clear();
                     }
-                    //editText.getText().clear();
+                    showEmpty(false);
+                    hideLoading(false);
+
                 }
-                showEmpty(false);
-                hideLoading(false);
                 setRecyclerProperties();
             }
         }
