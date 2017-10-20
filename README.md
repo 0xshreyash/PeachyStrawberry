@@ -205,23 +205,24 @@ avatar (augmented) on screen with their name around it, in case you forgot your 
 <img src="readme_pngs/ar-all.png" width=270 height=480/>
 
 As seen in the image, if (up to) 4 other friends are in the same direction as your target, they appear
-as smaller avatar in the background. However, they are not your active target, hence, if your
+as smaller avatars in the background. However, they are not your active target, hence, if your
 target is _off-screen_, the **arrow guide** will only show the currently active target.
 
 <img src="readme_pngs/ar-guide.png" width=270 height=480/>
 
 
 As mentioned earlier, users can enter _focus_ mode by tapping the desired user. You will receive a
-vibration to confirm this.
+vibration to confirm this. In this mode, only the actively selected user is displayed in AR.
 
 <img src="readme_pngs/ar-focused.png" width=270 height=480 />
 
 To exit _focus_ mode, simply tap the avatar again, and all your other friends will re-appear.
 
-This also implies that you can switch your target **on the fly** in AR mode just by tapping their avatar.
+This also implies that you can switch your actively selected target 
+**on the fly** in AR mode just by tapping their avatar, there's no need to exit AR and select from the map.
 
 Finally, you also get to know the distance between you and your actively selected friend on the
-display above. When you're close enough, it'll change to: _You've arrived at <name here>'s destination_.
+display above. When you're close enough, it'll change to: _You've arrived at `<name here>`'s destination_.
 It also displays other useful information - if your sensor readings are poor, it'll prompt you to
 calibrate your phone with on-screen instructions.
 
