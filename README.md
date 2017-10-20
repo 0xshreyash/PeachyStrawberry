@@ -39,7 +39,7 @@ Team Helium is:
 * 719577 Max Lee (Ho Suk Lee)
 * 743413 Jia Hong Fong
 * XXXXXX Michael
-* XXXXXX Jessie GUo
+* XXXXXX Jessie Guo
 * XXXXXX Shereayshjasd
 
 Our android application is aptly named **Peachy Strawberry**.
