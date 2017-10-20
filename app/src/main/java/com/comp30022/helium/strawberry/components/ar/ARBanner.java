@@ -10,6 +10,12 @@ public class ARBanner {
     private TextView infoHUD;
     private boolean noTargetUser = false;
     private boolean hasBadSensor = false;
+    private boolean arrived  = false;
+    public static final String NO_TAPPED_USER_MSG = "Get tap-py - tap a user!";
+    public static final String BAD_SENSOR_MSG = " Sensor low accuracy, follow these steps:\n" +
+                                                "  1. Tilt your phone forward and back\n" +
+                                                "  2. Move it side to side\n"+
+                                                "  3. Tilt left and right\n";
 
     public ARBanner(TextView infoHUD) {
         this.infoHUD = infoHUD;
@@ -32,15 +38,12 @@ public class ARBanner {
     }
 
     public void noTappedUserDisplay() {
-        this.display("Get tap-py - tap a user!");
+        this.display(NO_TAPPED_USER_MSG);
         this.noTargetUser = true;
     }
 
     public void badSensorDisplay() {
-        this.display(" Sensor low accuracy, follow these steps:\n" +
-                "  1. Tilt your phone forward and back\n" +
-                "  2. Move it side to side\n"+
-                "  3. Tilt left and right\n", TextView.TEXT_ALIGNMENT_TEXT_START);
+        this.display(BAD_SENSOR_MSG, TextView.TEXT_ALIGNMENT_TEXT_START);
         this.hasBadSensor = true;
     }
 
@@ -57,6 +60,7 @@ public class ARBanner {
         if (this.noTargetUser) {
             this.noTargetUser = false;
         }
+        this.arrived = false;
         this.display(formatted);
     }
 
@@ -67,10 +71,11 @@ public class ARBanner {
      */
     public void arrivedLocation(String username) {
         this.infoHUD.setText("You have arrived at " + username + "'s location!");
+        this.arrived = true;
     }
 
     private boolean overrideText() {
-        return this.hasBadSensor || this.noTargetUser;
+        return this.arrived || this.hasBadSensor || this.noTargetUser;
     }
 }
 
