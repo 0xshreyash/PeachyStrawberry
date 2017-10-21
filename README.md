@@ -197,7 +197,7 @@ Friend map:
 
 
 Search:
-![Alt Text]("readme_gifs/search-gif.gif")
+![Alt Text](readme_gifs/search-gif.gif)
 
 #### Chatting	
 In order to make our application seem very simplistic and easy to use we tried to integrate
