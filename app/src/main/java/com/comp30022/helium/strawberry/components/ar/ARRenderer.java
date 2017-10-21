@@ -32,11 +32,13 @@ public class ARRenderer extends View implements View.OnTouchListener {
     // maximum threshold for a finger touch event (200 screen units ~ roughly the large
     // profile pic size)
     private static final int NEAREST_DISTANCE_THRESHOLD = 200;
+    // threshold distance to YOU"RE AT YOUR DESTINATION message
+    private static final int THRESHOLD_DISTANCE = 7;
 
     private float[] projectionMatrix;
     private static final String TAG = ARRenderer.class.getSimpleName();
     private Set<ARTrackerBeacon> trackers;
-    private Set<ARTrackerBeacon> copyOftrackers;
+    private Set<ARTrackerBeacon> copyOfTrackers;
     private Location currentLocation;
     private Vibrator vibrator;
     // index values for camera coordinates float[]{x,y,z,w}
@@ -45,7 +47,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
     private static final int Z = 2;
     private static final int W = 3;
 
-    private ARActivity arActivity;
+    private ARBanner arBanner;
     private CanvasDrawerLogic canvasDrawer;
 
     private ProgressBar progressBar;
@@ -59,18 +61,19 @@ public class ARRenderer extends View implements View.OnTouchListener {
     }
 
 
-    public ARRenderer(Context context, ConstraintLayout container, Vibrator vibrator) {
+    public ARRenderer(Context context, ConstraintLayout container, Vibrator vibrator,
+                      ARBanner arBanner) {
         super(context);
-        // this is dangerous, but we're sure that only ARActivity is using this ARRenderer for now
-        this.arActivity = (ARActivity) context;
+        this.arBanner = arBanner;
         this.trackers = new HashSet<>();
-        this.copyOftrackers = new HashSet<>();
+        this.copyOfTrackers = new HashSet<>();
         this.currentLocation = LocationService.getInstance().getDeviceLocation();
         this.progressBar = (ProgressBar) container.findViewById(R.id.arwait);
         this.loadingText = (TextView) container.findViewById(R.id.ar_load_msg);
         this.canvasDrawer = new CanvasDrawerLogic();
         this.vibrator = vibrator;
         setOnTouchListener(this);
+        setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     }
 
     public void addTracker(ARTrackerBeacon tracker) {
@@ -90,16 +93,13 @@ public class ARRenderer extends View implements View.OnTouchListener {
             Log.i(TAG, "You updated location to" + locationEvent.getValue());
             this.currentLocation = new Location(locationEvent.getValue());
         } else {
-            // find the tracking point and update that point's location
-            User updatedUserLocation = locationEvent.getKey();
-            // loop through all our tracking targets and find the user that corresponds to this
-            // update. Once found, update the beacon's location and break off this loop
-            for (ARTrackerBeacon trackerBeacon : trackers) {
-                if (trackerBeacon.getUser().equals(updatedUserLocation)) {
-                    trackerBeacon.updateLocation(locationEvent.getValue());
-                    Log.i(TAG, "Friend updated location to" + locationEvent.getValue());
-                    break;
-                }
+            // if copy of trackers has a non 0 size, it means we're in FOCUS mode.
+            // update that one because tracker itself has length 1
+            if (copyOfTrackers.size() > 0) {
+                updateTrackerLocation(locationEvent, copyOfTrackers);
+            } else {
+                // else, copyOfTrackers is size 0 ==> trackers is tracking EVERYONE. (ALL mode)
+                updateTrackerLocation(locationEvent, trackers);
             }
         }
 
@@ -107,8 +107,18 @@ public class ARRenderer extends View implements View.OnTouchListener {
         this.invalidate();
     }
 
-    public ARActivity getArActivity() {
-        return this.arActivity;
+    public void updateTrackerLocation(LocationEvent locationEvent, Set<ARTrackerBeacon> beacons) {
+        // find the tracking point and update that point's location
+        User updatedUserLocation = locationEvent.getKey();
+        // loop through all our tracking targets and find the user that corresponds to this
+        // update. Once found, update the beacon's location and break off this loop
+        for (ARTrackerBeacon trackerBeacon : beacons) {
+            if (trackerBeacon.getUser().equals(updatedUserLocation)) {
+                trackerBeacon.updateLocation(locationEvent.getValue());
+                Log.i(TAG, "Friend updated location to" + locationEvent.getValue());
+                break;
+            }
+        }
     }
 
     @Override
@@ -128,14 +138,16 @@ public class ARRenderer extends View implements View.OnTouchListener {
         ARTrackerBeacon nearestBeacon = null;
         ARTrackerBeacon currentActiveNode = null;
         double nearestDistance = Double.POSITIVE_INFINITY;
+        // only detect touch on visible markers (i.e. in trackers's set)
         for (ARTrackerBeacon beacon : trackers) {
+            if (beacon.isActive()) {
+                currentActiveNode = beacon;
+            }
+            if (!beacon.isVisible()) continue;
             double dist = beacon.distanceTo(x, y);
             if (dist < nearestDistance) {
                 nearestBeacon = beacon;
                 nearestDistance = dist;
-            }
-            if (beacon.isActive()) {
-                currentActiveNode = beacon;
             }
         }
         if (nearestBeacon == null || nearestDistance > NEAREST_DISTANCE_THRESHOLD) return;
@@ -146,17 +158,17 @@ public class ARRenderer extends View implements View.OnTouchListener {
 
             // if current trackers has more values, we back it up first, then we wipe them
             // i.e. only focus on currently tapped user
-            if (trackers.size() > 1) {
+            if (copyOfTrackers.isEmpty()) {
                 Log.w(TAG, "Focusing on target tapped only");
                 this.vibrator.vibrate(VIBRATE_MS);
-                copyOftrackers.addAll(trackers);
+                copyOfTrackers.addAll(trackers);
                 trackers.clear();
             } else {
                 // else, current tracker is cleared, refill it
                 // i.e. we return all the wiped users
                 Log.w(TAG, "Readding all saved targets");
-                trackers.addAll(copyOftrackers);
-                copyOftrackers.clear();
+                trackers.addAll(copyOfTrackers);
+                copyOfTrackers.clear();
             }
             // either way, we're focusing on this current node
             trackers.add(currentActiveNode);
@@ -168,6 +180,8 @@ public class ARRenderer extends View implements View.OnTouchListener {
                 currentActiveNode.setActive(false);
             }
         }
+        Log.v(TAG, "Currently in TRACKERS: " + trackers.toString());
+        Log.v(TAG, "Currently in COPYOFTRACKERS: " + copyOfTrackers.toString());
     }
 
     @Override
@@ -195,9 +209,12 @@ public class ARRenderer extends View implements View.OnTouchListener {
             if (target.isActive()) {
                 // this happens if you're exactly at the target's location because the difference
                 // between you and target's ENU coordinate is 0
-                if (Float.isNaN(target.getX()) || Float.isNaN(target.getY())) {
-                    this.arActivity.displayInfoHUD("You have arrived at " + target.getUserName()
-                            + "'s location");
+                if (Float.isNaN(target.getX()) || Float.isNaN(target.getY()) ||
+                        (currentLocation.distanceTo(target.getLocation()) < THRESHOLD_DISTANCE)) {
+                    this.arBanner.arrivedLocation(target.getUserName());
+                    // we're gonna skip rendering this target, set its visibility to false
+                    target.setVisible(false);
+                    continue;
                 } else {
                     writeDistanceTo(target);
                 }
@@ -205,12 +222,12 @@ public class ARRenderer extends View implements View.OnTouchListener {
 
             // if the point is in front of us ==> i.e. we should render it!
             if (cameraCoordinates[Z] > 0) {
+                target.setVisible(true);
                 if (target.isActive()) {
                     // draw it in LARGE size
                     canvasDrawer.drawProfilePicture(canvas, target);
                     // Draw name above profile / circle
-                    canvasDrawer.drawName(canvas, target.getUserName(),
-                            target.getX(), target.getY());
+                    canvasDrawer.drawName(canvas, target.getUserName());
                     // if the x and y will not be seen in screen, render the guide instead!
                     canvasDrawer.deduceGuide(canvas, target);
                 } else {
@@ -225,6 +242,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
                 }
             } else {
                 // Draw Guide artefact in general direction
+                target.setVisible(false);
                 if (target.isActive()) {
                     if (target.getX() > 0) {
                         canvasDrawer.drawGuide(Direction.LEFT, canvas, target);
@@ -256,7 +274,7 @@ public class ARRenderer extends View implements View.OnTouchListener {
         if (load || currentLocation == null || this.projectionMatrix == null) {
             // if we aren't already showing the loading screen, show it
             if (!this.loading) {
-                this.arActivity.displayInfoHUD("Loading...");
+                this.arBanner.display("Loading ...");
                 this.progressBar.setVisibility(View.VISIBLE);
                 this.loadingText.setText("Gathering virtual strawberries...");
                 this.loadingText.setTextColor(ColourScheme.PRIMARY_DARK);
@@ -285,9 +303,6 @@ public class ARRenderer extends View implements View.OnTouchListener {
             distanceTo /= 1000;
             unit = "km";
         }
-        @SuppressLint("DefaultLocale")
-        String formatted = String.format("%.2f%s away from %s", distanceTo,
-                unit, target.getUserName());
-        this.arActivity.displayInfoHUD(formatted);
+        this.arBanner.displayDistanceFormatted(distanceTo, unit, target.getUserName());
     }
 }

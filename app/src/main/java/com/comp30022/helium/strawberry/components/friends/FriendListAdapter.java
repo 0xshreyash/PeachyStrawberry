@@ -65,7 +65,8 @@ public class FriendListAdapter extends RecyclerView.Adapter implements Subscribe
         */
         this.selectedPosition = FriendListFragment.DEFAULT_SELECTION;
         this.parentFragment = parentFragment;
-        StrawberryApplication.registerSubscriber(this);
+        // TODO: get current selected use update from elsewhere
+//        StrawberryApplication.registerSubscriber(this);
     }
 
     /**

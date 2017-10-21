@@ -3,8 +3,11 @@ package com.comp30022.helium.strawberry.components.ar.helper;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Typeface;
 
+import com.comp30022.helium.strawberry.R;
+import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.components.ar.ARRenderer;
 import com.comp30022.helium.strawberry.components.ar.ARTrackerBeacon;
 import com.comp30022.helium.strawberry.entities.User;
@@ -12,10 +15,18 @@ import com.comp30022.helium.strawberry.helpers.ColourScheme;
 
 
 public class CanvasDrawerLogic {
+
+    public static final String TAG = "CanvasDrawerLogic";
     // offset for the guide artefact
     private static final int GUIDE_OFFSET = 31;
     // when drawing the guide, offset the image away from the arrow
     private static final int IMAGE_OFFSET = 100;
+    // size of the border around the selected user
+    private static final float BORDER_SIZE = 1.5f;
+    // offset y for the text around the circular path
+    private static final int OFFSET_Y = -20;
+    // angle multiplier to get to angle 0 along the path
+    private static final float ANGLE_MULTIPLIER = 1.5f;
 
     // offset for the username height
     private static final int NAME_HEIGHT_OFFSET = 70;
@@ -24,6 +35,7 @@ public class CanvasDrawerLogic {
     // When the user has no profile picture/callback hasn't returned, we render a temporary
     // circle with this radius as replacement for the profile picture
     private static final int DEFAULT_CIRCLE_RADIUS = 30;
+
 
     // The following offsets are for visual treats, they make the cropped profile picture
     // align well with the guide arrow. The values are determined by eye.
@@ -34,16 +46,24 @@ public class CanvasDrawerLogic {
     private static final int TOP_LEFT_IMAGE_OFFSET = 60;
     private static final int BTM_RIGHT_IMAGE_OFFSET = 30;
 
+    private static final int USERNAME_LENGTH_THRESHOLD = 10;
+
     private Paint arrowPaint;
     private Paint profilePicturePaint;
     private Paint namePaint;
+    private Paint profilePictureBorderPaint;
+
+    private Path circleDrawPath;
+    private double radius;
+    private Bitmap profilePicture;
+
 
     public CanvasDrawerLogic() {
         this.namePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         this.namePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        this.namePaint.setColor(ColourScheme.PRIMARY_DARK);
+        this.namePaint.setColor(StrawberryApplication.getInstance().getResources().getColor(R.color.white));
         this.namePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        this.namePaint.setTextSize(60);
+        this.namePaint.setTextSize(40);
 
         this.arrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         this.arrowPaint.setStyle(Paint.Style.FILL);
@@ -51,7 +71,13 @@ public class CanvasDrawerLogic {
         this.arrowPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         this.arrowPaint.setTextSize(120);
 
+        this.profilePictureBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.profilePictureBorderPaint.setStyle(Paint.Style.FILL);
+        this.profilePictureBorderPaint.setColor(ColourScheme.PRIMARY_DARK);
+        this.profilePictureBorderPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        this.profilePictureBorderPaint.setTextSize(120);
         this.profilePicturePaint = new Paint();
+        //this.circleDrawPath = new Path();
     }
 
     /**
@@ -61,18 +87,55 @@ public class CanvasDrawerLogic {
      * @param target ARTrackerBeacon of current rendering target
      */
     public void drawProfilePicture(Canvas canvas, ARTrackerBeacon target) {
-        Bitmap profilePicture = target.getProfilePicture();
-        if (profilePicture != null)
+        profilePicture = target.getProfilePicture();
+        if (profilePicture != null) {
+            if(target.isActive()) {
+                this.radius = Math.min(profilePicture.getHeight(), profilePicture.getWidth())/2;
+                canvas.drawCircle(target.getX() + profilePicture.getWidth()/2,
+                        target.getY() + profilePicture.getHeight()/2, (float)radius*BORDER_SIZE,
+                        profilePictureBorderPaint);
+                circleDrawPath = new Path();
+                circleDrawPath.addCircle(target.getX() + profilePicture.getWidth()/2,
+                        target.getY() + profilePicture.getHeight()/2, (float)radius,
+                        Path.Direction.CW);
+            }
             canvas.drawBitmap(profilePicture, target.getX(), target.getY(),
                     this.profilePicturePaint);
-        else
-            canvas.drawCircle(target.getX(), target.getY(), DEFAULT_CIRCLE_RADIUS, this.namePaint);
+        }
+        else {
+            circleDrawPath = new Path();
+            radius = DEFAULT_CIRCLE_RADIUS * 3 * BORDER_SIZE;
+            if(target.isActive()) {
+                canvas.drawCircle(target.getX(),
+                        target.getY(), (float) radius,
+                        profilePictureBorderPaint);
+
+                circleDrawPath.addCircle(target.getX(),
+                        target.getY(), (float) radius,
+                        Path.Direction.CW);
+                canvas.drawCircle(target.getX(), target.getY(), (float)(DEFAULT_CIRCLE_RADIUS * 2.5),
+                        this.namePaint);
+            }
+        }
     }
 
-    public void drawName(Canvas canvas, String username, float x, float y) {
-        canvas.drawText(username,
-                x - (NAME_WIDTH_OFFSET * username.length() / 2),
-                y - NAME_HEIGHT_OFFSET, this.namePaint);
+    public void drawName(Canvas canvas, String username) {
+
+        // Just take the first name if the username is too long.
+        if (username.length() > USERNAME_LENGTH_THRESHOLD) {
+            username = username.split("\\.")[0];
+        }
+        float width = namePaint.measureText(username);
+        if(profilePicture != null) {
+            canvas.drawTextOnPath(username, circleDrawPath,
+                    (float) (ANGLE_MULTIPLIER * Math.PI * radius - width / 2), OFFSET_Y, namePaint);
+        }
+        else {
+            canvas.drawTextOnPath(username, circleDrawPath,
+                    (float) (ANGLE_MULTIPLIER * Math.PI * radius - width / 2), 30, namePaint);
+
+        }
+
     }
 
     /**

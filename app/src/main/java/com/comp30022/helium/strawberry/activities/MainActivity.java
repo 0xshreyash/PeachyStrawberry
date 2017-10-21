@@ -2,7 +2,9 @@ package com.comp30022.helium.strawberry.activities;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -13,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -94,7 +97,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     protected void onCreate(Bundle savedInstanceState) {
         setTitle("Strawberry");
         super.onCreate(savedInstanceState);
-        StrawberryApplication.registerSubscriber(this);
 
         // check if we actually have permission
         checkPermission();
@@ -206,7 +208,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         MAX_WIDTH = metrics.widthPixels;
-        Log.d("MAX_WIDTH", MAX_WIDTH + "asdfasd");
+        Log.d("MAX_WIDTH", MAX_WIDTH + " is the max width");
 //        View tStats = findViewById(R.id.transport_stats);
 //        View tOpt = findViewById(R.id.transport_option);
 //        ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) chatFragment.getView().getLayoutParams();
@@ -435,12 +437,14 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     protected void onPause() {
         super.onPause();
+        StrawberryApplication.deregisterSubscriber(this);
         this.paused = true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        StrawberryApplication.registerSubscriber(this);
         this.paused = false;
     }
 
@@ -461,6 +465,9 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
         } else if (info instanceof StrawberryApplication.GlobalVariableChangeEvent) {
             StrawberryApplication.GlobalVariableChangeEvent event = (StrawberryApplication.GlobalVariableChangeEvent) info;
+
+            chatFragment.update(event);
+
             if (event.getKey().equals(StrawberryApplication.SELECTED_USER_TAG)) {
                 // selected user has changed
                 mapFragment.refreshPath();
@@ -491,8 +498,11 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onBackPressed() {
-        if(mapFragment.isSearchOpen()) {
-            mapFragment.toggleSearchBar();
+        if(mapFragment == null) {
+                this.finish();
+            }
+            if(mapFragment != null && mapFragment.isSearchOpen()) {
+                mapFragment.toggleSearchBar();
 
         } else if(chatExpanded) {
             collapseChat();
@@ -500,5 +510,38 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
         } else {
             this.finish();
         }
+    }
+
+    /**
+     * Method called when someone clicks the logout button.
+     */
+    public void disconnectFromFacebook(View view) {
+
+        Log.i(TAG, "Disconnecting from facebook");
+        new AlertDialog.Builder(this)
+                .setMessage("Are you sure you want to exit?")
+                .setCancelable(true)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        new GraphRequest(AccessToken.getCurrentAccessToken(), "/me/permissions/",
+                                null, HttpMethod.DELETE, new GraphRequest
+                                .Callback() {
+                            @Override
+                            public void onCompleted(GraphResponse graphResponse) {
+
+                                // Clear the shared preferences.
+                                SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = pref.edit();
+                                editor.clear();
+                                editor.commit();
+                                // Logout.
+                                StrawberryApplication.setString("token", null);
+                                backToStart();
+                            }
+                        }).executeAsync();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 }
