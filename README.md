@@ -197,7 +197,8 @@ Friend map:
 
 
 Search:
-![Alt Text](readme_gifs/search-gif.gif)
+
+<img arc="readme_gifs/search-gif.gif" width=270 height=480/>
 
 #### Chatting	
 In order to make our application seem very simplistic and easy to use we tried to integrate
