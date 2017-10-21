@@ -39,8 +39,8 @@ Team Helium is:
 * 719577 Max Lee (Ho Suk Lee)
 * 743413 Jia Hong Fong
 * 715944 Yifei Wang
-* XXXXXX Jessie Guo
-* XXXXXX Shereayshjasd
+*  Jessie Guo
+* 767336 Shereayshjasd
 
 Our android application is aptly named **Peachy Strawberry**.
 
@@ -123,8 +123,8 @@ the same avatar as their facebook profile picture.
 3. By tapping on a user's profile picture or searching (see above), the camera shifts focus onto
 that user and displays a route to him/her with a particular mode of transport. You're free to change
 the default mode. The ETA and distance will be calculated shortly.
-4. By tapping a user, you also bring up a [small bubble](#small-bubble) that shows 2 buttons. The leftmost being the
-chat button. The rightmost button re-directs you to our AR with this user as its target.
+4. By tapping a user, you also bring up a [small bubble](#small-bubble) that shows 2 buttons. The leftmost 
+being the chat button. The rightmost button re-directs you to our AR with this user as its target.
 5. If you tap the chat button, you get to chat with the selected user. Surprise surprise!
    * To exit chat mode swipe the button with the arrow (next to the edit box for your messages) to the
    right.
@@ -190,10 +190,17 @@ typing it also hones to the friends location upon selection of the friend. This 
 smooth transition between friend tracking and would alleviate one of the potential drawbacks
 of having the map as the main ui. 
 
-#### Chatting
-TODO: describe chatting functionality. (pictures?)
-* Opaque chat over map
-* Intuitive swipe away chat
+#### Chatting	
+In order to make our application seem very simplistic and easy to use we tried to integrate
+chat into the main functionality of being able to find friends, we also wanted to provide
+people an intuitve way to switch between the two. As mentioned earlier the [small bubble](#small-bubble)
+has a chat button on the left. This open a chat window which overlays our map, we have made
+the chat boxes dark enough to be able to allow for easy reading but we also kept it translucent
+so that the user knows it is easy to get out of chat with one swipe of the button on the left of
+the chat edit box. Our chat functionality also comes with notifications, wherein a user
+will get notifications when they receive a message from a friend. We also have **automatic
+notifcations** when someone starts tracking you, a message from that friend will be generated
+and sent to you saying that they are headed to your location. 
 
 #### Augmented Reality
 Augmented reality help users navigate their way to their friend when they're close enough.
@@ -230,7 +237,7 @@ calibrate your phone with on-screen instructions.
 
 <!-- ===============================  section six ====================================== -->
 # Future features
-This section briefly describes our stretch goals.
+This section briefly describes our goals for the future as we move on to publish the app to the app store:
 
 #### Account Creation
 Allows users to create an account with **Peachy Strawberry**.
