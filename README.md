@@ -200,7 +200,7 @@ Friend map:
 
 Search:
 
-![Oops! Looks like the search gif could not be found :(](readme_gifs/search-gif.gif)
+![Oops! Looks like the search gif could not be found :(](readme_gifs/search-gif.gif){:height="480" width="270"}
 
 #### Chatting	
 In order to make our application seem very simplistic and easy to use we tried to integrate
