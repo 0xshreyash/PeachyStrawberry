@@ -191,10 +191,13 @@ smooth transition between friend tracking and would alleviate one of the potenti
 of having the map as the main ui. Here is a look at our map and our search feature:
 
 Friend map:
+
 <img src="readme_pngs/friend-map.png" width=270 height=480/>
 
+
+
 Search:
-![Alt Text](https://github.com/COMP30022/Helium-Beta/tree/feature/readme/readme_gifs/search-vide.gif)
+![Alt Text]("readme_gifs/search-gif.gif")
 
 #### Chatting	
 In order to make our application seem very simplistic and easy to use we tried to integrate
