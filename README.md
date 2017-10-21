@@ -41,7 +41,7 @@ __Tutor__ Luca Morandini
 * 719577 Max Lee (Ho Suk Lee)
 * 743413 Jia Hong Fong
 * 715944 Yifei Wang
-* 743053 Jessie Guo
+* 743053 Siqi Guo
 * 767336 Shreyash Patodia 
 
 Our android application is aptly named **Peachy Strawberry**.
@@ -125,6 +125,10 @@ the same avatar as their facebook profile picture.
 3. By tapping on a user's profile picture or searching (see above), the camera shifts focus onto
 that user and displays a route to him/her with a particular mode of transport. You're free to change
 the default mode. The ETA and distance will be calculated shortly.
+    * The following two links are helpful for displaying the routes on the map
+        [here](https://www.androidtutorialpoint.com/intermediate/google-maps-draw-path-two-points-using-google-directions-google-map-android-api-v2/)
+      and calculating out the ETA and distance
+        [here](http://wptrafficanalyzer.in/blog/driving-distance-and-travel-time-duration-between-two-locations-in-google-map-android-api-v2/)
 4. By tapping a user, you also bring up a [small bubble](#small-bubble) that shows 2 buttons. The leftmost 
 being the chat button. The rightmost button re-directs you to our AR with this user as its target.
 5. If you tap the chat button, you get to chat with the selected user. Surprise surprise!
