@@ -87,7 +87,7 @@ public class CanvasDrawerLogic {
      * @param target ARTrackerBeacon of current rendering target
      */
     public void drawProfilePicture(Canvas canvas, ARTrackerBeacon target) {
-        profilePicture = target.getProfilePicture();
+        profilePicture = null;
         if (profilePicture != null) {
             if(target.isActive()) {
                 this.radius = Math.min(profilePicture.getHeight(), profilePicture.getWidth())/2;
@@ -105,14 +105,17 @@ public class CanvasDrawerLogic {
         else {
             circleDrawPath = new Path();
             radius = DEFAULT_CIRCLE_RADIUS * BORDER_SIZE;
-            canvas.drawCircle(target.getX(),
-                    target.getY(), (float)radius,
-                    profilePictureBorderPaint);
-            circleDrawPath.addCircle(target.getX(),
-                    target.getY(), (float)radius,
-                    Path.Direction.CW);
+            if(target.isActive()) {
+                canvas.drawCircle(target.getX(),
+                        target.getY(), (float) radius,
+                        profilePictureBorderPaint);
 
-            canvas.drawCircle(target.getX(), target.getY(), DEFAULT_CIRCLE_RADIUS, this.namePaint);
+                circleDrawPath.addCircle(target.getX(),
+                        target.getY(), (float) radius,
+                        Path.Direction.CW);
+                canvas.drawCircle(target.getX(), target.getY(), DEFAULT_CIRCLE_RADIUS,
+                        this.namePaint);
+            }
         }
     }
 
