@@ -75,11 +75,8 @@ get to the venue but also to find friends at the venue.
 
 <!-- ===============================  section two ====================================== -->
 # Android Support
-TODO: what version we support, what caveats and what quirks to be aware of.
-
-
-
-
+Minimum required Android version : KitKat.
+Recommended Android version      : Nougat.
 
 
 
