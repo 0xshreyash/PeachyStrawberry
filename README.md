@@ -195,13 +195,12 @@ of having the map as the main ui. Here is a look at our map and our search featu
 Friend map:
 
 <img src="readme_pngs/friend-map.png" width=270 height=480/>
-<img src="readme_gifs/search-gif.gif" width=270 height=480/>
 
 
 
 Search:
 
-![Oops! Looks like the search gif could not be found :(](readme_gifs/search-gif.gif){:height="480" width="270"}
+<img src="readme_gifs/search-gif.gif" width=270 height=480/>
 
 #### Chatting	
 In order to make our application seem very simplistic and easy to use we tried to integrate
