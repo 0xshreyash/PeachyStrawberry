@@ -35,11 +35,13 @@ Table of contents
 This is a **client-side _Android_** application maintained by Team Helium.
 
 Team Helium is:
-* __Tutor__ Luca Morandini
+
+__Tutor__ Luca Morandini
+
 * 719577 Max Lee (Ho Suk Lee)
 * 743413 Jia Hong Fong
 * 715944 Yifei Wang
-*  Jessie Guo
+* 743053 Jessie Guo
 * 767336 Shereayshjasd
 
 Our android application is aptly named **Peachy Strawberry**.
@@ -198,7 +200,7 @@ Friend map:
 
 Search:
 
-<img arc="readme_gifs/search-gif.gif" width=270 height=480/>
+![Oops looks like the search gif could not be found]("readme_gifs/search-gif.gif" | width=270 | height=480)
 
 #### Chatting	
 In order to make our application seem very simplistic and easy to use we tried to integrate
