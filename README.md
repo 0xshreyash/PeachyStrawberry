@@ -27,7 +27,6 @@ Table of contents
     * [Group Chat](#group-chat)
     * [Machine Learning - Automated meet-up location](#machine-learning---automated-meet-up-location)
     * [Avatar selection](#avatar-selection)
-* [Testing](#testing)
 * [Appendix](#appendix)
 
 
@@ -210,16 +209,24 @@ Search:
 In order to make our application seem very simplistic and easy to use we tried to integrate
 chat into the main functionality of being able to find friends, we also wanted to provide
 people an intuitve way to switch between the two. As mentioned earlier the [small bubble](#small-bubble)
-has a chat button on the left. This open a chat window which overlays our map, we have made
+has a chat button on the left. This opens a chat window which overlays our map, we have made
 the chat boxes dark enough to be able to allow for easy reading but we also kept it translucent
 so that the user knows it is easy to get out of chat with one swipe of the button on the left of
 the chat edit box. Our chat functionality also comes with notifications, wherein a user
 will get notifications when they receive a message from a friend. We also have **automatic
 notifcations** when someone starts tracking you, a message from that friend will be generated
-and sent to you saying that they are headed to your location. 
+and sent to you saying that they are headed to your location. Our chat can be seen in the
+picture below:
+
+<img src="readme_pngs/chat.png" width=270 height=480/>
+
+The automatic notification sent when Jia started tracking me is also here:
+
+<img src="readme_pngs/auto-notification.png" width=270 height=480/>
+ 
 
 #### Augmented Reality
-Augmented reality help users navigate their way to their friend when they're close enough.
+Augmented reality help users navigate teir way to their friend when they're close enough.
 After selecting a friend on the home page (map view), click the directional icon on the 
 [small bubble](#small-bubble).
 This transitions the page into a camera view. The user is immediately greeted with their friend's
