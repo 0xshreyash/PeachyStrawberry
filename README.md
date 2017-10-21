@@ -202,6 +202,9 @@ Search:
 
 <img src="readme_gifs/search-gif.gif" width=270 height=480/>
 
+Note that the search automatically pans to the person being search for and displays them at the
+center of the map.
+
 #### Chatting	
 In order to make our application seem very simplistic and easy to use we tried to integrate
 chat into the main functionality of being able to find friends, we also wanted to provide
@@ -217,7 +220,7 @@ picture below:
 
 <img src="readme_pngs/chat.png" width=270 height=480/>
 
-The automatic notification sent when Jia started tracking me is also here:
+The automatic notification sent when Jia started tracking Shreyash is also here:
 
 <img src="readme_pngs/auto-notification.png" width=270 height=480/>
  
@@ -229,7 +232,7 @@ After selecting a friend on the home page (map view), click the directional icon
 This transitions the page into a camera view. The user is immediately greeted with their friend's
 avatar (augmented) on screen with their name around it, in case you forgot your friend's name.
 
-<img src="readme_pngs/ar-all.png" width=270 height=480/>
+<img src="readme_gifs/ar-all.gif" width=270 height=480/>
 
 As seen in the image, if (up to) 4 other friends are in the same direction as your target, they appear
 as smaller avatars in the background. However, they are not your active target, hence, if your
@@ -241,7 +244,7 @@ target is _off-screen_, the **arrow guide** will only show the currently active 
 As mentioned earlier, users can enter _focus_ mode by tapping the desired user. You will receive a
 vibration to confirm this. In this mode, only the actively selected user is displayed in AR.
 
-<img src="readme_pngs/ar-focused.png" width=270 height=480 />
+<img src="readme_gifs/ar-focused.gif" width=270 height=480 />
 
 To exit _focus_ mode, simply tap the avatar again, and all your other friends will re-appear.
 
