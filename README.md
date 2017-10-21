@@ -188,7 +188,10 @@ might be in, it is not efficient to zoom out of the map and look for the friend,
 have is a search feature that not only suggests friends to located as soon as you start 
 typing it also hones to the friends location upon selection of the friend. This allows for
 smooth transition between friend tracking and would alleviate one of the potential drawbacks
-of having the map as the main ui. 
+of having the map as the main ui. Here is a look at our map and our search feature:
+
+
+<img src="readme_pngs/friend-map.png" width=270 height=480/>
 
 #### Chatting	
 In order to make our application seem very simplistic and easy to use we tried to integrate
