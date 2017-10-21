@@ -88,7 +88,8 @@ an android project from within [Android Studio](https://developer.android.com/st
 To build this project, simply click the build button in Android Studio and the application will be
 built into any connected Android device(or emulator).
 #### Testing
-The testing suite is separated into _unit_ and _instrumented_ testing.
+The testing suite is separated into _unit_ and _instrumented_ testing. The unit tests are located
+in app/src/test and the instrumented tests are located in app/src/androidTest. 
 
 To run either one, simply choose from the dropdown menu between the hammer and play icon on
 Android Studio's top menu bar, and select the appropriate test suite.
@@ -103,8 +104,7 @@ $ ./gradlew test
 <!-- ===============================  section four ====================================== -->
 # Application Outline and Usage
 Before stepping in-depth into the [features](#features) we have, this section explores the overview
-of how a user can/should use **Peachy Strawberry**. **Maybe we should add a fake facebook account to
-allow Luca to download and login to the app**
+of how a user can/should use **Peachy Strawberry**.
 
 1. Upon entering the app, first time users (or logged out users) will be prompted to login into their
 facebook accounts. First time users will also be prompted to accept location and camera permissions.
