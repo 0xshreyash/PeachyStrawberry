@@ -42,7 +42,7 @@ __Tutor__ Luca Morandini
 * 743413 Jia Hong Fong
 * 715944 Yifei Wang
 * 743053 Jessie Guo
-* 767336 Shereayshjasd
+* 767336 Shreyash Patodia 
 
 Our android application is aptly named **Peachy Strawberry**.
 
@@ -195,6 +195,7 @@ of having the map as the main ui. Here is a look at our map and our search featu
 Friend map:
 
 <img src="readme_pngs/friend-map.png" width=270 height=480/>
+<img src="readme_gifs/search-gif.gif" width=270 height=480/>
 
 
 
