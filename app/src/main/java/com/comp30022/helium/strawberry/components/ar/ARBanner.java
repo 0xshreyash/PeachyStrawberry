@@ -4,6 +4,8 @@ package com.comp30022.helium.strawberry.components.ar;
 import android.annotation.SuppressLint;
 import android.widget.TextView;
 
+import com.comp30022.helium.strawberry.R;
+import com.comp30022.helium.strawberry.StrawberryApplication;
 import com.comp30022.helium.strawberry.helpers.ColourScheme;
 
 public class ARBanner {
@@ -19,7 +21,7 @@ public class ARBanner {
 
     public ARBanner(TextView infoHUD) {
         this.infoHUD = infoHUD;
-        this.infoHUD.setTextColor(ColourScheme.SECONDARY_DARK);
+        this.infoHUD.setTextColor(StrawberryApplication.getInstance().getResources().getColor(R.color.white));
     }
 
     public void display(String string) {

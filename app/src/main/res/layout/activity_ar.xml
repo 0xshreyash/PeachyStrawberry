@@ -12,7 +12,8 @@
         android:id="@+id/info_HUD"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@color/colorPrimaryDark"
+
         android:ems="10"
         android:textAlignment="center"
         android:textSize="18sp"
