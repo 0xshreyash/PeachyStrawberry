@@ -34,7 +34,7 @@ public class CanvasDrawerLogic {
     private static final int NAME_WIDTH_OFFSET = 7;
     // When the user has no profile picture/callback hasn't returned, we render a temporary
     // circle with this radius as replacement for the profile picture
-    private static final int DEFAULT_CIRCLE_RADIUS = 150;
+    private static final int DEFAULT_CIRCLE_RADIUS = 30;
 
 
     // The following offsets are for visual treats, they make the cropped profile picture
@@ -87,7 +87,7 @@ public class CanvasDrawerLogic {
      * @param target ARTrackerBeacon of current rendering target
      */
     public void drawProfilePicture(Canvas canvas, ARTrackerBeacon target) {
-        profilePicture = target.getProfilePicture();
+        profilePicture = null;//target.getProfilePicture();
         if (profilePicture != null) {
             if(target.isActive()) {
                 this.radius = Math.min(profilePicture.getHeight(), profilePicture.getWidth())/2;
@@ -104,7 +104,7 @@ public class CanvasDrawerLogic {
         }
         else {
             circleDrawPath = new Path();
-            radius = DEFAULT_CIRCLE_RADIUS * BORDER_SIZE;
+            radius = DEFAULT_CIRCLE_RADIUS * 3 * BORDER_SIZE;
             if(target.isActive()) {
                 canvas.drawCircle(target.getX(),
                         target.getY(), (float) radius,
@@ -113,7 +113,7 @@ public class CanvasDrawerLogic {
                 circleDrawPath.addCircle(target.getX(),
                         target.getY(), (float) radius,
                         Path.Direction.CW);
-                canvas.drawCircle(target.getX(), target.getY(), DEFAULT_CIRCLE_RADIUS,
+                canvas.drawCircle(target.getX(), target.getY(), (float)(DEFAULT_CIRCLE_RADIUS * 2.5),
                         this.namePaint);
             }
         }
@@ -132,7 +132,7 @@ public class CanvasDrawerLogic {
         }
         else {
             canvas.drawTextOnPath(username, circleDrawPath,
-                    (float) (ANGLE_MULTIPLIER * Math.PI * radius - width / 2), 60, namePaint);
+                    (float) (ANGLE_MULTIPLIER * Math.PI * radius - width / 2), 30, namePaint);
 
         }
 
