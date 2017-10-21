@@ -517,9 +517,6 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.Co
      */
     public void disconnectFromFacebook(View view) {
 
-        if (AccessToken.getCurrentAccessToken() == null) {
-            return; // already logged out
-        }
         Log.i(TAG, "Disconnecting from facebook");
         new AlertDialog.Builder(this)
                 .setMessage("Are you sure you want to exit?")
