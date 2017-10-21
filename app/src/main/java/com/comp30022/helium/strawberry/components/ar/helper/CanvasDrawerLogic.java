@@ -87,7 +87,7 @@ public class CanvasDrawerLogic {
      * @param target ARTrackerBeacon of current rendering target
      */
     public void drawProfilePicture(Canvas canvas, ARTrackerBeacon target) {
-        profilePicture = null;
+        profilePicture = target.getProfilePicture();
         if (profilePicture != null) {
             if(target.isActive()) {
                 this.radius = Math.min(profilePicture.getHeight(), profilePicture.getWidth())/2;
