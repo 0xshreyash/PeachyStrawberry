@@ -21,7 +21,9 @@ public class ARBanner {
 
     public ARBanner(TextView infoHUD) {
         this.infoHUD = infoHUD;
-        this.infoHUD.setTextColor(StrawberryApplication.getInstance().getResources().getColor(R.color.white));
+        if (StrawberryApplication.getInstance() != null) {
+            this.infoHUD.setTextColor(StrawberryApplication.getInstance().getResources().getColor(R.color.white));
+        }
     }
 
     public void display(String string) {
