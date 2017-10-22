@@ -10,7 +10,7 @@ import com.comp30022.helium.strawberry.patterns.Subscriber;
 
 public class MockPeachServerInterface extends PeachServerInterface{
     // Shreyash's information
-    public final static String SAMPLE_FB_TOKEN = "EAAJ5bdPqZCIIBAPKtZBS1ZCsH2Q4mB1adeG8cFBFrZB29TMvZCmxCOEwygknWpS0N7Xesw8Qy9YdLBpZC34iESnRZBTKDBTH6yZAJj5veuLE3p6LUUkZCVKtZCPsH7l54GQPjcZCCwsZAWGMdI512XvBwRyR3CCoZC03AqwdA0STGDtiJoAsZBZArTClA4OsEhTopUOMcwaZC7DBK0gkqprZBK5Lk4ZB8G";
+    public final static String SAMPLE_FB_TOKEN = "EAAJ5bdPqZCIIBAPO77SesRM0t8Ec7llEFdbjTZCwJe1ZAPo4FZAkrdHeZCFiKxE8xMhf0b8ZB4wAdZCyrNib7jZBUzkwChqqnEVoabcN5jaf7xOg7oSENSC7MAwI8piQV40i0UAPbuEdqQjNob89V53WXJhLf2DsBy8ZD";
     public final static String SAMPLE_ID_SELF = "59cf7b3c5a52f46d982b340a";
 
     // Max's id
