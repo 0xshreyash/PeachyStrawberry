@@ -296,7 +296,6 @@ likely/conveniently meet.
 Instead of displaying user profile pictures from Facebook, this allows users to upload their own
 profile picture.
 
-
 ### Appendix
 
 #### Small bubble
